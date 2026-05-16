@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Fundamentals Quiz — SOC Analyst Course</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0e1420;
+  --surface2: #141c2e;
+  --border: #1c2a40;
+  --border2: #243550;
+  --cyan: #00e5ff;
+  --cyan-dim: rgba(0,229,255,0.12);
+  --cyan-glow: rgba(0,229,255,0.25);
+  --violet: #a855f7;
+  --green: #22d3a0;
+  --red: #ff4d6a;
+  --amber: #fbbf24;
+  --text: #dce8f5;
+  --text-mid: #7a95b8;
+  --text-dim: #3d5570;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Barlow', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+  pointer-events:none;
+  z-index:999;
+}
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+.orb1,.orb2{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+.orb1{width:500px;height:500px;top:-120px;left:-160px;background:rgba(0,229,255,0.035);}
+.orb2{width:420px;height:420px;bottom:-80px;right:-120px;background:rgba(168,85,247,0.045);}
+
+.wrap{max-width:800px;margin:0 auto;padding:48px 20px 100px;position:relative;z-index:1;}
+
+/* HEADER */
+.header{margin-bottom:44px;animation:rise 0.65s ease both;}
+.header-top{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.dots{display:flex;gap:5px;}
+.dot{width:9px;height:9px;border-radius:50%;}
+.dot:nth-child(1){background:#ff5f57;}
+.dot:nth-child(2){background:#febc2e;}
+.dot:nth-child(3){background:#28c840;}
+.chip{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;border:1px solid rgba(0,229,255,0.22);padding:3px 12px;border-radius:2px;background:rgba(0,229,255,0.06);}
+.header h1{font-size:clamp(26px,4.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.1;margin-bottom:10px;}
+.header h1 span{background:linear-gradient(90deg,var(--cyan) 0%,var(--violet) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header-meta{font-family:var(--mono);font-size:12px;color:var(--text-mid);display:flex;gap:24px;flex-wrap:wrap;}
+.header-meta span::before{content:'// ';color:var(--text-dim);}
+
+/* PROGRESS */
+.prog-panel{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;gap:20px;animation:rise 0.5s ease 0.15s both;}
+.prog-left{flex:1;}
+.prog-label{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.prog-bg{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:2px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px var(--cyan-glow);}
+.prog-count{font-family:var(--mono);font-weight:700;font-size:20px;color:var(--cyan);white-space:nowrap;}
+
+/* SESSION TAG */
+.stag{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-bottom:14px;display:inline-block;border:1px solid;}
+.s1{color:#00e5ff;border-color:rgba(0,229,255,0.3);background:rgba(0,229,255,0.07);}
+.s2{color:#a855f7;border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.07);}
+.s3{color:#22d3a0;border-color:rgba(34,211,160,0.3);background:rgba(34,211,160,0.07);}
+.s4{color:#fbbf24;border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.07);}
+.s5{color:#f97316;border-color:rgba(249,115,22,0.3);background:rgba(249,115,22,0.07);}
+.s6{color:#ec4899;border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.07);}
+
+/* QUESTION CARD */
+.qcard{display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:30px 30px 24px;animation:rise 0.35s ease both;}
+.qcard.active{display:block;}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;}
+.qtext{font-size:17px;font-weight:700;line-height:1.55;color:var(--text);margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:flex-start;gap:13px;padding:13px 16px;border:1px solid var(--border);border-radius:5px;background:var(--surface2);cursor:pointer;transition:border-color 0.15s,background 0.15s,transform 0.15s;user-select:none;}
+.opt:hover{border-color:var(--border2);transform:translateX(4px);background:rgba(28,42,64,0.8);}
+.oletter{font-family:var(--mono);font-size:11px;font-weight:700;width:22px;height:22px;min-width:22px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);border-radius:3px;color:var(--text-dim);margin-top:1px;transition:all 0.15s;}
+.otext{font-size:14px;line-height:1.55;color:var(--text-mid);padding-top:2px;}
+.opt.selected{border-color:var(--cyan);background:var(--cyan-dim);}
+.opt.selected .oletter{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.15);}
+.opt.selected .otext{color:var(--text);}
+.opt.locked{cursor:default;}
+.opt.locked:hover{transform:none;border-color:var(--border);}
+.opt.locked.selected:hover{border-color:var(--cyan);}
+
+/* ACTIONS */
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+.qprog{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+.btn-next{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:11px 28px;background:linear-gradient(135deg,var(--cyan),#0099bb);color:#060a10;border:none;border-radius:4px;cursor:pointer;transition:all 0.2s;opacity:0.3;pointer-events:none;}
+.btn-next.on{opacity:1;pointer-events:auto;}
+.btn-next.on:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,229,255,0.3);}
+
+/* RESULTS */
+.results{display:none;text-align:center;animation:rise 0.5s ease both;}
+.results.show{display:block;}
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:48px 40px 40px;margin-bottom:20px;}
+.res-icon{font-size:54px;margin-bottom:16px;}
+.res-title{font-size:28px;font-weight:800;margin-bottom:6px;}
+.res-sub{font-family:var(--mono);font-size:12px;color:var(--text-mid);margin-bottom:32px;}
+.big-score{font-family:var(--mono);font-size:80px;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.big-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+.breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;text-align:left;margin-top:24px;}
+.bkitem{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:14px 16px;}
+.bklabel{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.bkval{font-family:var(--mono);font-size:17px;font-weight:700;}
+.btn-retry{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:13px 36px;background:linear-gradient(135deg,var(--cyan),#0099bb);color:#060a10;border:none;border-radius:4px;cursor:pointer;margin-top:28px;transition:all 0.2s;display:inline-block;}
+.btn-retry:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,229,255,0.35);}
+.notice{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:center;margin-top:16px;letter-spacing:1px;}
+
+@keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:520px){
+  .wrap{padding:28px 14px 80px;}
+  .qcard{padding:22px 18px 18px;}
+  .header-meta{gap:12px;}
+  .big-score{font-size:58px;}
+  .res-card{padding:32px 22px;}
+}
+</style>
+</head>
+<body>
+<div class="orb1"></div><div class="orb2"></div>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="chip">SOC Analyst Course · Module 1</div>
+    </div>
+    <h1>Network Fundamentals<br><span>Assessment Quiz</span></h1>
+    <div class="header-meta">
+      <span>30 Questions</span>
+      <span>Sessions 1 – 6</span>
+      <span>Multiple Choice</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-panel">
+    <div class="prog-left">
+      <div class="prog-label">Progress</div>
+      <div class="prog-bg"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+    <div class="prog-count" id="progCount">0 / 30</div>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="res-card">
+      <div class="res-icon" id="resIcon"></div>
+      <div class="res-title" id="resTitle"></div>
+      <div class="res-sub" id="resSub"></div>
+      <div class="big-score" id="bigScore"></div>
+      <div class="big-sub" id="bigSub"></div>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+    <button class="btn-retry" onclick="restart()">↺ &nbsp;Retake Quiz</button>
+    <div class="notice">// Answers and explanations will be reviewed in class</div>
+  </div>
+
+</div>
+<script>
+const Q = [
+  // ── SESSION 1 (5 questions) ──────────────────────────────────────────
+  {s:1,cls:"s1",tag:"Session 1 — Cybersecurity Landscape",
+   q:"Which cybersecurity specialization focuses on monitoring alerts, detecting intrusions, and responding to incidents inside an organization's network?",
+   o:["Red Team / Penetration Testing","Governance, Risk & Compliance (GRC)","SOC / Blue Team","Threat Intelligence"],ans:2},
+
+  {s:1,cls:"s1",tag:"Session 1 — Cybersecurity Landscape",
+   q:"A network that spans a single building or campus and connects devices within a limited geographic area is called a:",
+   o:["WAN (Wide Area Network)","MAN (Metropolitan Area Network)","PAN (Personal Area Network)","LAN (Local Area Network)"],ans:3},
+
+  {s:1,cls:"s1",tag:"Session 1 — Cybersecurity Landscape",
+   q:"In a SOC, the 'Visibility Triad' refers to three key data sources analysts rely on. Which of the following best represents those three sources?",
+   o:["Firewall, IDS, and Proxy","Logs, Network traffic, and Endpoint telemetry","SIEM, SOAR, and Threat Intelligence","Alerts, Tickets, and Reports"],ans:1},
+
+  {s:1,cls:"s1",tag:"Session 1 — Cybersecurity Landscape",
+   q:"The '5-tuple' used to uniquely identify a network flow consists of which five elements?",
+   o:["Source IP, Destination IP, Source Port, Destination Port, Protocol","Source MAC, Destination MAC, Source IP, Destination IP, Protocol","Source IP, Destination IP, Timestamp, Protocol, Payload","Source Port, Destination Port, TTL, Protocol, Checksum"],ans:0},
+
+  {s:1,cls:"s1",tag:"Session 1 — Cybersecurity Landscape",
+   q:"Which network topology connects every device directly to every other device, offering the highest redundancy at the highest cabling cost?",
+   o:["Star","Bus","Ring","Mesh"],ans:3},
+
+  // ── SESSION 2 (6 questions) ──────────────────────────────────────────
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"When data travels DOWN the OSI model from Layer 7 to Layer 1, each layer wraps the data from the layer above with its own header. This process is called:",
+   o:["Decapsulation","Segmentation","Encapsulation","Fragmentation"],ans:2},
+
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"At which OSI layer does a router primarily operate?",
+   o:["Layer 2 — Data Link","Layer 3 — Network","Layer 4 — Transport","Layer 5 — Session"],ans:1},
+
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"A SYN flood attack — which overwhelms a server by sending thousands of connection requests without completing the handshake — exploits which OSI layer?",
+   o:["Layer 2 — Data Link","Layer 3 — Network","Layer 4 — Transport","Layer 7 — Application"],ans:2},
+
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"TLS/SSL encryption (used in HTTPS) operates at which OSI layer?",
+   o:["Layer 4 — Transport","Layer 5 — Session","Layer 6 — Presentation","Layer 7 — Application"],ans:2},
+
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"ARP poisoning — where an attacker sends fake ARP replies to associate their MAC address with a legitimate IP — targets which OSI layer?",
+   o:["Layer 1 — Physical","Layer 2 — Data Link","Layer 3 — Network","Layer 4 — Transport"],ans:1},
+
+  {s:2,cls:"s2",tag:"Session 2 — OSI & TCP/IP Models",
+   q:"The TCP/IP model collapses OSI Layers 5, 6, and 7 into a single layer called:",
+   o:["Transport","Internet","Network Interface","Application"],ans:3},
+
+  // ── SESSION 3 (5 questions) ──────────────────────────────────────────
+  {s:3,cls:"s3",tag:"Session 3 — IP Addressing & Subnetting",
+   q:"Which of the following IP address ranges is defined as private (RFC 1918) and should NOT be routed on the public internet?",
+   o:["8.8.8.8","172.16.0.0 – 172.31.255.255","203.0.113.0","1.1.1.1"],ans:1},
+
+  {s:3,cls:"s3",tag:"Session 3 — IP Addressing & Subnetting",
+   q:"NAT (Network Address Translation) is most commonly used to:",
+   o:["Encrypt traffic between two networks","Allow multiple devices with private IPs to share one public IP","Convert domain names into IP addresses","Assign IP addresses dynamically to devices"],ans:1},
+
+  {s:3,cls:"s3",tag:"Session 3 — IP Addressing & Subnetting",
+   q:"A network is addressed as 192.168.10.0/24. How many usable host IP addresses does this subnet provide?",
+   o:["256","255","254","128"],ans:2},
+
+  {s:3,cls:"s3",tag:"Session 3 — IP Addressing & Subnetting",
+   q:"As a SOC analyst reviewing SIEM alerts, you see outbound traffic from an internal device to IP 10.0.0.45. What can you immediately conclude?",
+   o:["The traffic is malicious — 10.x.x.x addresses are blacklisted","The destination is on the public internet","The destination is another private/internal IP address","The traffic must be encrypted"],ans:2},
+
+  {s:3,cls:"s3",tag:"Session 3 — IP Addressing & Subnetting",
+   q:"IPv6 was developed primarily to solve which limitation of IPv4?",
+   o:["IPv4 had no support for encryption","The IPv4 address space (~4.3 billion addresses) is exhausted","IPv4 was too slow for modern networks","IPv4 could not support wireless connections"],ans:1},
+
+  // ── SESSION 4 (5 questions) ──────────────────────────────────────────
+  {s:4,cls:"s4",tag:"Session 4 — Core Protocols",
+   q:"DNS translates human-readable domain names into IP addresses. What type of DNS record maps a domain name directly to an IPv4 address?",
+   o:["MX record","CNAME record","PTR record","A record"],ans:3},
+
+  {s:4,cls:"s4",tag:"Session 4 — Core Protocols",
+   q:"DHCP uses a four-step process to assign an IP address to a client. What is the correct order?",
+   o:["Discover → Offer → Request → Acknowledge","Offer → Discover → Acknowledge → Request","Request → Discover → Offer → Acknowledge","Discover → Request → Offer → Acknowledge"],ans:0},
+
+  {s:4,cls:"s4",tag:"Session 4 — Core Protocols",
+   q:"A host is making hundreds of DNS queries per minute to an external domain with very long, random-looking subdomain names. This behavior is most consistent with:",
+   o:["Normal web browsing","DNS cache poisoning","DNS tunneling / data exfiltration","A rogue DHCP server"],ans:2},
+
+  {s:4,cls:"s4",tag:"Session 4 — Core Protocols",
+   q:"Which protocol transmits usernames and passwords in plaintext, making it a significant risk that SOC analysts watch for in packet captures?",
+   o:["HTTPS","SFTP","SSH","FTP"],ans:3},
+
+  {s:4,cls:"s4",tag:"Session 4 — Core Protocols",
+   q:"During a TLS handshake (HTTPS), the client verifies the server's identity using:",
+   o:["The server's MAC address","A shared symmetric key pre-installed on the client","A digital certificate signed by a trusted Certificate Authority","The server's public IP address"],ans:2},
+
+  // ── SESSION 5 (5 questions) ──────────────────────────────────────────
+  {s:5,cls:"s5",tag:"Session 5 — TCP/UDP & Communication",
+   q:"In the TCP three-way handshake, what is the correct sequence of messages to establish a connection?",
+   o:["SYN → ACK → SYN-ACK","ACK → SYN → SYN-ACK","SYN → SYN-ACK → ACK","SYN-ACK → SYN → ACK"],ans:2},
+
+  {s:5,cls:"s5",tag:"Session 5 — TCP/UDP & Communication",
+   q:"UDP is preferred over TCP for live video streaming and online gaming because:",
+   o:["UDP guarantees delivery of every packet","UDP establishes a session before sending data","UDP is faster since it has no handshake or delivery guarantees","UDP automatically encrypts all transmitted data"],ans:2},
+
+  {s:5,cls:"s5",tag:"Session 5 — TCP/UDP & Communication",
+   q:"A SOC analyst sees a single source IP sending thousands of SYN packets to a server with no SYN-ACK responses ever completed. This pattern indicates:",
+   o:["A normal file download","A port scan to discover open services","A SYN flood denial-of-service attack","An ARP poisoning attempt"],ans:2},
+
+  {s:5,cls:"s5",tag:"Session 5 — TCP/UDP & Communication",
+   q:"During an Nmap port scan, a port that responds with SYN-ACK is considered:",
+   o:["Closed","Filtered","Open","Rejected"],ans:2},
+
+  {s:5,cls:"s5",tag:"Session 5 — TCP/UDP & Communication",
+   q:"Which field in the IP packet header prevents packets from circulating indefinitely on the internet by decrementing at each router hop?",
+   o:["Checksum","Sequence Number","TTL (Time to Live)","Window Size"],ans:2},
+
+  // ── SESSION 6 (4 questions) ──────────────────────────────────────────
+  {s:6,cls:"s6",tag:"Session 6 — Network Devices & Architecture",
+   q:"A stateful firewall differs from a basic packet-filtering firewall in that it:",
+   o:["Blocks all incoming traffic by default","Tracks active connection state and allows return traffic automatically","Inspects application-layer content such as URLs and file types","Only filters traffic based on MAC addresses"],ans:1},
+
+  {s:6,cls:"s6",tag:"Session 6 — Network Devices & Architecture",
+   q:"What is the primary security purpose of a DMZ (Demilitarized Zone) in network architecture?",
+   o:["To provide a high-speed link between internal servers","To isolate publicly accessible servers from the trusted internal network","To replace the need for firewalls","To store backups of critical internal data"],ans:1},
+
+  {s:6,cls:"s6",tag:"Session 6 — Network Devices & Architecture",
+   q:"In Zero Trust architecture, what is the core principle that differs from traditional security models?",
+   o:["All internal traffic is trusted by default","No device or user is trusted by default — everything must be verified even inside the network","Only external traffic requires authentication","Trust is based on IP address ranges"],ans:1},
+
+  {s:6,cls:"s6",tag:"Session 6 — Network Devices & Architecture",
+   q:"An IDS and an IPS differ in one key way. Which statement is correct?",
+   o:["An IDS blocks malicious traffic; an IPS only alerts","An IDS only detects and alerts; an IPS actively blocks malicious traffic","Both IDS and IPS block traffic automatically","Neither system generates alerts — they only log traffic"],ans:1},
+
+  {s:6,cls:"s6",tag:"Session 6 — Network Devices & Architecture",
+   q:"In SOC monitoring, 'east-west traffic' refers to:",
+   o:["Traffic entering and leaving the organization from the internet","Traffic moving between systems inside the internal network","Traffic on the organization's wireless network only","Encrypted traffic destined for cloud services"],ans:1}
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let answers = new Array(Q.length).fill(null);
+
+// ── BUILD ──────────────────────────────────────────────────────────────────
+function build() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  const L = ['A','B','C','D'];
+  Q.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'qcard' + (i === 0 ? ' active' : '');
+    card.id = 'q' + i;
+    const opts = q.o.map((o, j) => `
+      <div class="opt" id="o_${i}_${j}" onclick="pick(${i},${j})">
+        <div class="oletter">${L[j]}</div>
+        <div class="otext">${o}</div>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="stag ${q.cls}">${q.tag}</div>
+      <div class="qnum">QUESTION ${i+1} OF ${Q.length}</div>
+      <div class="qtext">${q.q}</div>
+      <div class="opts">${opts}</div>
+      <div class="actions">
+        <div class="qprog">${i+1} / ${Q.length}</div>
+        <button class="btn-next" id="btn${i}" onclick="next(${i})">
+          ${i === Q.length-1 ? 'Finish &nbsp;→' : 'Next &nbsp;→'}
+        </button>
+      </div>`;
+    area.appendChild(card);
+  });
+  setProgress(0);
+}
+
+function pick(qi, oi) {
+  if (answers[qi] !== null) return;
+  answers[qi] = oi;
+  for (let j = 0; j < Q[qi].o.length; j++) {
+    const el = document.getElementById(`o_${qi}_${j}`);
+    el.classList.add('locked');
+    el.classList.remove('selected');
+  }
+  document.getElementById(`o_${qi}_${oi}`).classList.add('selected');
+  document.getElementById('btn' + qi).classList.add('on');
+}
+
+function next(qi) {
+  if (answers[qi] === null) return;
+  document.getElementById('q'+qi).classList.remove('active');
+  if (qi + 1 < Q.length) {
+    document.getElementById('q'+(qi+1)).classList.add('active');
+    setProgress(qi + 1);
+    window.scrollTo({top:0,behavior:'smooth'});
+  } else {
+    showResults();
+  }
+}
+
+function setProgress(idx) {
+  const pct = Math.round((idx / Q.length) * 100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progCount').textContent = idx + ' / ' + Q.length;
+}
+
+function showResults() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.querySelector('.prog-panel').style.display = 'none';
+
+  let correct = 0;
+  answers.forEach((a, i) => { if (a === Q[i].ans) correct++; });
+  const pct = Math.round((correct / Q.length) * 100);
+
+  // per-session
+  const ss = {};
+  for (let s = 1; s <= 6; s++) ss[s] = {t:0, c:0};
+  Q.forEach((q, i) => {
+    ss[q.s].t++;
+    if (answers[i] === q.ans) ss[q.s].c++;
+  });
+
+  let icon, title, sub;
+  if (pct >= 90) { icon='🏆'; title='Outstanding!'; sub='You have a strong command of network fundamentals.'; }
+  else if (pct >= 75) { icon='🎯'; title='Well Done!'; sub='Solid understanding — a few areas to revisit.'; }
+  else if (pct >= 60) { icon='📡'; title='Good Effort'; sub='Core concepts are there — keep reinforcing the details.'; }
+  else { icon='📚'; title='Keep Studying'; sub='Review the sessions and try again — you\'ve got this.'; }
+
+  document.getElementById('resIcon').textContent = icon;
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resSub').textContent = sub;
+  document.getElementById('bigScore').textContent = pct + '%';
+  document.getElementById('bigSub').textContent = correct + ' / ' + Q.length + ' correct';
+
+  const colors = {1:'#00e5ff',2:'#a855f7',3:'#22d3a0',4:'#fbbf24',5:'#f97316',6:'#ec4899'};
+  const snames = {1:'Session 1',2:'Session 2',3:'Session 3',4:'Session 4',5:'Session 5',6:'Session 6'};
+  const bk = document.getElementById('breakdown');
+  bk.innerHTML = '';
+  for (let s = 1; s <= 6; s++) {
+    const sp = ss[s].t > 0 ? Math.round((ss[s].c/ss[s].t)*100) : 0;
+    bk.innerHTML += `<div class="bkitem">
+      <div class="bklabel">${snames[s]}</div>
+      <div class="bkval" style="color:${colors[s]}">${ss[s].c}/${ss[s].t} <span style="font-size:12px;color:var(--text-dim)">(${sp}%)</span></div>
+    </div>`;
+  }
+
+  document.getElementById('results').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart() {
+  answers = new Array(Q.length).fill(null);
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quizArea').style.display = 'block';
+  document.querySelector('.prog-panel').style.display = 'flex';
+  build();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+build();
+</script>
+</body>
+</html>
