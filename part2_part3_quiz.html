@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 1 Quiz — Parts 2 & 3: Security Controls · Risk Management & Governance</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #0D2137;
+    --teal:       #1A7A8A;
+    --teal-light: #E6F4F6;
+    --teal-mid:   #C2E4E8;
+    --orange:     #E07B30;
+    --orange-bg:  #FDF3EA;
+    --grey-dark:  #2A2A2A;
+    --grey-mid:   #6B6B6B;
+    --grey-light: #F4F6F8;
+    --grey-line:  #DDE2E8;
+    --green:      #1A7A4A;
+    --green-bg:   #EDF6F1;
+    --red:        #C0392B;
+    --red-bg:     #FDF0EE;
+    --white:      #FFFFFF;
+    --shadow:     0 2px 12px rgba(13,33,55,0.09);
+    --radius:     10px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F0F4F8;
+    color: var(--grey-dark);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header-left { display: flex; flex-direction: column; }
+  .header-module {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--teal-mid);
+    text-transform: uppercase;
+  }
+  .header-title { font-size: 16px; font-weight: 700; color: var(--white); }
+  .header-badge {
+    background: var(--orange);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* ── Main ── */
+  .main { max-width: 880px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* ── Intro card ── */
+  .intro-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    border-left: 5px solid var(--orange);
+  }
+  .intro-card h1 { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+  .intro-card p  { font-size: 14px; color: var(--grey-mid); line-height: 1.7; }
+  .intro-stats { display: flex; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+  .stat-pill {
+    background: var(--grey-light);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--grey-mid);
+    font-weight: 600;
+  }
+  .stat-pill span { color: var(--navy); font-size: 15px; font-weight: 800; display: block; }
+
+  /* ── Section divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 32px 0 20px;
+  }
+  .section-divider-bar {
+    height: 4px;
+    flex: 1;
+    background: var(--grey-line);
+    border-radius: 2px;
+  }
+  .section-divider-label {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .section-divider-label.orange { background: var(--orange); }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label { font-size: 12px; font-weight: 700; color: var(--grey-mid); white-space: nowrap; }
+  .progress-bar-bg {
+    flex: 1; height: 8px;
+    background: var(--grey-light);
+    border-radius: 10px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--orange));
+    border-radius: 10px;
+    width: 0%; transition: width 0.4s ease;
+  }
+  .progress-count { font-size: 12px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+
+  /* ── Question card ── */
+  .q-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .q-card:hover { box-shadow: 0 4px 20px rgba(13,33,55,0.13); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 22px 24px 14px;
+  }
+  .q-num {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tag-prev   { background: #E6F4F6; color: #0F6270; }
+  .tag-det    { background: #E8F0FF; color: #1440A8; }
+  .tag-corr   { background: #F0ECF9; color: #5B3FA0; }
+  .tag-deter  { background: #FFF4E0; color: #9A5C00; }
+  .tag-comp   { background: #FEF0F5; color: #A0145C; }
+  .tag-cat    { background: #E8F5EE; color: #145C30; }
+  .tag-risk   { background: #FDF3EA; color: #8B4513; }
+  .tag-resp   { background: #F0F8FF; color: #1A5276; }
+  .tag-gov    { background: #F5F0FF; color: #4A235A; }
+  .tag-pol    { background: #F0FFF0; color: #1A6B2A; }
+
+  .q-text { font-size: 15px; font-weight: 600; color: var(--navy); line-height: 1.55; flex: 1; }
+
+  .q-options { padding: 2px 24px 16px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 7px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1.5px solid var(--grey-line);
+    background: var(--white);
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .option:hover:not(.locked) { border-color: var(--teal); background: var(--teal-light); }
+  .option-letter {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--grey-light);
+    color: var(--grey-mid);
+    font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option-text { font-size: 13.5px; color: var(--grey-dark); line-height: 1.5; padding-top: 1px; }
+  .option.selected { border-color: var(--teal); background: var(--teal-light); }
+  .option.selected .option-letter { background: var(--teal); color: var(--white); }
+  .option.correct { border-color: var(--green); background: var(--green-bg); }
+  .option.correct .option-letter { background: var(--green); color: var(--white); }
+  .option.wrong   { border-color: var(--red);   background: var(--red-bg);   }
+  .option.wrong   .option-letter { background: var(--red);   color: var(--white); }
+  .option.locked  { cursor: default; }
+
+  .q-footer { padding: 0 24px 20px; display: flex; align-items: center; gap: 14px; }
+  .btn-check {
+    background: var(--teal);
+    color: var(--white);
+    border: none; border-radius: 7px;
+    padding: 10px 22px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.18s, transform 0.12s;
+  }
+  .btn-check:hover:not(:disabled) { background: #155f6e; transform: translateY(-1px); }
+  .btn-check:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .feedback-inline { font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.25s; }
+  .feedback-inline.show { opacity: 1; }
+  .feedback-inline.ok  { color: var(--green); }
+  .feedback-inline.bad { color: var(--red);   }
+
+  /* ── Submit row ── */
+  .submit-row {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 28px;
+    margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .submit-info { font-size: 13px; color: var(--grey-mid); }
+  .submit-info span { font-weight: 700; color: var(--navy); }
+  .btn-submit {
+    background: var(--navy); color: var(--white);
+    border: none; border-radius: 7px;
+    padding: 13px 30px; font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: background 0.18s, transform 0.12s;
+  }
+  .btn-submit:hover:not(:disabled) { background: #1a3a5c; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Score card ── */
+  .score-card {
+    display: none; background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 36px 32px;
+    margin-bottom: 28px; text-align: center;
+    border-top: 5px solid var(--orange);
+  }
+  .score-card.visible { display: block; }
+  .score-big { font-size: 56px; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 6px; }
+  .score-label { font-size: 14px; color: var(--grey-mid); margin-bottom: 20px; }
+  .score-bar-wrap {
+    background: var(--grey-light); border-radius: 10px; height: 12px;
+    max-width: 360px; margin: 0 auto 20px; overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--teal), var(--orange));
+    transition: width 0.8s ease; width: 0;
+  }
+  .score-sections { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .score-section-pill {
+    background: var(--grey-light); border-radius: 8px; padding: 10px 18px;
+    font-size: 12px; color: var(--grey-mid); font-weight: 600; text-align: center;
+  }
+  .score-section-pill span { display: block; font-size: 22px; font-weight: 800; color: var(--navy); }
+  .score-message { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  .score-sub {
+    font-size: 13px; color: var(--grey-mid);
+    max-width: 440px; margin: 0 auto 24px; line-height: 1.6;
+  }
+  .btn-show-answers {
+    background: var(--orange); color: var(--white);
+    border: none; border-radius: 7px;
+    padding: 12px 28px; font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: background 0.18s, transform 0.12s;
+  }
+  .btn-show-answers:hover { background: #c4691e; transform: translateY(-1px); }
+
+  /* ── Answers section ── */
+  .answers-section { display: none; margin-top: 10px; }
+  .answers-section.visible { display: block; }
+  .answers-header {
+    background: var(--navy); border-radius: var(--radius) var(--radius) 0 0;
+    padding: 20px 28px;
+  }
+  .answers-header h2 { color: var(--white); font-size: 17px; font-weight: 800; }
+  .answers-header p  { color: var(--teal-mid); font-size: 13px; margin-top: 3px; }
+
+  .answers-part-label {
+    background: var(--grey-light);
+    padding: 12px 28px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--grey-mid);
+    border-bottom: 1px solid var(--grey-line);
+  }
+  .answers-part-label.p3 { color: #5B3FA0; }
+
+  .answer-item {
+    background: var(--white);
+    border-bottom: 1px solid var(--grey-line);
+    padding: 22px 28px;
+  }
+  .answer-item:last-child { border-bottom: none; border-radius: 0 0 var(--radius) var(--radius); }
+  .answer-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+  .answer-qnum {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    background: var(--grey-light); color: var(--grey-mid);
+    padding: 3px 8px; border-radius: 4px; flex-shrink: 0; margin-top: 3px;
+  }
+  .answer-qtext { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.5; }
+  .correct-answer-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-bg); border: 1.5px solid #9DD4B5;
+    color: var(--green); font-size: 12px; font-weight: 700;
+    padding: 6px 12px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .answer-explanation {
+    font-size: 13.5px; color: var(--grey-dark); line-height: 1.7;
+    background: var(--grey-light);
+    border-left: 3px solid var(--teal);
+    padding: 12px 16px; border-radius: 0 6px 6px 0;
+  }
+  .answer-explanation b { color: var(--navy); }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .main { padding: 20px 14px 50px; }
+    .intro-card, .submit-row, .score-card { padding: 20px 16px; }
+    .q-header { padding: 18px 16px 12px; }
+    .q-options { padding: 2px 16px 14px; }
+    .q-footer  { padding: 0 16px 16px; }
+    .answer-item { padding: 18px 16px; }
+    .answers-header, .answers-part-label { padding: 14px 16px; }
+    .score-big { font-size: 44px; }
+    .header-inner { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <span class="header-module">SOC Analyst Course · Module 3: CompTIA Security+ · Session 1</span>
+      <span class="header-title">Parts 2 &amp; 3 — Security Controls · Risk Management &amp; Governance</span>
+    </div>
+    <span class="header-badge">25 Questions</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="intro-card">
+    <h1>Knowledge Check — Parts 2 &amp; 3</h1>
+    <p>This quiz covers security controls (by function and category), risk fundamentals, risk response strategies, governance frameworks, compliance, and the policy hierarchy. Answer each question and check it immediately. Full explanations are available once you submit.</p>
+    <div class="intro-stats">
+      <div class="stat-pill"><span>25</span>Questions</div>
+      <div class="stat-pill"><span>Part 2</span>Q1 – Q13</div>
+      <div class="stat-pill"><span>Part 3</span>Q14 – Q25</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <span class="progress-label">Progress</span>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 25 answered</span>
+  </div>
+
+  <!-- ══════════════ PART 2 DIVIDER ══════════════ -->
+  <div class="section-divider">
+    <div class="section-divider-bar"></div>
+    <span class="section-divider-label">PART 2 — Security Controls</span>
+    <div class="section-divider-bar"></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q01</span>
+      <span class="q-tag tag-prev">Preventive</span>
+      <p class="q-text">A company enforces MFA on its email platform but not on its VPN or cloud storage. An attacker steals an employee's credentials and logs into the cloud storage directly. Which preventive control principle was violated?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="1" data-val="A"><span class="option-letter">A</span><span class="option-text">Defense in depth — the company only protected one entry point, leaving other privileged pathways unprotected</span></div>
+      <div class="option" data-q="1" data-val="B"><span class="option-letter">B</span><span class="option-text">The 3-2-1 backup rule was not followed</span></div>
+      <div class="option" data-q="1" data-val="C"><span class="option-letter">C</span><span class="option-text">The company should have used SHA-256 hashing instead of MFA</span></div>
+      <div class="option" data-q="1" data-val="D"><span class="option-letter">D</span><span class="option-text">FIM was not deployed on the cloud storage system</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="1" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb1"></span>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q02</span>
+      <span class="q-tag tag-det">Detective</span>
+      <p class="q-text">A SIEM is configured with a rule: "Alert if a user logs in from two different countries within 30 minutes." An analyst receives this alert. What type of control generated it, and what is its primary value?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="2" data-val="A"><span class="option-letter">A</span><span class="option-text">Preventive control — it blocks the impossible travel login automatically</span></div>
+      <div class="option" data-q="2" data-val="B"><span class="option-letter">B</span><span class="option-text">Detective control — it correlates multiple events to surface a pattern that reveals likely credential compromise</span></div>
+      <div class="option" data-q="2" data-val="C"><span class="option-letter">C</span><span class="option-text">Corrective control — it resets the user's password immediately</span></div>
+      <div class="option" data-q="2" data-val="D"><span class="option-letter">D</span><span class="option-text">Deterrent control — it warns the attacker their login was suspicious</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="2" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb2"></span>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q03</span>
+      <span class="q-tag tag-corr">Corrective</span>
+      <p class="q-text">After a ransomware attack, the incident response team restores systems from backups. Two days later, the same ransomware re-infects the restored systems. What critical corrective control step was skipped?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="3" data-val="A"><span class="option-letter">A</span><span class="option-text">The team forgot to send a breach notification to regulators</span></div>
+      <div class="option" data-q="3" data-val="B"><span class="option-letter">B</span><span class="option-text">Systems were restored before patching the vulnerability that allowed the initial attack</span></div>
+      <div class="option" data-q="3" data-val="C"><span class="option-letter">C</span><span class="option-text">The backup media type did not follow the 3-2-1 rule</span></div>
+      <div class="option" data-q="3" data-val="D"><span class="option-letter">D</span><span class="option-text">The SIEM was not updated with new detection rules</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="3" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb3"></span>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q04</span>
+      <span class="q-tag tag-deter">Deterrent</span>
+      <p class="q-text">A company places a visible sign at a server room door reading: "CCTV in operation. Unauthorized access is a criminal offence." An attacker notices this and chooses to target a competitor with no visible security. What type of control is this sign, and what is its key limitation?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="4" data-val="A"><span class="option-letter">A</span><span class="option-text">Preventive — it physically blocks entry to the server room</span></div>
+      <div class="option" data-q="4" data-val="B"><span class="option-letter">B</span><span class="option-text">Detective — it records footage of all who enter</span></div>
+      <div class="option" data-q="4" data-val="C"><span class="option-letter">C</span><span class="option-text">Deterrent — it discourages opportunistic attackers, but a determined attacker will not be stopped by a sign</span></div>
+      <div class="option" data-q="4" data-val="D"><span class="option-letter">D</span><span class="option-text">Corrective — it helps the organization recover evidence after an incident</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="4" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb4"></span>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q05</span>
+      <span class="q-tag tag-comp">Compensating</span>
+      <p class="q-text">A hospital runs a legacy medical device on Windows XP that cannot be patched or replaced for 18 months. The security team must reduce risk. Which combination of compensating controls is most appropriate?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="5" data-val="A"><span class="option-letter">A</span><span class="option-text">Accept the risk and document it — there is nothing that can be done for legacy systems</span></div>
+      <div class="option" data-q="5" data-val="B"><span class="option-letter">B</span><span class="option-text">Isolate the device on a dedicated VLAN with no internet access, restrict inbound connections to only the devices that need it, and deploy enhanced monitoring on that segment</span></div>
+      <div class="option" data-q="5" data-val="C"><span class="option-letter">C</span><span class="option-text">Install antivirus on the XP machine and run weekly vulnerability scans</span></div>
+      <div class="option" data-q="5" data-val="D"><span class="option-letter">D</span><span class="option-text">Require users to change passwords every 30 days when accessing the device</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="5" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb5"></span>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q06</span>
+      <span class="q-tag tag-det">Detective</span>
+      <p class="q-text">An organization's SIEM stops receiving logs from its primary firewall for three weeks due to a misconfiguration. During that period, an attacker exfiltrates data undetected. What fundamental detective control failure caused this?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="6" data-val="A"><span class="option-letter">A</span><span class="option-text">The firewall rules were too permissive</span></div>
+      <div class="option" data-q="6" data-val="B"><span class="option-letter">B</span><span class="option-text">A blind spot in log coverage — the detective control was silent, not absent, creating a false sense of visibility</span></div>
+      <div class="option" data-q="6" data-val="C"><span class="option-letter">C</span><span class="option-text">The SIEM was not configured with enough detection rules</span></div>
+      <div class="option" data-q="6" data-val="D"><span class="option-letter">D</span><span class="option-text">The attacker used encryption, which the SIEM cannot see through</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="6" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb6"></span>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q07</span>
+      <span class="q-tag tag-cat">Category</span>
+      <p class="q-text">A company requires all employees to complete annual cybersecurity training, sign an Acceptable Use Policy, and undergo background checks before hiring. What category of security controls are these?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="7" data-val="A"><span class="option-letter">A</span><span class="option-text">Technical controls</span></div>
+      <div class="option" data-q="7" data-val="B"><span class="option-letter">B</span><span class="option-text">Physical controls</span></div>
+      <div class="option" data-q="7" data-val="C"><span class="option-letter">C</span><span class="option-text">Administrative controls</span></div>
+      <div class="option" data-q="7" data-val="D"><span class="option-letter">D</span><span class="option-text">Deterrent controls</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="7" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb7"></span>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q08</span>
+      <span class="q-tag tag-cat">Category</span>
+      <p class="q-text">An attacker tailgates through a secured door, walks to a conference room, plugs a rogue device into a network port, and begins capturing internal traffic. Which category of controls was the primary failure, and why does it matter?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="8" data-val="A"><span class="option-letter">A</span><span class="option-text">Technical controls — the firewall should have blocked the rogue device</span></div>
+      <div class="option" data-q="8" data-val="B"><span class="option-letter">B</span><span class="option-text">Administrative controls — the AUP did not cover this scenario</span></div>
+      <div class="option" data-q="8" data-val="C"><span class="option-letter">C</span><span class="option-text">Physical controls — the attacker bypassed every network-layer control by gaining physical presence inside the building</span></div>
+      <div class="option" data-q="8" data-val="D"><span class="option-letter">D</span><span class="option-text">Detective controls — the IDS failed to identify the rogue device</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="8" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb8"></span>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q09</span>
+      <span class="q-tag tag-prev">Preventive</span>
+      <p class="q-text">Which statement best describes why security awareness training is classified as a preventive control and why it is considered highly cost-effective?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="9" data-val="A"><span class="option-letter">A</span><span class="option-text">It teaches employees how to use the SIEM, improving detection speed</span></div>
+      <div class="option" data-q="9" data-val="B"><span class="option-letter">B</span><span class="option-text">It reduces the likelihood of the initial access that most attacks depend on, attacking the root cause of 95% of breaches — human error</span></div>
+      <div class="option" data-q="9" data-val="C"><span class="option-letter">C</span><span class="option-text">It helps employees recover data after a ransomware attack</span></div>
+      <div class="option" data-q="9" data-val="D"><span class="option-letter">D</span><span class="option-text">It replaces the need for technical controls like MFA and encryption</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="9" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb9"></span>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q10</span>
+      <span class="q-tag tag-corr">Corrective</span>
+      <p class="q-text">During incident response, the containment phase involves isolating a compromised server from the rest of the network. Why does network segmentation — studied in Module 1 — make this corrective action faster and more effective?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="10" data-val="A"><span class="option-letter">A</span><span class="option-text">Segmentation automatically patches vulnerabilities on the isolated server</span></div>
+      <div class="option" data-q="10" data-val="B"><span class="option-letter">B</span><span class="option-text">In a segmented network, isolating a compromised segment is a configuration change; in a flat network, containment requires tracing and blocking every lateral connection manually</span></div>
+      <div class="option" data-q="10" data-val="C"><span class="option-letter">C</span><span class="option-text">Segmentation removes the need for backups since data is separated by design</span></div>
+      <div class="option" data-q="10" data-val="D"><span class="option-letter">D</span><span class="option-text">Segmentation prevents all ransomware attacks before they begin</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="10" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb10"></span>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q11</span>
+      <span class="q-tag tag-cat">Category</span>
+      <p class="q-text">A security policy states: "All confidential data must be encrypted at rest and in transit." The IT team configures AES-256 encryption on databases and enforces TLS 1.3 on all web traffic. Badge readers restrict access to the server room. Identify the category of each control in order.</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="11" data-val="A"><span class="option-letter">A</span><span class="option-text">All three are technical controls</span></div>
+      <div class="option" data-q="11" data-val="B"><span class="option-letter">B</span><span class="option-text">Policy = administrative; AES-256/TLS = technical; badge reader = physical</span></div>
+      <div class="option" data-q="11" data-val="C"><span class="option-letter">C</span><span class="option-text">Policy = technical; AES-256/TLS = administrative; badge reader = deterrent</span></div>
+      <div class="option" data-q="11" data-val="D"><span class="option-letter">D</span><span class="option-text">Policy = administrative; AES-256/TLS = physical; badge reader = technical</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="11" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb11"></span>
+    </div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q12</span>
+      <span class="q-tag tag-det">Detective</span>
+      <p class="q-text">An IDS generates 50,000 alerts per day. No analyst has the time to review them. An attacker operates undetected for 4 months. What is the core problem with this detective control deployment?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="12" data-val="A"><span class="option-letter">A</span><span class="option-text">The IDS should have been replaced with an IPS to block attacks automatically</span></div>
+      <div class="option" data-q="12" data-val="B"><span class="option-letter">B</span><span class="option-text">A control that generates unreviewed alerts is not a detective control — it is noise. Detection requires both a functioning tool and a human process to act on its output.</span></div>
+      <div class="option" data-q="12" data-val="C"><span class="option-letter">C</span><span class="option-text">The IDS signatures were not updated frequently enough</span></div>
+      <div class="option" data-q="12" data-val="D"><span class="option-letter">D</span><span class="option-text">The company should have used physical controls instead</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="12" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb12"></span>
+    </div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q13</span>
+      <span class="q-tag tag-comp">Compensating</span>
+      <p class="q-text">Which statement about compensating controls is most accurate from an engineering perspective?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="13" data-val="A"><span class="option-letter">A</span><span class="option-text">Compensating controls fully eliminate the risk of an unpatched system</span></div>
+      <div class="option" data-q="13" data-val="B"><span class="option-letter">B</span><span class="option-text">Compensating controls are only valid for systems less than 5 years old</span></div>
+      <div class="option" data-q="13" data-val="C"><span class="option-letter">C</span><span class="option-text">A compensating control that has never been tested is a documented assumption, not a real control — it must be verified under realistic conditions to have genuine value</span></div>
+      <div class="option" data-q="13" data-val="D"><span class="option-letter">D</span><span class="option-text">Compensating controls are only used for physical security, not network security</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="13" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb13"></span>
+    </div>
+  </div>
+
+  <!-- ══════════════ PART 3 DIVIDER ══════════════ -->
+  <div class="section-divider">
+    <div class="section-divider-bar"></div>
+    <span class="section-divider-label orange">PART 3 — Risk Management &amp; Governance</span>
+    <div class="section-divider-bar"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q14</span>
+      <span class="q-tag tag-risk">Risk</span>
+      <p class="q-text">An organization runs a public-facing web application. A known SQL injection vulnerability exists but has not been patched. The application stores customer credit card data. Using Risk = Threat × Vulnerability × Impact — how should this risk be prioritized?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="14" data-val="A"><span class="option-letter">A</span><span class="option-text">Low — SQL injection is a well-known attack and organizations have dealt with it for years</span></div>
+      <div class="option" data-q="14" data-val="B"><span class="option-letter">B</span><span class="option-text">Low — the application has been running without incident for months</span></div>
+      <div class="option" data-q="14" data-val="C"><span class="option-letter">C</span><span class="option-text">High — all three components are elevated: active threat actors target SQL injection, a confirmed unpatched vulnerability exists, and the impact of exposing credit card data is severe</span></div>
+      <div class="option" data-q="14" data-val="D"><span class="option-letter">D</span><span class="option-text">Medium — the vulnerability is known so it can be monitored rather than patched</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="14" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb14"></span>
+    </div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q15</span>
+      <span class="q-tag tag-risk">Risk</span>
+      <p class="q-text">A database server has an AV of $200,000. A ransomware attack would have an Exposure Factor (EF) of 80%. The Annualized Rate of Occurrence (ARO) is 0.5. What is the Annualized Loss Expectancy (ALE)?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="15" data-val="A"><span class="option-letter">A</span><span class="option-text">$80,000</span></div>
+      <div class="option" data-q="15" data-val="B"><span class="option-letter">B</span><span class="option-text">$160,000</span></div>
+      <div class="option" data-q="15" data-val="C"><span class="option-letter">C</span><span class="option-text">$200,000</span></div>
+      <div class="option" data-q="15" data-val="D"><span class="option-letter">D</span><span class="option-text">$100,000</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="15" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb15"></span>
+    </div>
+  </div>
+
+  <!-- Q16 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q16</span>
+      <span class="q-tag tag-risk">Risk</span>
+      <p class="q-text">A security team identifies a vulnerability on an internal development server that has no internet access and stores no sensitive data. An unrelated production server handling customer payments has the same vulnerability. How should the engineer prioritize these?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="16" data-val="A"><span class="option-letter">A</span><span class="option-text">Patch both equally — a vulnerability is a vulnerability regardless of context</span></div>
+      <div class="option" data-q="16" data-val="B"><span class="option-letter">B</span><span class="option-text">Patch the development server first because it was found first</span></div>
+      <div class="option" data-q="16" data-val="C"><span class="option-letter">C</span><span class="option-text">Prioritize the payment server — the combination of accessible attack surface, confirmed vulnerability, and high-value data creates a significantly higher risk than the isolated dev server</span></div>
+      <div class="option" data-q="16" data-val="D"><span class="option-letter">D</span><span class="option-text">Neither needs immediate attention since internal systems are low risk</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="16" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb16"></span>
+    </div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q17</span>
+      <span class="q-tag tag-resp">Risk Response</span>
+      <p class="q-text">A company stores customer payment card data. After risk assessment, the security team recommends stopping storage of card data entirely and using a third-party tokenization service instead. Which risk response strategy is this?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="17" data-val="A"><span class="option-letter">A</span><span class="option-text">Risk mitigation</span></div>
+      <div class="option" data-q="17" data-val="B"><span class="option-letter">B</span><span class="option-text">Risk acceptance</span></div>
+      <div class="option" data-q="17" data-val="C"><span class="option-letter">C</span><span class="option-text">Risk transfer</span></div>
+      <div class="option" data-q="17" data-val="D"><span class="option-letter">D</span><span class="option-text">Risk avoidance</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="17" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb17"></span>
+    </div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q18</span>
+      <span class="q-tag tag-resp">Risk Response</span>
+      <p class="q-text">A vulnerability scanner finds an unpatched server. The security team escalates it. Management reviews the finding and decides: "The cost of patching during business hours exceeds the likelihood of exploitation. We accept this risk." The decision is documented and signed by the CISO. What distinguishes this from negligence?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="18" data-val="A"><span class="option-letter">A</span><span class="option-text">Nothing — accepting any risk is always negligence</span></div>
+      <div class="option" data-q="18" data-val="B"><span class="option-letter">B</span><span class="option-text">It is a deliberate, documented decision made by accountable leadership after evaluating the risk — that is governance, not negligence</span></div>
+      <div class="option" data-q="18" data-val="C"><span class="option-letter">C</span><span class="option-text">The CISO should not be involved in patching decisions</span></div>
+      <div class="option" data-q="18" data-val="D"><span class="option-letter">D</span><span class="option-text">Acceptance is only valid if the system is more than 3 years old</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="18" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb18"></span>
+    </div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q19</span>
+      <span class="q-tag tag-resp">Risk Response</span>
+      <p class="q-text">An organization purchases cyber insurance to cover breach-related costs. Two months later, they suffer a breach and the insurance pays for forensics and legal fees. However, the same vulnerability is still present and another breach occurs. What does this illustrate about risk transfer?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="19" data-val="A"><span class="option-letter">A</span><span class="option-text">Cyber insurance is ineffective and should be avoided</span></div>
+      <div class="option" data-q="19" data-val="B"><span class="option-letter">B</span><span class="option-text">Risk transfer shifts financial cost but does not reduce the likelihood or impact of the incident — the underlying vulnerability must still be addressed</span></div>
+      <div class="option" data-q="19" data-val="C"><span class="option-letter">C</span><span class="option-text">The insurance company should have patched the vulnerability as part of the claim process</span></div>
+      <div class="option" data-q="19" data-val="D"><span class="option-letter">D</span><span class="option-text">This means risk transfer and risk mitigation are equivalent strategies</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="19" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb19"></span>
+    </div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q20</span>
+      <span class="q-tag tag-gov">Governance</span>
+      <p class="q-text">A SOC analyst maps their daily work to the NIST Cybersecurity Framework. Investigating a SIEM alert about lateral movement belongs to which two NIST functions?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="20" data-val="A"><span class="option-letter">A</span><span class="option-text">Identify and Protect</span></div>
+      <div class="option" data-q="20" data-val="B"><span class="option-letter">B</span><span class="option-text">Protect and Recover</span></div>
+      <div class="option" data-q="20" data-val="C"><span class="option-letter">C</span><span class="option-text">Detect and Respond</span></div>
+      <div class="option" data-q="20" data-val="D"><span class="option-letter">D</span><span class="option-text">Identify and Recover</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="20" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb20"></span>
+    </div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q21</span>
+      <span class="q-tag tag-gov">Governance</span>
+      <p class="q-text">A European enterprise wants formal, internationally recognized, third-party certified assurance of its information security management system. Which framework requires certification through a formal audit?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="21" data-val="A"><span class="option-letter">A</span><span class="option-text">NIST Cybersecurity Framework</span></div>
+      <div class="option" data-q="21" data-val="B"><span class="option-letter">B</span><span class="option-text">CIS Controls</span></div>
+      <div class="option" data-q="21" data-val="C"><span class="option-letter">C</span><span class="option-text">ISO 27001</span></div>
+      <div class="option" data-q="21" data-val="D"><span class="option-letter">D</span><span class="option-text">PCI DSS</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="21" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb21"></span>
+    </div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q22</span>
+      <span class="q-tag tag-gov">Governance</span>
+      <p class="q-text">Target was PCI DSS compliant in September 2013 and suffered a major breach months later. Equifax was PCI-DSS compliant before the 2017 breach. What is the most accurate conclusion from these cases?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="22" data-val="A"><span class="option-letter">A</span><span class="option-text">PCI DSS is a flawed standard that should be abandoned</span></div>
+      <div class="option" data-q="22" data-val="B"><span class="option-letter">B</span><span class="option-text">Compliance defines a minimum baseline — it does not guarantee security. Real security requires continuous monitoring, threat intelligence, and controls beyond what any standard mandates.</span></div>
+      <div class="option" data-q="22" data-val="C"><span class="option-letter">C</span><span class="option-text">Both organizations were not actually compliant — the audits were fraudulent</span></div>
+      <div class="option" data-q="22" data-val="D"><span class="option-letter">D</span><span class="option-text">Compliance is sufficient for organizations processing fewer than 1 million transactions per year</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="22" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb22"></span>
+    </div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q23</span>
+      <span class="q-tag tag-pol">Policy Hierarchy</span>
+      <p class="q-text">An organization's Information Security Policy states: "All sensitive data must be protected during transmission." The IT Standards document specifies: "TLS 1.2 or higher must be used for all web traffic." Where does the specific algorithm requirement belong in the policy hierarchy, and why?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="23" data-val="A"><span class="option-letter">A</span><span class="option-text">The algorithm belongs in the Policy — it makes the policy more specific and enforceable</span></div>
+      <div class="option" data-q="23" data-val="B"><span class="option-letter">B</span><span class="option-text">The algorithm belongs in the Standard — standards translate policy intent into specific, mandatory technical requirements that can be updated when the landscape changes without rewriting the policy</span></div>
+      <div class="option" data-q="23" data-val="C"><span class="option-letter">C</span><span class="option-text">The algorithm belongs in a Guideline — it is only a recommendation</span></div>
+      <div class="option" data-q="23" data-val="D"><span class="option-letter">D</span><span class="option-text">The algorithm belongs in a Procedure — it is a step-by-step technical instruction</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="23" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb23"></span>
+    </div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q24</span>
+      <span class="q-tag tag-pol">Policy Hierarchy</span>
+      <p class="q-text">A Level 1 SOC analyst follows a runbook that says: "If a brute-force alert fires, block the source IP, reset the target account password, and escalate to L2." This runbook is an example of which layer in the security documentation hierarchy?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="24" data-val="A"><span class="option-letter">A</span><span class="option-text">A Policy — it sets a high-level requirement for incident response</span></div>
+      <div class="option" data-q="24" data-val="B"><span class="option-letter">B</span><span class="option-text">A Standard — it defines the minimum acceptable response to brute-force attacks</span></div>
+      <div class="option" data-q="24" data-val="C"><span class="option-letter">C</span><span class="option-text">A Procedure — it provides specific, step-by-step instructions for a defined scenario that implement the policy and standard</span></div>
+      <div class="option" data-q="24" data-val="D"><span class="option-letter">D</span><span class="option-text">A Guideline — following it is optional if the analyst judges the situation differently</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="24" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb24"></span>
+    </div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card">
+    <div class="q-header">
+      <span class="q-num">Q25</span>
+      <span class="q-tag tag-risk">Risk</span>
+      <p class="q-text">A shadow IT situation is discovered: a marketing team has been storing customer data in a personal Dropbox account for six months because it was more convenient. From a risk management perspective, what is the primary problem this creates?</p>
+    </div>
+    <div class="q-options">
+      <div class="option" data-q="25" data-val="A"><span class="option-letter">A</span><span class="option-text">Dropbox uses encryption, so there is no real security risk</span></div>
+      <div class="option" data-q="25" data-val="B"><span class="option-letter">B</span><span class="option-text">The data asset is outside the organization's visibility, cannot be protected by its controls, and may have already been breached without the organization knowing — you cannot protect what you have not inventoried</span></div>
+      <div class="option" data-q="25" data-val="C"><span class="option-letter">C</span><span class="option-text">The marketing team needs better training on how to use Dropbox securely</span></div>
+      <div class="option" data-q="25" data-val="D"><span class="option-letter">D</span><span class="option-text">This is an availability risk — if Dropbox goes offline, the data will be inaccessible</span></div>
+    </div>
+    <div class="q-footer">
+      <button class="btn-check" data-q="25" disabled>Check Answer</button>
+      <span class="feedback-inline" id="fb25"></span>
+    </div>
+  </div>
+
+  <!-- Submit row -->
+  <div class="submit-row" id="submitRow">
+    <div class="submit-info">Answered: <span id="answeredCount">0</span> / 25 questions</div>
+    <button class="btn-submit" id="btnSubmit" disabled>Submit Quiz</button>
+  </div>
+
+  <!-- Score card -->
+  <div class="score-card" id="scoreCard">
+    <div class="score-big" id="scoreBig">0/25</div>
+    <div class="score-label" id="scoreLabel">Questions correct</div>
+    <div class="score-bar-wrap"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+    <div class="score-sections">
+      <div class="score-section-pill"><span id="scorePart2">—</span>Part 2 Score (Q1–Q13)</div>
+      <div class="score-section-pill"><span id="scorePart3">—</span>Part 3 Score (Q14–Q25)</div>
+    </div>
+    <div class="score-message" id="scoreMessage"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <button class="btn-show-answers" id="btnShowAnswers">View All Answers &amp; Explanations ↓</button>
+  </div>
+
+  <!-- Answers section -->
+  <div class="answers-section" id="answersSection">
+    <div class="answers-header">
+      <h2>Answers &amp; Explanations</h2>
+      <p>Read every explanation — understanding why the correct answer is right and why the others are wrong is the real learning.</p>
+    </div>
+
+    <div class="answers-part-label">PART 2 — Security Controls &nbsp;(Q01 – Q13)</div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q01</span><span class="answer-qtext">MFA on email only — attacker logs into cloud storage with stolen credentials.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: A — Defense in depth violated</div>
+      <div class="answer-explanation">
+        <b>Defense in depth</b> requires layering controls across all access points, not just the most obvious one. MFA on email is good, but an attacker who steals credentials will simply try every other system where MFA is absent. Every privileged pathway — VPN, cloud storage, backup console, admin portals — needs the same preventive controls. Attackers specifically look for the unprotected path. This is why real-world deployments must audit all access vectors, not just the primary login portal.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q02</span><span class="answer-qtext">SIEM rule fires: login from two countries within 30 minutes.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Detective control correlating multiple events</div>
+      <div class="answer-explanation">
+        The SIEM rule is a <b>detective control</b> — it does not block the login, it identifies that something suspicious has occurred. Its value is correlation: a single login from a foreign IP might be noise, but two logins from different countries within 30 minutes is an impossible travel pattern that strongly suggests credential compromise. This is the engineer's insight: individual events are often ambiguous; it is the combination of events that reveals malicious intent. The SIEM's job is to connect those dots faster than a human reviewer could manually.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q03</span><span class="answer-qtext">Ransomware reinfects systems two days after restoration from backup.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Systems restored before patching the original vulnerability</div>
+      <div class="answer-explanation">
+        This is one of the most common and costly mistakes in incident response. Restoring from backup returns the system to a working state — but if the vulnerability that allowed the initial attack is still present, the attacker can simply exploit it again within hours. The correct sequence is: contain and isolate first, then eradicate the threat and patch the vulnerability, then restore from clean backups, then verify the restored environment is clean before reconnecting. Skipping the patch step guarantees reinfection.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q04</span><span class="answer-qtext">"CCTV in operation" sign causes attacker to target a less-protected competitor.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Deterrent control; ineffective against determined attackers</div>
+      <div class="answer-explanation">
+        The sign worked in this scenario — it deterred an opportunistic attacker who chose an easier target. That is exactly what <b>deterrent controls</b> are designed to do: raise the perceived cost or risk of an attack. The limitation is equally important: nation-state actors, organized criminal groups, and targeted attackers have already accepted the legal and operational risks involved. A sign will not stop someone who has decided the target is worth the risk. Deterrent controls are most effective against low-sophistication, opportunistic threats.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q05</span><span class="answer-qtext">Legacy medical device on Windows XP — cannot be patched or replaced for 18 months.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — VLAN isolation, restricted connections, enhanced monitoring</div>
+      <div class="answer-explanation">
+        This is the classic <b>compensating controls</b> scenario. The ideal control — patching — is unavailable. The engineer's job is not to declare the situation unacceptable and walk away; it is to reduce risk to an acceptable level through alternative measures. VLAN isolation limits lateral movement if the device is compromised. Restricting inbound connections to only authorized devices reduces the attack surface. Enhanced monitoring on that segment ensures any anomalous activity is detected quickly. Password rotation alone (Option D) does nothing about the unpatched OS vulnerability.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q06</span><span class="answer-qtext">SIEM stops receiving firewall logs for 3 weeks — attacker goes undetected.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Blind spot in log coverage</div>
+      <div class="answer-explanation">
+        A <b>SIEM that is not receiving logs is not detecting anything</b> — but it may appear to be working normally from the dashboard. This is one of the most dangerous failure modes because it creates a false sense of security. The organization believed its detective control was functioning when it had a critical blind spot. Log source health monitoring — verifying that every source is actively sending data and that the data volume is within expected ranges — is part of an analyst's ongoing operational responsibility. A rule that references a dead log source is not a detection; it is an open gap.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q07</span><span class="answer-qtext">Annual security training, AUP signing, and background checks.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Administrative controls</div>
+      <div class="answer-explanation">
+        <b>Administrative controls</b> (also called managerial controls) govern how people behave and how processes are executed. They do not involve hardware, software, or physical barriers — they involve policy, procedure, and human governance. Training changes what employees know and do. The AUP defines expectations and provides a legal basis for enforcement. Background checks reduce insider threat risk before a person enters the environment. All three operate through organizational process and human behavior, which is the defining characteristic of the administrative category.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q08</span><span class="answer-qtext">Attacker tailgates through door, plugs rogue device into conference room network port.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Physical controls failure</div>
+      <div class="answer-explanation">
+        Once an attacker has <b>physical presence inside the building</b>, they bypass every network-layer control ever configured. The firewall cannot stop a device that is already connected on the inside of the network. The IDS may eventually detect suspicious traffic, but the initial access was physical. Mantraps, tailgating detection, visitor sign-in procedures, security guard presence, and port security (disabling unused network ports) are all physical and administrative controls that would have prevented or detected this attack. Students who only think in technical controls will configure excellent firewalls and watch attackers walk right past them.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q09</span><span class="answer-qtext">Why is security awareness training a cost-effective preventive control?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Attacks the root cause of 95% of breaches: human error</div>
+      <div class="answer-explanation">
+        IBM Security research consistently finds that <b>human error is involved in approximately 95% of breaches</b> — phishing clicks, weak passwords, mishandled data, shadow IT decisions. If humans are the root cause of most incidents, then changing human behavior through training is a direct attack on the root cause. Training is cost-effective because the investment is relatively low (compared to technical controls) and the coverage is broad — every trained employee is a potential line of defense against phishing, social engineering, and credential misuse. It does not replace technical controls; it complements them.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q10</span><span class="answer-qtext">Why does network segmentation make incident response containment faster?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Segmented networks allow isolation by configuration change</div>
+      <div class="answer-explanation">
+        In a <b>segmented network</b>, each segment is logically isolated by design. Quarantining a compromised segment means adjusting firewall rules or VLAN configuration — a fast, targeted action. In a <b>flat network</b> where every device can reach every other device, containment requires tracing every potential lateral connection the attacker could use, blocking them individually, and hoping nothing is missed. This is slow, error-prone under pressure, and often incomplete. This is the direct connection between what students learned in Module 1 (network design) and what they will practice in Module 6 (incident response) — good architecture makes security operations easier.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q11</span><span class="answer-qtext">Identify the category of: policy, AES-256/TLS, badge reader.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Administrative / Technical / Physical</div>
+      <div class="answer-explanation">
+        The <b>policy</b> is an administrative control — it governs expected behavior through an organizational rule. <b>AES-256 and TLS</b> are technical controls — they are implemented in hardware and software and enforce the policy automatically. The <b>badge reader</b> is a physical control — it restricts access through a tangible barrier in the real world. This question illustrates how all three categories can be in place protecting the same asset simultaneously, each addressing a different attack surface. A mature security program integrates all three.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q12</span><span class="answer-qtext">IDS generates 50,000 unreviewed alerts per day — attacker undetected for 4 months.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Unreviewed alerts are noise, not detection</div>
+      <div class="answer-explanation">
+        A detective control has two components: <b>the tool that generates the signal</b> and <b>the human process that acts on it</b>. An IDS that fires 50,000 alerts per day with no analyst capacity to review them provides zero real detection capability — it just creates the appearance of security. This is called <b>alert fatigue</b>, and it is one of the most common failure modes in security programs. The solution is not simply more tools — it is tuning detection rules to reduce noise, prioritizing high-fidelity alerts, and ensuring analyst capacity matches alert volume. Detection is a system, not just software.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q13</span><span class="answer-qtext">Most accurate statement about compensating controls from an engineering perspective.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Untested compensating controls are documented assumptions, not real controls</div>
+      <div class="answer-explanation">
+        This is the engineering discipline that separates competent professionals from those who just check boxes. A compensating control that looks good on paper but has never been verified under realistic conditions provides only the illusion of security. If the VLAN isolation has a misconfigured ACL that allows traffic you assumed was blocked, the compensating control is not working — and you will only discover this when an attacker exploits the gap. Regular testing — penetration testing, firewall rule audits, simulated lateral movement — is what transforms documented compensating controls into verified security posture.
+      </div>
+    </div>
+
+    <div class="answers-part-label p3">PART 3 — Risk Management &amp; Governance &nbsp;(Q14 – Q25)</div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q14</span><span class="answer-qtext">SQL injection vulnerability on public app storing credit card data — prioritization.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — High risk; all three components are elevated</div>
+      <div class="answer-explanation">
+        Risk = Threat × Vulnerability × Impact. <b>Threat</b>: SQL injection is actively and widely exploited — threat actors have automated tools for it. <b>Vulnerability</b>: confirmed, unpatched, and publicly accessible. <b>Impact</b>: credit card data exposure triggers PCI DSS penalties, breach notification costs, fraud liability, and reputational damage. All three components are at maximum. "It hasn't been exploited yet" is not a risk assessment — it is hope. The absence of a known incident does not reduce the risk of a future one. This combination demands immediate remediation.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q15</span><span class="answer-qtext">AV = $200,000 · EF = 80% · ARO = 0.5 → ALE = ?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: A — $80,000</div>
+      <div class="answer-explanation">
+        The calculation: <b>SLE = AV × EF</b> = $200,000 × 0.80 = $160,000. <b>ALE = SLE × ARO</b> = $160,000 × 0.5 = <b>$80,000</b>. The ARO of 0.5 means the event is expected once every two years — so the annual expected loss is half of the single-event loss. This $80,000 ALE is now the rational ceiling for annual spending on controls to prevent this incident. Spending $120,000 per year to prevent an $80,000 annual loss is not financially rational. This is how quantitative risk assessment drives proportionate security investment decisions.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q16</span><span class="answer-qtext">Same vulnerability on isolated dev server vs. payment server — how to prioritize.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Prioritize the payment server</div>
+      <div class="answer-explanation">
+        The same CVE on two different systems does not represent equal risk. Risk = Threat × Vulnerability × Impact. Both servers have the same <b>vulnerability</b>. But the payment server has a much higher <b>threat</b> exposure (internet-accessible, actively targeted by attackers) and much higher <b>impact</b> (payment card data, regulatory penalties). The dev server is isolated with no sensitive data — low threat exposure, low impact. This is asset-driven prioritization: knowing which assets matter most is what allows you to invest remediation effort where it reduces the most risk. Treating all vulnerabilities equally is how teams get overwhelmed and miss what matters.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q17</span><span class="answer-qtext">Stop storing card data entirely — use tokenization service instead.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: D — Risk avoidance</div>
+      <div class="answer-explanation">
+        <b>Risk avoidance</b> means eliminating the activity that creates the risk. If the company no longer stores payment card data — because the data flows directly to a tokenization provider and never touches company systems — the risk of a card data breach is avoided entirely. This is more complete than mitigation (which would mean keeping the data but adding controls around it). It is different from transfer (which would mean keeping the risk but shifting the financial cost to an insurer). Avoidance is appropriate when the residual risk after mitigation is still unacceptably high, and when the activity is not essential to the core business mission.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q18</span><span class="answer-qtext">CISO formally documents acceptance of patch risk after evaluation.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Deliberate, documented, accountable decision = governance</div>
+      <div class="answer-explanation">
+        The difference between negligence and governance is <b>process and accountability</b>. Negligence is not patching because no one got around to it — no evaluation, no documentation, no accountability. Governance is evaluating the risk, comparing it against the cost and disruption of mitigation, making a deliberate decision, documenting the rationale, and having an accountable leader sign off. The CISO's signature creates a formal record that the risk was consciously accepted rather than overlooked. For analysts, this distinction matters: a vulnerability scanner finding against a system with a documented risk acceptance is a known accepted risk — escalating it generates noise. One without documentation requires immediate escalation.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q19</span><span class="answer-qtext">Cyber insurance pays after breach, but same vulnerability causes second breach.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Transfer shifts cost, not likelihood or impact</div>
+      <div class="answer-explanation">
+        <b>Risk transfer</b> is a financial mechanism, not a security mechanism. Cyber insurance pays the bill after an incident occurs — it does not make the incident less likely to occur, and it does not reduce the damage to systems, data, or customers. The underlying vulnerability remained after the first breach because no one patched it. Buying insurance and doing nothing else is one of the most dangerous postures an organization can adopt, because it creates financial comfort while leaving the actual risk completely intact. Transfer works best as a complement to mitigation — covering residual risk after controls have reduced likelihood and impact as much as practical.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q20</span><span class="answer-qtext">SOC analyst investigates SIEM alert about lateral movement — which NIST functions?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — Detect and Respond</div>
+      <div class="answer-explanation">
+        The <b>Detect</b> function covers capabilities to identify when an incident occurs — SIEM alerts are the primary output of this function. The <b>Respond</b> function covers taking action once a detection fires — investigation, analysis, containment, and eradication. Both apply simultaneously during active incident investigation. Identify covers asset inventory and risk assessment (done before incidents). Protect covers preventive safeguards. Recover covers restoration after the incident is resolved. Mapping daily analyst work to NIST functions is a useful mental model for understanding where each activity fits in the overall security lifecycle.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q21</span><span class="answer-qtext">European enterprise wants formal, third-party certified ISMS assurance.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — ISO 27001</div>
+      <div class="answer-explanation">
+        <b>ISO 27001</b> is the only option listed that requires a formal two-stage audit by an accredited third party leading to certification. NIST CSF is a flexible risk framework with no certification process. CIS Controls are a prioritized control baseline with no certification. PCI DSS is a compliance standard specific to payment card data, not a general ISMS certification. ISO 27001 provides internationally recognized, third-party verified evidence of a mature information security management system — which is specifically what European customers and partners often require in vendor contracts and procurement processes.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q22</span><span class="answer-qtext">Target and Equifax: compliant but breached. What does this conclude?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Compliance is a minimum baseline, not a security guarantee</div>
+      <div class="answer-explanation">
+        The pattern across Target, Equifax, Capital One, and SolarWinds is consistent: <b>compliance defines the minimum floor, not the security ceiling</b>. PCI DSS covers payment card processing systems — it said nothing about the HVAC vendor network (Target) or the unpatched Apache Struts server on a non-payment system (Equifax). Standards are written to establish baselines, not to guarantee security. A mature security program meets every compliance obligation as a starting point, then adds continuous monitoring, threat intelligence, red team exercises, and controls proportional to actual risk — not just to auditor checklists. Compliance is a legal and regulatory requirement. Security is what actually protects the organization.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q23</span><span class="answer-qtext">Where does "TLS 1.2 or higher" belong in the policy hierarchy?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — In the Standard</div>
+      <div class="answer-explanation">
+        <b>Standards</b> translate policy intent into specific, mandatory technical requirements. The policy says "protect data in transit" — that is the what and the why. The standard says "use TLS 1.2 or higher" — that is the specific, mandatory how. Putting "TLS 1.2" directly in the policy would be a mistake because when TLS 1.2 is eventually deprecated (as TLS 1.0 and 1.1 already have been), the entire policy document would need to be rewritten and re-approved by leadership. Keeping it in the standard means a targeted, faster update process that does not disturb the stable policy layer above it.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q24</span><span class="answer-qtext">L1 analyst runbook: block IP, reset password, escalate to L2 — which hierarchy level?</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: C — A Procedure</div>
+      <div class="answer-explanation">
+        A <b>procedure</b> provides specific, step-by-step instructions for performing a defined task or responding to a defined scenario. The runbook tells the analyst exactly what to do, in what order, with no ambiguity — that is the procedural layer. It sits under a standard that defines minimum incident response capabilities, which sits under a policy that requires the organization to be able to detect and respond to incidents. Understanding this hierarchy means understanding that when a runbook does not match the incident in front of you — when the procedure breaks down — the correct response is not to improvise silently but to escalate to a higher tier and flag the gap for the procedure to be updated.
+      </div>
+    </div>
+
+    <div class="answer-item">
+      <div class="answer-top"><span class="answer-qnum">Q25</span><span class="answer-qtext">Marketing team storing customer data in personal Dropbox for 6 months — primary risk problem.</span></div>
+      <div class="correct-answer-badge">✓ Correct Answer: B — Asset outside visibility; cannot be protected or monitored</div>
+      <div class="answer-explanation">
+        This is the <b>shadow IT</b> problem, and it directly violates the most fundamental principle of risk management: <b>you cannot protect what you have not inventoried</b>. The data is outside the organization's DLP controls, outside its access management, outside its SIEM coverage, and outside its backup and recovery processes. If Dropbox was breached or the employee's account was compromised, the organization would not know customer data was involved. The data may have already been exposed. Encryption by Dropbox (Option A) does not address the fact that the organization has no visibility, no control, and no audit trail for data it does not know exists in that location.
+      </div>
+    </div>
+
+  </div><!-- end answers-section -->
+
+</main>
+
+<script>
+  const TOTAL = 25;
+  const CORRECT = {
+    1:'A', 2:'B', 3:'B', 4:'C', 5:'B',
+    6:'B', 7:'C', 8:'C', 9:'B', 10:'B',
+    11:'B', 12:'B', 13:'C', 14:'C', 15:'A',
+    16:'C', 17:'D', 18:'B', 19:'B', 20:'C',
+    21:'C', 22:'B', 23:'B', 24:'C', 25:'B'
+  };
+
+  const selected = {};
+  const checked  = {};
+  let submitted  = false;
+
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const q = +opt.dataset.q;
+      if (checked[q] || submitted) return;
+      document.querySelectorAll(`.option[data-q="${q}"]`).forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selected[q] = opt.dataset.val;
+      document.querySelector(`.btn-check[data-q="${q}"]`).disabled = false;
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll('.btn-check').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = +btn.dataset.q;
+      if (checked[q]) return;
+      checked[q] = true;
+      btn.disabled = true;
+      const userVal = selected[q];
+      const correctVal = CORRECT[q];
+      const fb = document.getElementById(`fb${q}`);
+      document.querySelectorAll(`.option[data-q="${q}"]`).forEach(opt => {
+        opt.classList.add('locked');
+        if (opt.dataset.val === correctVal) opt.classList.add('correct');
+        else if (opt.dataset.val === userVal && userVal !== correctVal) opt.classList.add('wrong');
+      });
+      if (userVal === correctVal) {
+        fb.textContent = '✓ Correct!';
+        fb.className = 'feedback-inline show ok';
+      } else {
+        fb.textContent = `✗ The correct answer is ${correctVal}.`;
+        fb.className = 'feedback-inline show bad';
+      }
+      updateProgress();
+      updateSubmitBtn();
+    });
+  });
+
+  function updateProgress() {
+    const ans = Object.keys(selected).length;
+    document.getElementById('progressCount').textContent = `${ans} / ${TOTAL} answered`;
+    document.getElementById('progressFill').style.width = `${(ans / TOTAL) * 100}%`;
+    document.getElementById('answeredCount').textContent = ans;
+  }
+
+  function updateSubmitBtn() {
+    document.getElementById('btnSubmit').disabled = Object.keys(selected).length < TOTAL;
+  }
+
+  document.getElementById('btnSubmit').addEventListener('click', () => {
+    if (submitted) return;
+    submitted = true;
+    document.getElementById('btnSubmit').disabled = true;
+
+    for (let q = 1; q <= TOTAL; q++) {
+      if (!checked[q] && selected[q]) {
+        document.querySelector(`.btn-check[data-q="${q}"]`).click();
+      }
+    }
+
+    let total = 0, p2 = 0, p3 = 0;
+    for (let q = 1; q <= 13; q++)  { if (selected[q] === CORRECT[q]) { total++; p2++; } }
+    for (let q = 14; q <= 25; q++) { if (selected[q] === CORRECT[q]) { total++; p3++; } }
+
+    const pct = Math.round((total / TOTAL) * 100);
+    document.getElementById('scoreBig').textContent   = `${total}/${TOTAL}`;
+    document.getElementById('scoreLabel').textContent = `Questions correct — ${pct}%`;
+    document.getElementById('scorePart2').textContent = `${p2}/13`;
+    document.getElementById('scorePart3').textContent = `${p3}/12`;
+
+    let msg, sub;
+    if (pct === 100) {
+      msg = 'Perfect score. Outstanding work.';
+      sub = 'You have mastered the controls framework, risk management, and governance concepts. You are ready for Session 2.';
+    } else if (pct >= 80) {
+      msg = 'Strong result. Core concepts are solid.';
+      sub = 'Review the explanations for the questions you missed, check which part needs more attention, then move forward.';
+    } else if (pct >= 60) {
+      msg = 'Good foundation — some areas to reinforce.';
+      sub = 'Read all explanations carefully. Pay attention to whether your weaker area is Part 2 (controls) or Part 3 (risk and governance) and re-read those sections.';
+    } else {
+      msg = 'Keep going — these concepts take time to absorb.';
+      sub = 'Read every explanation below carefully, then return to the session notes for both parts before retaking. The risk management and controls framework is foundational to everything ahead.';
+    }
+
+    document.getElementById('scoreMessage').textContent = msg;
+    document.getElementById('scoreSub').textContent     = sub;
+
+    const sc = document.getElementById('scoreCard');
+    sc.classList.add('visible');
+    setTimeout(() => { document.getElementById('scoreBarFill').style.width = pct + '%'; }, 100);
+    sc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('btnShowAnswers').addEventListener('click', () => {
+    const as = document.getElementById('answersSection');
+    as.classList.add('visible');
+    setTimeout(() => as.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  });
+</script>
+</body>
+</html>
