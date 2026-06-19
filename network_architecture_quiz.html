@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Architecture & Segmentation — Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent-glow: rgba(88,166,255,0.15);
+    --correct: #3fb950;
+    --correct-bg: rgba(63,185,80,0.1);
+    --wrong: #f85149;
+    --wrong-bg: rgba(248,81,73,0.1);
+    --warn: #d29922;
+    --warn-bg: rgba(210,153,34,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .header-left h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+
+  .progress-container { display: flex; align-items: center; gap: 16px; }
+
+  .progress-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .progress-bar-wrap {
+    width: 160px; height: 4px;
+    background: var(--border);
+    border-radius: 2px; overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  .main { max-width: 760px; margin: 0 auto; padding: 48px 24px 0; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 36px; margin-bottom: 24px;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .question-card.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+
+  .q-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 3px 10px; border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .q-section {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 17px; font-weight: 500;
+    line-height: 1.6; color: var(--text);
+    margin-bottom: 28px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left; width: 100%;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .option:disabled { cursor: default; }
+
+  .option-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-dim);
+    background: var(--border);
+    border-radius: 3px; padding: 2px 7px;
+    flex-shrink: 0; margin-top: 1px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .option-text { font-size: 15px; line-height: 1.5; color: var(--text); }
+
+  .option.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .option.correct .option-key { background: var(--correct); color: #000; }
+  .option.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+  .option.wrong .option-key { background: var(--wrong); color: #fff; }
+  .option.dimmed { opacity: 0.4; }
+
+  .feedback {
+    display: none; margin-top: 20px;
+    padding: 16px 20px; border-radius: 6px;
+    font-size: 14px; line-height: 1.6;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.2s ease; }
+
+  .feedback.correct-fb {
+    background: var(--correct-bg);
+    border: 1px solid rgba(63,185,80,0.3);
+  }
+
+  .feedback.wrong-fb {
+    background: var(--wrong-bg);
+    border: 1px solid rgba(248,81,73,0.3);
+  }
+
+  .feedback-icon {
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 6px; display: block;
+  }
+
+  .feedback.correct-fb .feedback-icon { color: var(--correct); }
+  .feedback.wrong-fb .feedback-icon { color: var(--wrong); }
+
+  .nav { display: flex; justify-content: flex-end; margin-top: 24px; }
+
+  .btn-next {
+    display: none;
+    background: var(--accent); color: #000;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    padding: 10px 28px; border: none;
+    border-radius: 6px; cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-next:hover { opacity: 0.85; }
+  .btn-next.show { display: inline-block; }
+
+  #scorecard {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 48px 40px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+  }
+
+  #scorecard.show { display: block; }
+
+  .score-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.15em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+
+  .score-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 72px; font-weight: 600;
+    line-height: 1; margin-bottom: 8px;
+  }
+
+  .score-number.excellent { color: var(--correct); }
+  .score-number.good { color: var(--warn); }
+  .score-number.needs-work { color: var(--wrong); }
+
+  .score-sub { font-size: 15px; color: var(--text-dim); margin-bottom: 40px; }
+
+  .section-breakdown {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+    margin-bottom: 36px; text-align: left;
+  }
+
+  .breakdown-header {
+    padding: 14px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; color: var(--text-dim);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breakdown-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-name { font-size: 14px; color: var(--text); }
+
+  .breakdown-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 600;
+  }
+
+  .breakdown-score.full { color: var(--correct); }
+  .breakdown-score.partial { color: var(--warn); }
+  .breakdown-score.low { color: var(--wrong); }
+
+  .btn-restart {
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    padding: 10px 32px; border-radius: 6px;
+    cursor: pointer; transition: background 0.15s;
+  }
+
+  .btn-restart:hover { background: var(--accent-glow); }
+
+  .terminal-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-dim);
+    margin-bottom: 32px; opacity: 0.5;
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .question-card { padding: 24px 20px; }
+    .score-number { font-size: 56px; }
+    #scorecard { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="label">Module 3 · Security Architecture · Part 1</div>
+    <h1>Network Architecture & Segmentation</h1>
+  </div>
+  <div class="progress-container">
+    <span class="progress-text" id="progressText">1 / 25</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:4%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <p class="terminal-line">// Answer each question — immediate feedback on every choice</p>
+  <div id="quizContainer"></div>
+
+  <div id="scorecard">
+    <div class="score-label">Session Complete</div>
+    <div class="score-number" id="scoreNumber"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="section-breakdown">
+      <div class="breakdown-header">Score by Section</div>
+      <div id="breakdownRows"></div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+
+  // ── SECTION 1: Secure by Design (Q1-3) ──────────────────────────────
+  {
+    section: "Secure by Design",
+    text: "A company builds their entire network first, gets everything working, then purchases a firewall and places it at the edge. This is an example of:",
+    options: [
+      "Secure by design — adding security at every stage",
+      "Defense-in-depth — layering controls across the environment",
+      "Bolting security on — adding security as an afterthought after the system is built",
+      "Zero Trust — verifying every connection at the perimeter"
+    ],
+    correct: 2,
+    explanation: "Bolting security on means the network was designed without security in mind and controls were added afterward. The result is a system where security is retrofitted rather than structural — like cutting a vault into an already-built bank. It's always more expensive and less effective than designing security in from the start."
+  },
+  {
+    section: "Secure by Design",
+    text: "Which of the following best describes 'secure by design'?",
+    options: [
+      "Buying the most expensive security products available",
+      "Security is a property of the system itself, baked into every architectural decision from day one",
+      "Adding a firewall and antivirus to every machine before deployment",
+      "Hiring a security team after the network is operational"
+    ],
+    correct: 1,
+    explanation: "Secure by design means every architectural decision — where servers live, who can reach what, what the default access policy is — is made with security as a requirement, not an addition. The question 'is this secure?' is asked during design, not after deployment."
+  },
+  {
+    section: "Secure by Design",
+    text: "As a SOC analyst, you join an organization and notice the firewall has 400 rules, monitoring tools can't see 30% of the network, and alerts constantly fire from systems that were never supposed to communicate. What does this tell you?",
+    options: [
+      "The organization has excellent security coverage",
+      "The organization has a bolted-on security architecture — controls were added reactively over time without a coherent design",
+      "The firewall needs to be replaced immediately",
+      "The monitoring tools are misconfigured and need tuning"
+    ],
+    correct: 1,
+    explanation: "400 unexplained firewall rules, blind spots in monitoring, and alerts from unexpected system communications are all symptoms of a bolted-on architecture. Security was added reactively over years — each new incident prompted a new control, never a redesign. Recognizing this pattern is a critical SOC analyst diagnostic skill."
+  },
+
+  // ── SECTION 2: Defense-in-Depth (Q4-8) ──────────────────────────────
+  {
+    section: "Defense-in-Depth",
+    text: "Defense-in-depth is best described as:",
+    options: [
+      "Placing a strong firewall at the network perimeter to block all attacks",
+      "Multiple independent security layers so that if one fails, others still protect the asset",
+      "Encrypting all data at rest and in transit",
+      "Using both IDS and IPS simultaneously on the same network segment"
+    ],
+    correct: 1,
+    explanation: "Defense-in-depth means no single layer is trusted to hold alone. Each layer is independent — if the perimeter firewall is bypassed, network segmentation limits movement; if that fails, host controls detect the intrusion; if that fails, data encryption protects the asset. An attacker must defeat every layer. You only need one to catch them."
+  },
+  {
+    section: "Defense-in-Depth",
+    text: "A badge-access door, a CCTV camera, and a locked server rack all belong to which layer of defense-in-depth?",
+    options: [
+      "Administrative controls",
+      "Network controls",
+      "Physical controls",
+      "Perimeter controls"
+    ],
+    correct: 2,
+    explanation: "Physical controls protect the tangible environment — locks, badge readers, cameras, biometric access, and secure server rooms. If someone walks in and unplugs a server, no software security control can stop them. Physical is always the first layer because it underlies everything else."
+  },
+  {
+    section: "Defense-in-Depth",
+    text: "A company policy requires that two engineers must approve any firewall rule change, and no engineer can approve their own request. This belongs to which layer?",
+    options: [
+      "Technical controls",
+      "Physical controls",
+      "Perimeter controls",
+      "Administrative controls"
+    ],
+    correct: 3,
+    explanation: "Administrative controls are policies, procedures, and processes that govern how people behave. Change management procedures, dual approval requirements, acceptable use policies, and security awareness training are all administrative controls. They don't block attackers directly — they reduce the risk of insider error or abuse."
+  },
+  {
+    section: "Defense-in-Depth",
+    text: "A SOC analyst sees alerts firing from the firewall, EDR on a workstation, and the database audit log — all pointing to the same source IP within a 10-minute window. What does this indicate?",
+    options: [
+      "Three separate, unrelated incidents happening simultaneously",
+      "A false positive — too many alerts from one source is usually noise",
+      "An attacker moving through multiple defense layers — correlated alerts across layers indicate active intrusion",
+      "The monitoring system is misconfigured and generating duplicate alerts"
+    ],
+    correct: 2,
+    explanation: "Correlated alerts across multiple defense layers from the same source in a short window is one of the clearest attack signatures you will see. The attacker hit the perimeter (firewall alert), landed on an endpoint (EDR alert), and attempted database access (audit log). Defense-in-depth didn't just limit the attack — it made it visible."
+  },
+  {
+    section: "Defense-in-Depth",
+    text: "Input validation on a web form, a Web Application Firewall, and secure coding practices all belong to which defense-in-depth layer?",
+    options: [
+      "Network controls",
+      "Host controls",
+      "Application controls",
+      "Data controls"
+    ],
+    correct: 2,
+    explanation: "Application controls protect at the software layer — input validation prevents injection attacks, WAFs filter malicious HTTP requests, and secure coding removes vulnerabilities at the source. These controls exist because network and host controls cannot see inside application logic."
+  },
+
+  // ── SECTION 3: Network Segmentation & Blast Radius (Q9-13) ──────────
+  {
+    section: "Network Segmentation & Blast Radius",
+    text: "What is a 'blast radius' in network security?",
+    options: [
+      "The range of an explosive device used in physical security testing",
+      "The maximum distance a wireless signal can travel",
+      "The scope of damage and access an attacker gains if a specific system is compromised",
+      "The number of firewall rules that fail during a DDoS attack"
+    ],
+    correct: 2,
+    explanation: "Blast radius is borrowed from explosives — the area of destruction around a detonation point. In security, it answers: if this system is compromised, what can the attacker reach from there? Reducing blast radius through segmentation is the primary purpose of network zoning — limiting what one compromised system can affect."
+  },
+  {
+    section: "Network Segmentation & Blast Radius",
+    text: "TechCorp has one flat network — all 300 employees, all servers, and all public-facing systems on the same switch. An attacker compromises the web server. What is the blast radius?",
+    options: [
+      "Only the web server — the attacker is contained to the compromised machine",
+      "The web server and DMZ only",
+      "The entire network — every device is reachable from the compromised web server",
+      "Only public-facing systems"
+    ],
+    correct: 2,
+    explanation: "In a flat network with no segmentation, the blast radius of any compromised device is the entire network. The web server can reach the database, every employee laptop, the admin machines — everything. This is why flat networks are the attacker's best friend and the SOC analyst's worst nightmare."
+  },
+  {
+    section: "Network Segmentation & Blast Radius",
+    text: "After segmenting TechCorp's network, the web server is placed in the DMZ with no direct path to the internal network. What happens to the blast radius if the web server is now compromised?",
+    options: [
+      "Nothing changes — the attacker can still reach the database through the DMZ",
+      "The blast radius shrinks to the DMZ only — the attacker is contained in the buffer zone",
+      "The blast radius expands because the DMZ is more exposed",
+      "The web server can no longer be compromised once it is in the DMZ"
+    ],
+    correct: 1,
+    explanation: "Segmentation dramatically reduces blast radius. A compromised web server in a properly configured DMZ means the attacker is in a walled garden — they can reach the internet and attempt to cross the internal firewall, but they have no direct path to internal systems. The difference between 'entire company' and 'one box' is the value of segmentation."
+  },
+  {
+    section: "Network Segmentation & Blast Radius",
+    text: "In the 2013 Target breach, attackers entered through an HVAC vendor's credentials. What network security failure made the breach catastrophic?",
+    options: [
+      "The firewall at the perimeter was not updated",
+      "The HVAC vendor used a weak password",
+      "Target's flat network had no segmentation between vendor access systems and POS terminals — the HVAC network could directly reach the payment systems",
+      "Target did not have antivirus on their POS terminals"
+    ],
+    correct: 2,
+    explanation: "The HVAC vendor had legitimate access to building management systems. But Target's flat network meant those systems were on the same segment as Point of Sale terminals. Attackers moved laterally from HVAC to POS with no barrier. If the network had been segmented, HVAC access would have been completely isolated from payment systems — 40 million cards would not have been stolen."
+  },
+  {
+    section: "Network Segmentation & Blast Radius",
+    text: "Why does network segmentation make a SOC analyst's job easier?",
+    options: [
+      "It reduces the total number of alerts generated",
+      "It allows analysts to define what normal inter-zone traffic looks like and alert on anything that deviates — making anomalies detectable",
+      "It eliminates the need for endpoint monitoring",
+      "It prevents attackers from entering the network entirely"
+    ],
+    correct: 1,
+    explanation: "In a flat network, everything can talk to everything — there is no baseline for 'normal.' In a segmented network, you can define exactly what traffic should cross each boundary. Database servers should only receive queries from the app layer on port 3306. Any other traffic is anomalous. You can write that alert. Segmentation doesn't just limit attackers — it makes them visible."
+  },
+
+  // ── SECTION 4: DMZ Architecture (Q14-17) ────────────────────────────
+  {
+    section: "DMZ Architecture",
+    text: "What is the purpose of a DMZ in network architecture?",
+    options: [
+      "To provide a high-speed connection between internal servers",
+      "To act as a buffer zone between the internet and the internal network, hosting services that must be publicly accessible without exposing internal systems",
+      "To store backup data in a location separate from the main network",
+      "To isolate employee devices from server infrastructure"
+    ],
+    correct: 1,
+    explanation: "The DMZ — Demilitarized Zone — is the buffer between untrusted external networks and trusted internal networks. It hosts services that external users legitimately need to reach (web servers, mail servers, reverse proxies) while ensuring those services have no direct path into the internal network. Compromise of the DMZ does not equal compromise of the internal network."
+  },
+  {
+    section: "DMZ Architecture",
+    text: "Which of the following devices should NOT be placed in the DMZ?",
+    options: [
+      "Web server serving public-facing content",
+      "Mail server receiving external email",
+      "Reverse proxy filtering external requests",
+      "Database server storing customer records"
+    ],
+    correct: 3,
+    explanation: "The database server belongs in the internal Server Zone, not the DMZ. It should never be directly reachable from the internet. The web server in the DMZ queries the database through a tightly controlled firewall rule — one port, one protocol. The database itself must never be in a zone that faces external traffic."
+  },
+  {
+    section: "DMZ Architecture",
+    text: "A properly architected DMZ uses two firewalls. What is the security benefit of this design?",
+    options: [
+      "It doubles the throughput capacity of the network",
+      "If the external firewall is compromised, the attacker lands in the DMZ — not the internal network. They must defeat a second firewall to go further.",
+      "It allows both inbound and outbound traffic to be filtered simultaneously",
+      "It eliminates the need for IDS/IPS inside the internal network"
+    ],
+    correct: 1,
+    explanation: "Two-firewall DMZ design creates defense-in-depth at the boundary. External firewall between internet and DMZ. Internal firewall between DMZ and internal network. An attacker who defeats the external firewall is in the DMZ — a controlled buffer zone — not inside the corporate network. This buys detection time and limits damage."
+  },
+  {
+    section: "DMZ Architecture",
+    text: "A reverse proxy sits in the DMZ in front of the web server. What security function does it serve?",
+    options: [
+      "It stores cached web content to speed up page loads",
+      "External users talk to the proxy, which inspects requests, strips malicious content, and forwards only clean traffic — hiding the internal architecture from the outside world",
+      "It provides redundancy if the web server goes offline",
+      "It encrypts all traffic between the DMZ and the internal network"
+    ],
+    correct: 1,
+    explanation: "The reverse proxy is the gatekeeper of the DMZ. It sits between external users and internal servers — users never communicate directly with backend systems. The proxy inspects every request, blocks malicious patterns, and re-originates clean traffic. External users never see internal IP addresses, server software versions, or architecture details."
+  },
+
+  // ── SECTION 5: VLANs & VLAN Hopping (Q18-20) ────────────────────────
+  {
+    section: "VLANs & VLAN Hopping",
+    text: "What does a VLAN accomplish on a network?",
+    options: [
+      "It increases the speed of traffic between devices on the same switch",
+      "It creates logical isolation between groups of devices on the same physical switch — traffic in one VLAN cannot see traffic in another",
+      "It encrypts all traffic passing through the switch",
+      "It allows devices to communicate across different physical locations"
+    ],
+    correct: 1,
+    explanation: "A VLAN — Virtual Local Area Network — divides one physical switch into multiple isolated logical networks. Devices in VLAN 10 cannot see or communicate with devices in VLAN 20, even if they share the same physical cable. This is how network segmentation is enforced at Layer 2 without requiring separate physical switches for each zone."
+  },
+  {
+    section: "VLANs & VLAN Hopping",
+    text: "An attacker sends a frame with two VLAN tags. The first switch strips the outer tag and forwards it as native VLAN traffic. The second switch reads the inner tag and delivers the packet to a different VLAN the attacker was never authorized to access. What attack is this?",
+    options: [
+      "ARP spoofing",
+      "MAC flooding",
+      "VLAN hopping via double tagging",
+      "Port scanning"
+    ],
+    correct: 2,
+    explanation: "Double tagging is the most common VLAN hopping technique. It exploits native VLAN misconfiguration on trunk ports — the attacker's frame rides the native VLAN through the first switch, then the inner tag delivers it to the target VLAN on the second switch. The attacker crosses a zone boundary without going through any router, firewall, or access control."
+  },
+  {
+    section: "VLANs & VLAN Hopping",
+    text: "What is the correct defense against VLAN hopping via double tagging?",
+    options: [
+      "Disable all trunk ports on the switch",
+      "Use the native VLAN for all user traffic to simplify configuration",
+      "Never use native VLAN for user traffic — explicitly tag all trunk traffic so double-tagged frames have no native VLAN to exploit",
+      "Install an IPS on every switch port"
+    ],
+    correct: 2,
+    explanation: "VLAN hopping via double tagging only works when the native VLAN is used for user traffic. The fix: reassign the native VLAN to an unused VLAN ID, explicitly tag all legitimate trunk traffic, and ensure no user devices are assigned to the native VLAN. Simple configuration change, catastrophic if missed."
+  },
+
+  // ── SECTION 6: Switch Security (Q21-25) ─────────────────────────────
+  {
+    section: "Switch Security",
+    text: "TechCorp has 300 employees and 500 switch ports. An attacker walks into the office, finds an empty desk, and plugs in their laptop. What is the FIRST switch security control that should prevent them from getting network access?",
+    options: [
+      "MAC address filtering",
+      "Administrative port shutdown — unused ports should be disabled by default",
+      "VLAN assignment",
+      "EAP authentication"
+    ],
+    correct: 1,
+    explanation: "Administrative disable is the simplest and first line of defense. Every unused switch port should be administratively shut down. A device plugged into a disabled port gets nothing — no IP, no VLAN, no network access. If any of TechCorp's 200 dark ports suddenly show activity, that is itself an alert."
+  },
+  {
+    section: "Switch Security",
+    text: "A SOC analyst receives an alert: the same MAC address has appeared on two different switch ports simultaneously. What does this indicate?",
+    options: [
+      "A device was moved from one port to another normally",
+      "A network loop caused the MAC address to appear in two places",
+      "MAC address spoofing — an attacker is cloning a trusted device's identity to impersonate it on the network",
+      "The switch's MAC address table is full and is flooding traffic"
+    ],
+    correct: 2,
+    explanation: "A MAC address appearing on two ports simultaneously is physically impossible with legitimate devices — a single NIC can only be in one place. Duplicate MAC detection alerts indicate an attacker is spoofing a trusted device's MAC address to impersonate it, bypass MAC-based filters, or gain unauthorized VLAN access. Low volume, high fidelity — always investigate."
+  },
+  {
+    section: "Switch Security",
+    text: "In 802.1X port-based NAC, what are the three roles involved in the authentication process?",
+    options: [
+      "Client, Server, Router",
+      "Supplicant (device), Authenticator (switch port), Authentication Server (RADIUS)",
+      "User, Administrator, Firewall",
+      "Endpoint, Gateway, Domain Controller"
+    ],
+    correct: 1,
+    explanation: "802.1X defines three roles: the Supplicant is the device trying to connect, the Authenticator is the switch port it plugs into (which keeps the port locked until authentication succeeds), and the Authentication Server (RADIUS) is the central system that verifies the identity and tells the switch to allow or deny access. The switch is just the enforcer — RADIUS makes the decision."
+  },
+  {
+    section: "Switch Security",
+    text: "At 3am, your SIEM shows a surge of RADIUS Access-Reject events across 15 different switch ports over 5 minutes. What is the most likely explanation?",
+    options: [
+      "The RADIUS server is misconfigured and rejecting all legitimate users",
+      "Employees are working late and forgot their credentials",
+      "An attacker or unauthorized device is attempting network access across multiple ports — reconnaissance or an access attempt",
+      "The network is undergoing scheduled maintenance"
+    ],
+    correct: 2,
+    explanation: "Multiple RADIUS failures across many ports in a short window at 3am is a high-confidence unauthorized access indicator. Legitimate users fail authentication occasionally — not systematically across 15 ports in 5 minutes at 3am. RADIUS logs are one of your cleanest alert signals because every attempt is logged with timestamp, port, MAC address, and identity."
+  },
+  {
+    section: "Switch Security",
+    text: "Split knowledge and dual control are applied to TechCorp's Admin Zone. An admin operation that requires two people is performed — but your SIEM only shows one authentication event and one session for that operation. What should you conclude?",
+    options: [
+      "The second engineer authenticated through a different system not captured by the SIEM",
+      "The dual control policy was bypassed — one person performed an operation that required two, which is a security control violation requiring immediate investigation",
+      "The SIEM is dropping authentication events due to high log volume",
+      "Dual control only applies to physical operations, not digital ones"
+    ],
+    correct: 1,
+    explanation: "If dual control is required and only one authentication event appears, the control was bypassed. This is an insider threat indicator — whether intentional abuse, social engineering of the process, or technical bypass. It warrants immediate investigation regardless of who the authenticated user is. Dual control violations are high-priority alerts."
+  }
+];
+
+const sections = [
+  "Secure by Design",
+  "Defense-in-Depth",
+  "Network Segmentation & Blast Radius",
+  "DMZ Architecture",
+  "VLANs & VLAN Hopping",
+  "Switch Security"
+];
+
+let currentQ = 0;
+let score = 0;
+let sectionScores = {};
+let sectionTotals = {};
+
+sections.forEach(s => { sectionScores[s] = 0; sectionTotals[s] = 0; });
+questions.forEach(q => sectionTotals[q.section]++);
+
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card' + (i === 0 ? ' active' : '');
+    card.id = 'q' + i;
+
+    const keys = ['A','B','C','D'];
+    const optionsHTML = q.options.map((opt, j) => `
+      <button class="option" onclick="selectAnswer(${i}, ${j})" id="opt-${i}-${j}">
+        <span class="option-key">${keys[j]}</span>
+        <span class="option-text">${opt}</span>
+      </button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-number">Q${i+1}</span>
+        <span class="q-section">${q.section}</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${optionsHTML}</div>
+      <div class="feedback" id="fb-${i}">
+        <span class="feedback-icon" id="fb-icon-${i}"></span>
+        <span id="fb-text-${i}"></span>
+      </div>
+      <div class="nav">
+        <button class="btn-next" id="next-${i}" onclick="nextQuestion(${i})">
+          ${i === questions.length - 1 ? 'See Results →' : 'Next Question →'}
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function selectAnswer(qIndex, optIndex) {
+  if (document.getElementById(`opt-${qIndex}-0`).disabled) return;
+
+  const q = questions[qIndex];
+  const isCorrect = optIndex === q.correct;
+
+  q.options.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${qIndex}-${j}`);
+    btn.disabled = true;
+    if (j === q.correct) btn.classList.add('correct');
+    else if (j === optIndex && !isCorrect) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+
+  if (isCorrect) { score++; sectionScores[q.section]++; }
+
+  const fb = document.getElementById(`fb-${qIndex}`);
+  const fbIcon = document.getElementById(`fb-icon-${qIndex}`);
+  const fbText = document.getElementById(`fb-text-${qIndex}`);
+
+  fb.classList.add('show');
+  if (isCorrect) {
+    fb.classList.add('correct-fb');
+    fbIcon.textContent = '✓ Correct';
+  } else {
+    fb.classList.add('wrong-fb');
+    fbIcon.textContent = '✗ Incorrect — correct answer: ' + ['A','B','C','D'][q.correct];
+  }
+  fbText.textContent = q.explanation;
+  document.getElementById(`next-${qIndex}`).classList.add('show');
+}
+
+function nextQuestion(current) {
+  document.getElementById('q' + current).classList.remove('active');
+  currentQ = current + 1;
+  if (currentQ >= questions.length) {
+    showScorecard();
+  } else {
+    document.getElementById('q' + currentQ).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  const done = currentQ + 1;
+  const total = questions.length;
+  document.getElementById('progressText').textContent = done + ' / ' + total;
+  document.getElementById('progressFill').style.width = ((done / total) * 100) + '%';
+}
+
+function showScorecard() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('progressText').textContent = questions.length + ' / ' + questions.length;
+  document.getElementById('progressFill').style.width = '100%';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const num = document.getElementById('scoreNumber');
+  const sub = document.getElementById('scoreSub');
+
+  num.textContent = pct + '%';
+  if (pct >= 85) {
+    num.className = 'score-number excellent';
+    sub.textContent = score + ' / ' + questions.length + ' correct — strong command of network architecture and segmentation';
+  } else if (pct >= 65) {
+    num.className = 'score-number good';
+    sub.textContent = score + ' / ' + questions.length + ' correct — review the sections marked below';
+  } else {
+    num.className = 'score-number needs-work';
+    sub.textContent = score + ' / ' + questions.length + ' correct — revisit the content before moving on';
+  }
+
+  const rows = document.getElementById('breakdownRows');
+  rows.innerHTML = '';
+  sections.forEach(s => {
+    const got = sectionScores[s];
+    const total = sectionTotals[s];
+    const ratio = got / total;
+    const cls = ratio >= 0.8 ? 'full' : ratio >= 0.5 ? 'partial' : 'low';
+    rows.innerHTML += `
+      <div class="breakdown-row">
+        <span class="breakdown-name">${s}</span>
+        <span class="breakdown-score ${cls}">${got} / ${total}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById('scorecard').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  score = 0;
+  currentQ = 0;
+  sections.forEach(s => { sectionScores[s] = 0; });
+  document.getElementById('scorecard').classList.remove('show');
+  document.getElementById('quizContainer').style.display = 'block';
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
