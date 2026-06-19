@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Security Models — Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --accent-glow: rgba(88,166,255,0.15);
+    --correct: #3fb950;
+    --correct-bg: rgba(63,185,80,0.1);
+    --wrong: #f85149;
+    --wrong-bg: rgba(248,81,73,0.1);
+    --warn: #d29922;
+    --warn-bg: rgba(210,153,34,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .header-left h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .progress-bar-wrap {
+    width: 160px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 0;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 36px;
+    margin-bottom: 24px;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .question-card.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .q-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .q-section {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 28px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .option:disabled { cursor: default; }
+
+  .option-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--border);
+    border-radius: 3px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .option-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* STATES */
+  .option.correct {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option.correct .option-key {
+    background: var(--correct);
+    color: #000;
+  }
+
+  .option.wrong {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option.wrong .option-key {
+    background: var(--wrong);
+    color: #fff;
+  }
+
+  .option.dimmed { opacity: 0.4; }
+
+  /* FEEDBACK */
+  .feedback {
+    display: none;
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.2s ease; }
+
+  .feedback.correct-fb {
+    background: var(--correct-bg);
+    border: 1px solid rgba(63,185,80,0.3);
+  }
+
+  .feedback.wrong-fb {
+    background: var(--wrong-bg);
+    border: 1px solid rgba(248,81,73,0.3);
+  }
+
+  .feedback-icon {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .feedback.correct-fb .feedback-icon { color: var(--correct); }
+  .feedback.wrong-fb .feedback-icon { color: var(--wrong); }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  .btn-next {
+    display: none;
+    background: var(--accent);
+    color: #000;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-next:hover { opacity: 0.85; }
+  .btn-next.show { display: inline-block; }
+
+  /* SCORECARD */
+  #scorecard {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 48px 40px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+  }
+
+  #scorecard.show { display: block; }
+
+  .score-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .score-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 72px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .score-number.excellent { color: var(--correct); }
+  .score-number.good { color: var(--warn); }
+  .score-number.needs-work { color: var(--wrong); }
+
+  .score-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+  }
+
+  .section-breakdown {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    text-align: left;
+  }
+
+  .breakdown-header {
+    padding: 14px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .breakdown-row:last-child { border-bottom: none; }
+
+  .breakdown-name {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .breakdown-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .breakdown-score.full { color: var(--correct); }
+  .breakdown-score.partial { color: var(--warn); }
+  .breakdown-score.low { color: var(--wrong); }
+
+  .btn-restart {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-restart:hover { background: var(--accent-glow); }
+
+  /* TERMINAL LINE decorative */
+  .terminal-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .question-card { padding: 24px 20px; }
+    .score-number { font-size: 56px; }
+    #scorecard { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="label">Module 3 · Security Architecture</div>
+    <h1>Cloud Security Models</h1>
+  </div>
+  <div class="progress-container">
+    <span class="progress-text" id="progressText">1 / 20</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:5%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <p class="terminal-line">// Answer each question — immediate feedback on every choice</p>
+
+  <!-- QUESTIONS INJECTED BY JS -->
+  <div id="quizContainer"></div>
+
+  <!-- SCORECARD -->
+  <div id="scorecard">
+    <div class="score-label">Session Complete</div>
+    <div class="score-number" id="scoreNumber"></div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="section-breakdown">
+      <div class="breakdown-header">Score by Section</div>
+      <div id="breakdownRows"></div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // SECTION 1: Cloud Fundamentals (Q1-3)
+  {
+    section: "Cloud Fundamentals",
+    text: "Which of the following best defines cloud computing from a security analyst's perspective?",
+    options: [
+      "Storing files on a remote hard drive owned by a third party",
+      "On-demand delivery of computing resources over the internet, managed by a provider under a shared responsibility model",
+      "A network of physical servers located in a data center you don't own",
+      "Software that runs on the internet instead of your local machine"
+    ],
+    correct: 1,
+    explanation: "Cloud computing involves on-demand resources delivered over the internet — and the key security concept is shared responsibility. The provider manages some layers; you manage others. Understanding that split is what makes cloud security different from on-prem."
+  },
+  {
+    section: "Cloud Fundamentals",
+    text: "TechCorp uses AWS to host its web application. The servers, storage hardware, and physical data center are managed by AWS. TechCorp configures the operating systems and applications. What cloud service model is this?",
+    options: [
+      "SaaS",
+      "PaaS",
+      "IaaS",
+      "FaaS"
+    ],
+    correct: 2,
+    explanation: "IaaS — Infrastructure as a Service. The provider owns the hardware. TechCorp manages everything from the OS upward. This is the most control-heavy model for the customer, which means the most security responsibility too."
+  },
+  {
+    section: "Cloud Fundamentals",
+    text: "A company uses Microsoft 365 for email and productivity. Their IT team manages user accounts and access permissions. Microsoft manages everything else. What service model is this?",
+    options: [
+      "IaaS",
+      "PaaS",
+      "Hybrid cloud",
+      "SaaS"
+    ],
+    correct: 3,
+    explanation: "SaaS — Software as a Service. Microsoft manages the application, the infrastructure, the platform, everything. The customer only manages users and their data access. This is the lowest customer responsibility model — but that doesn't mean zero responsibility."
+  },
+
+  // SECTION 2: Deployment Models (Q4-6)
+  {
+    section: "Deployment Models",
+    text: "Which cloud deployment model is most commonly found in enterprise environments and combines on-premises infrastructure with public cloud services?",
+    options: [
+      "Community cloud",
+      "Private cloud",
+      "Hybrid cloud",
+      "Multi-cloud"
+    ],
+    correct: 2,
+    explanation: "Hybrid cloud is the enterprise standard. Organizations keep sensitive workloads on-prem while using public cloud for scalability. For a SOC analyst, this means monitoring spans two environments — and attackers know the connection between them is often a weak point."
+  },
+  {
+    section: "Deployment Models",
+    text: "Two hospitals share a cloud environment to manage patient records under the same regulatory framework. Neither organization's data is mixed with other tenants. What deployment model is this?",
+    options: [
+      "Public cloud",
+      "Private cloud",
+      "Hybrid cloud",
+      "Community cloud"
+    ],
+    correct: 3,
+    explanation: "Community cloud — shared by organizations with common requirements, such as regulatory compliance (HIPAA in this case). The infrastructure is shared only among those organizations, not the general public."
+  },
+  {
+    section: "Deployment Models",
+    text: "A SOC analyst is investigating an alert from an AWS environment. The company's HR system runs on-premises while the web application runs in AWS. What is the most important thing the analyst must understand before triaging?",
+    options: [
+      "Which AWS region the servers are located in",
+      "Whether the company uses public or private cloud",
+      "What each environment is responsible for monitoring and how they connect",
+      "The number of EC2 instances running"
+    ],
+    correct: 2,
+    explanation: "In a hybrid environment, the connection between on-prem and cloud is the critical attack surface. An analyst must understand which environment generated the alert, who is responsible for what layer, and whether the threat could pivot between environments."
+  },
+
+  // SECTION 3: Shared Responsibility (Q7-10)
+  {
+    section: "Shared Responsibility",
+    text: "In an IaaS model, which of the following is ALWAYS the customer's responsibility regardless of provider?",
+    options: [
+      "Physical hardware security",
+      "Hypervisor patching",
+      "Network infrastructure maintenance",
+      "Data classification and user access controls"
+    ],
+    correct: 3,
+    explanation: "Your data and who can access it never shift to the provider — in any model. IaaS, PaaS, SaaS — you are always responsible for your data classification, your users, and your access controls. This is the most common misunderstanding in cloud security."
+  },
+  {
+    section: "Shared Responsibility",
+    text: "A company running workloads on AWS assumes AWS is responsible for patching the operating system on their EC2 instances. This is an example of:",
+    options: [
+      "A correct understanding of the shared responsibility model",
+      "A misconfiguration of the EC2 instance",
+      "A shared responsibility confusion — the customer owns OS patching in IaaS",
+      "An AWS policy violation"
+    ],
+    correct: 2,
+    explanation: "Classic shared responsibility confusion. In IaaS, AWS patches the hypervisor and physical infrastructure. The customer patches the OS running on EC2. This exact misunderstanding contributed to multiple major cloud breaches."
+  },
+  {
+    section: "Shared Responsibility",
+    text: "In a PaaS model, which layers does the customer remain responsible for?",
+    options: [
+      "Hardware, network, and OS",
+      "Application code and data",
+      "Virtualization and middleware",
+      "Physical security and hypervisor"
+    ],
+    correct: 1,
+    explanation: "In PaaS, the provider manages hardware through middleware. The customer manages their application code and data. This is why a vulnerable application deployed on PaaS is still the customer's problem — the platform is secure, but your code running on it may not be."
+  },
+  {
+    section: "Shared Responsibility",
+    text: "As a SOC analyst monitoring a SaaS environment, which of these log sources is typically YOUR responsibility to collect and monitor?",
+    options: [
+      "Provider infrastructure logs showing server health",
+      "Hypervisor audit logs",
+      "User authentication logs and access activity within the application",
+      "Physical data center access logs"
+    ],
+    correct: 2,
+    explanation: "In SaaS, the provider controls almost everything — but user activity inside the application is yours. Who logged in, from where, what they accessed, whether access patterns are anomalous — these are your detection responsibilities. Most SaaS platforms expose these logs via API."
+  },
+
+  // SECTION 4: Cloud Threats (Q11-14)
+  {
+    section: "Cloud-Specific Threats",
+    text: "An S3 bucket containing customer records is set to public read access. No encryption is applied. Which two security failures are present?",
+    options: [
+      "VLAN misconfiguration and weak password policy",
+      "Misconfigured access control and missing data encryption",
+      "Firewall rule gap and unpatched OS",
+      "Missing MFA and expired SSL certificate"
+    ],
+    correct: 1,
+    explanation: "Two distinct failures: the bucket's access control was misconfigured (should be private, not public), and there's no encryption protecting the data at rest. Either one alone is a problem. Together they mean an attacker can access and read the data with no barriers."
+  },
+  {
+    section: "Cloud-Specific Threats",
+    text: "An attacker gains access to a cloud environment by exploiting an exposed API endpoint with no authentication required. This is an example of:",
+    options: [
+      "SQL injection",
+      "Hypervisor escape",
+      "Insecure API — a top cloud-specific threat",
+      "VLAN hopping"
+    ],
+    correct: 2,
+    explanation: "Exposed, unauthenticated APIs are one of the most common cloud attack vectors. Cloud environments are API-driven — everything is controlled via API calls. An exposed endpoint gives an attacker direct control over cloud resources without needing to touch the UI."
+  },
+  {
+    section: "Cloud-Specific Threats",
+    text: "A developer pushes code to production that includes hardcoded AWS access keys in a public GitHub repository. What is the most immediate risk?",
+    options: [
+      "The code will fail to compile",
+      "Automated bots scan GitHub for credentials and can use the keys within minutes to access or destroy cloud resources",
+      "The keys will expire automatically after 24 hours",
+      "AWS will detect the exposure and revoke the keys immediately"
+    ],
+    correct: 1,
+    explanation: "This is a documented, recurring real-world scenario. Automated scanners harvest credentials from public repos within minutes. Attackers use stolen keys to spin up crypto miners, exfiltrate data, or destroy resources. AWS does have some detection but it's not guaranteed — revoke keys immediately if exposed."
+  },
+  {
+    section: "Cloud-Specific Threats",
+    text: "Which of the following represents an insecure cloud-to-on-prem connection risk?",
+    options: [
+      "Using a VPN tunnel between on-prem and cloud with no traffic inspection",
+      "Requiring MFA for cloud console access",
+      "Enabling VPC Flow Logs for network monitoring",
+      "Using private subnets for database instances"
+    ],
+    correct: 0,
+    explanation: "A VPN tunnel with no traffic inspection creates an unmonitored bridge between environments. If an attacker compromises the cloud side, they can pivot to on-prem through the tunnel freely. Inspection, logging, and zero trust principles must apply to cloud-to-on-prem connections just as much as internet traffic."
+  },
+
+  // SECTION 5: Capital One Breach (Q15-16)
+  {
+    section: "Capital One 2019 Breach",
+    text: "In the Capital One 2019 breach, the attacker exploited a misconfigured AWS WAF to perform what type of attack?",
+    options: [
+      "SQL injection against the database",
+      "A Server-Side Request Forgery (SSRF) attack to reach the AWS metadata service",
+      "A brute force attack against the AWS management console",
+      "A DDoS attack that overwhelmed the WAF"
+    ],
+    correct: 1,
+    explanation: "The attacker used SSRF — Server-Side Request Forgery — to trick the misconfigured WAF into making requests to the AWS EC2 metadata service at 169.254.169.254. This returned temporary IAM credentials that were then used to access and download data from S3 buckets."
+  },
+  {
+    section: "Capital One 2019 Breach",
+    text: "The Capital One breach exposed over 100 million customer records from S3 buckets. Which shared responsibility layer failed?",
+    options: [
+      "AWS — they failed to secure the S3 infrastructure",
+      "Capital One — they misconfigured the WAF and S3 bucket permissions, both customer responsibilities in IaaS/PaaS",
+      "Both equally — it was a joint failure",
+      "Neither — the attacker used a zero-day exploit"
+    ],
+    correct: 1,
+    explanation: "AWS's infrastructure was not compromised. Capital One misconfigured their WAF (customer responsibility) and had overly permissive IAM roles that allowed the extracted credentials to access S3 (customer responsibility). The provider's platform worked as designed. The customer's configuration was the failure."
+  },
+
+  // SECTION 6: SOC Angle (Q17-20)
+  {
+    section: "SOC Analyst Perspective",
+    text: "A SOC analyst receives an alert showing an unusual API call in AWS CloudTrail at 3am: a new IAM admin user was created by an account that normally only reads S3 buckets. What should the analyst suspect first?",
+    options: [
+      "A routine automated task by the DevOps team",
+      "Privilege escalation — a compromised or misused account attempting to gain higher access",
+      "A CloudTrail configuration error",
+      "Normal AWS maintenance activity"
+    ],
+    correct: 1,
+    explanation: "An account creating IAM admin users is a classic privilege escalation indicator in cloud environments. The behavioral anomaly — an S3-reader suddenly creating admin accounts at 3am — is exactly what CloudTrail monitoring is designed to catch. This is a high-priority alert."
+  },
+  {
+    section: "SOC Analyst Perspective",
+    text: "Which cloud log source gives a SOC analyst visibility into network traffic flowing in and out of a cloud VPC (Virtual Private Cloud)?",
+    options: [
+      "CloudTrail",
+      "AWS Config",
+      "VPC Flow Logs",
+      "S3 Access Logs"
+    ],
+    correct: 2,
+    explanation: "VPC Flow Logs capture information about IP traffic going to and from network interfaces in your VPC — the cloud equivalent of NetFlow. CloudTrail captures API activity. AWS Config tracks resource configuration changes. S3 Access Logs track bucket-level requests. Each serves a different detection purpose."
+  },
+  {
+    section: "SOC Analyst Perspective",
+    text: "A company uses SaaS email (Microsoft 365). An alert fires showing a user account logged in from Egypt and the US within 15 minutes. What log source most likely generated this alert and what does it indicate?",
+    options: [
+      "VPC Flow Logs — indicating network intrusion",
+      "Microsoft 365 user authentication logs — indicating impossible travel, a sign of account compromise",
+      "AWS CloudTrail — indicating unauthorized API access",
+      "S3 access logs — indicating data exfiltration"
+    ],
+    correct: 1,
+    explanation: "Impossible travel is a classic identity compromise indicator. M365 authentication logs capture login location and timestamp. Two successful logins from geographically impossible locations in a short window means either the account is compromised or someone is using a VPN — both worth investigating immediately."
+  },
+  {
+    section: "SOC Analyst Perspective",
+    text: "As a SOC analyst in a company running IaaS workloads on AWS, which of the following is NOT your responsibility to monitor?",
+    options: [
+      "User activity and privilege escalation within the AWS console",
+      "Configuration of security groups and network ACLs",
+      "Physical security of the AWS data center",
+      "Unusual API calls captured in CloudTrail"
+    ],
+    correct: 2,
+    explanation: "Physical data center security is entirely AWS's responsibility in any cloud model. Your responsibility in IaaS covers everything from the OS upward — including access controls, network configuration, application behavior, and activity monitoring. You have zero visibility into and zero responsibility for the physical layer."
+  }
+];
+
+// SECTION SCORING MAP
+const sections = [
+  "Cloud Fundamentals",
+  "Deployment Models",
+  "Shared Responsibility",
+  "Cloud-Specific Threats",
+  "Capital One 2019 Breach",
+  "SOC Analyst Perspective"
+];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+let sectionScores = {};
+let sectionTotals = {};
+
+sections.forEach(s => { sectionScores[s] = 0; sectionTotals[s] = 0; });
+questions.forEach(q => sectionTotals[q.section]++);
+
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card' + (i === 0 ? ' active' : '');
+    card.id = 'q' + i;
+
+    const keys = ['A','B','C','D'];
+    const optionsHTML = q.options.map((opt, j) => `
+      <button class="option" onclick="selectAnswer(${i}, ${j})" id="opt-${i}-${j}">
+        <span class="option-key">${keys[j]}</span>
+        <span class="option-text">${opt}</span>
+      </button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-number">Q${i+1}</span>
+        <span class="q-section">${q.section}</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">${optionsHTML}</div>
+      <div class="feedback" id="fb-${i}">
+        <span class="feedback-icon" id="fb-icon-${i}"></span>
+        <span id="fb-text-${i}"></span>
+      </div>
+      <div class="nav">
+        <button class="btn-next" id="next-${i}" onclick="nextQuestion(${i})">
+          ${i === questions.length - 1 ? 'See Results →' : 'Next Question →'}
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function selectAnswer(qIndex, optIndex) {
+  if (document.getElementById(`opt-${qIndex}-0`).disabled) return;
+
+  const q = questions[qIndex];
+  const isCorrect = optIndex === q.correct;
+
+  // Disable all options
+  q.options.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${qIndex}-${j}`);
+    btn.disabled = true;
+    if (j === q.correct) {
+      btn.classList.add('correct');
+    } else if (j === optIndex && !isCorrect) {
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('dimmed');
+    }
+  });
+
+  // Score
+  if (isCorrect) {
+    score++;
+    sectionScores[q.section]++;
+  }
+
+  // Feedback
+  const fb = document.getElementById(`fb-${qIndex}`);
+  const fbIcon = document.getElementById(`fb-icon-${qIndex}`);
+  const fbText = document.getElementById(`fb-text-${qIndex}`);
+
+  fb.classList.add('show');
+  if (isCorrect) {
+    fb.classList.add('correct-fb');
+    fbIcon.textContent = '✓ Correct';
+  } else {
+    fb.classList.add('wrong-fb');
+    fbIcon.textContent = '✗ Incorrect — correct answer: ' + ['A','B','C','D'][q.correct];
+  }
+  fbText.textContent = q.explanation;
+
+  document.getElementById(`next-${qIndex}`).classList.add('show');
+}
+
+function nextQuestion(current) {
+  document.getElementById('q' + current).classList.remove('active');
+  currentQ = current + 1;
+
+  if (currentQ >= questions.length) {
+    showScorecard();
+  } else {
+    document.getElementById('q' + currentQ).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  const total = questions.length;
+  const done = currentQ + 1;
+  document.getElementById('progressText').textContent = done + ' / ' + total;
+  document.getElementById('progressFill').style.width = ((done / total) * 100) + '%';
+}
+
+function showScorecard() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('progressText').textContent = questions.length + ' / ' + questions.length;
+  document.getElementById('progressFill').style.width = '100%';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const sc = document.getElementById('scorecard');
+  const num = document.getElementById('scoreNumber');
+  const sub = document.getElementById('scoreSub');
+
+  num.textContent = pct + '%';
+  if (pct >= 85) {
+    num.className = 'score-number excellent';
+    sub.textContent = score + ' / ' + questions.length + ' correct — strong understanding of cloud security models';
+  } else if (pct >= 65) {
+    num.className = 'score-number good';
+    sub.textContent = score + ' / ' + questions.length + ' correct — review the sections marked below';
+  } else {
+    num.className = 'score-number needs-work';
+    sub.textContent = score + ' / ' + questions.length + ' correct — revisit the content before moving on';
+  }
+
+  // Breakdown
+  const rows = document.getElementById('breakdownRows');
+  rows.innerHTML = '';
+  sections.forEach(s => {
+    const got = sectionScores[s];
+    const total = sectionTotals[s];
+    const ratio = got / total;
+    let cls = ratio >= 0.8 ? 'full' : ratio >= 0.5 ? 'partial' : 'low';
+    rows.innerHTML += `
+      <div class="breakdown-row">
+        <span class="breakdown-name">${s}</span>
+        <span class="breakdown-score ${cls}">${got} / ${total}</span>
+      </div>
+    `;
+  });
+
+  sc.classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  score = 0;
+  currentQ = 0;
+  sections.forEach(s => { sectionScores[s] = 0; });
+  document.getElementById('scorecard').classList.remove('show');
+  document.getElementById('quizContainer').style.display = 'block';
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
