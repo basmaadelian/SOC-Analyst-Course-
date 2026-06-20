@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAM Quiz — SOC Analyst Program</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --border:    #21262d;
+    --accent:    #58a6ff;
+    --green:     #3fb950;
+    --red:       #f85149;
+    --yellow:    #d29922;
+    --purple:    #bc8cff;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --code-bg:   #1f2937;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .header-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .header-title span {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .progress-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .progress-bar-outer {
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 60px 40px 40px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--purple);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+
+  .hero h1 .highlight {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  /* section scorecards row */
+  .section-cards {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    min-width: 130px;
+    flex: 1;
+  }
+
+  .section-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .section-card-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .section-card-score .denom {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .section-card-bar {
+    margin-top: 8px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .section-card-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── SECTIONS ── */
+  .quiz-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  .section-block {
+    margin-bottom: 48px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .section-name {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .q-card.answered-correct { border-color: var(--green); }
+  .q-card.answered-wrong   { border-color: var(--red); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .q-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .tag-concept  { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .tag-apply    { background: rgba(88,166,255,0.15);  color: var(--accent); }
+  .tag-soc      { background: rgba(63,185,80,0.15);   color: var(--green); }
+  .tag-scenario { background: rgba(210,153,34,0.15);  color: var(--yellow); }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    line-height: 1.55;
+  }
+
+  .q-scenario-box {
+    background: var(--code-bg);
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd9e5;
+    line-height: 1.6;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .opt:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(88,166,255,0.05);
+  }
+
+  .opt:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: var(--code-bg);
+    color: var(--muted);
+    margin-top: 1px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .opt.correct {
+    border-color: var(--green);
+    background: rgba(63,185,80,0.08);
+  }
+  .opt.correct .opt-letter {
+    background: var(--green);
+    color: #000;
+  }
+
+  .opt.wrong {
+    border-color: var(--red);
+    background: rgba(248,81,73,0.08);
+  }
+  .opt.wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .opt.dimmed { opacity: 0.4; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback.correct-fb {
+    background: rgba(63,185,80,0.1);
+    border: 1px solid rgba(63,185,80,0.25);
+    display: block;
+  }
+
+  .feedback.wrong-fb {
+    background: rgba(248,81,73,0.08);
+    border: 1px solid rgba(248,81,73,0.2);
+    display: block;
+  }
+
+  .feedback-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .correct-fb .feedback-head { color: var(--green); }
+  .wrong-fb   .feedback-head { color: var(--red); }
+
+  /* ── FINAL SCORECARD ── */
+  #final-score {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .score-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .score-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0deg, var(--border) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .score-ring::before {
+    content: '';
+    width: 88px;
+    height: 88px;
+    background: var(--surface);
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .score-ring-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    position: relative;
+    z-index: 1;
+  }
+
+  .score-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .score-msg {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .score-breakdown {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .breakdown-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    min-width: 120px;
+  }
+
+  .breakdown-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+  }
+
+  .breakdown-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .btn-restart {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.15s;
+  }
+
+  .btn-restart:hover { opacity: 0.85; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 20px; }
+    .hero, .quiz-wrap { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 24px; }
+    .section-cards { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-badge">Module 3</div>
+  <div class="header-title">Security Architecture — <span>Identity & Access Management</span></div>
+  <div class="progress-wrap">
+    <div class="progress-label" id="progress-label">0 / 25</div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">SOC Analyst Training Program</div>
+  <h1>Identity & <span class="highlight">Access Management</span></h1>
+  <div class="hero-sub">25 questions across 6 sections — CorpNet scenario-based assessment</div>
+
+  <div class="section-cards">
+    <div class="section-card">
+      <div class="section-card-label">Identification</div>
+      <div class="section-card-score" id="sc-score-0">—<span class="denom"> / 4</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-0" style="background:#bc8cff"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-label">Authentication</div>
+      <div class="section-card-score" id="sc-score-1">—<span class="denom"> / 4</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-1" style="background:#58a6ff"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-label">Assurance Levels</div>
+      <div class="section-card-score" id="sc-score-2">—<span class="denom"> / 4</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-2" style="background:#3fb950"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-label">Conditional Access</div>
+      <div class="section-card-score" id="sc-score-3">—<span class="denom"> / 4</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-3" style="background:#d29922"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-label">SSO & SAML</div>
+      <div class="section-card-score" id="sc-score-4">—<span class="denom"> / 5</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-4" style="background:#f85149"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-label">OAuth & Accountability</div>
+      <div class="section-card-score" id="sc-score-5">—<span class="denom"> / 4</span></div>
+      <div class="section-card-bar"><div class="section-card-fill" id="sc-bar-5" style="background:#58a6ff"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-wrap" id="quiz-wrap"></div>
+
+<!-- FINAL SCORE -->
+<div class="quiz-wrap">
+  <div id="final-score">
+    <div class="score-ring-wrap">
+      <div class="score-ring" id="score-ring">
+        <div class="score-ring-num" id="score-pct">0%</div>
+      </div>
+    </div>
+    <div class="score-title" id="score-title">—</div>
+    <div class="score-msg" id="score-msg">—</div>
+    <div class="score-breakdown">
+      <div class="breakdown-item">
+        <div class="breakdown-label">Correct</div>
+        <div class="breakdown-val" id="bd-correct" style="color:var(--green)">—</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-label">Wrong</div>
+        <div class="breakdown-val" id="bd-wrong" style="color:var(--red)">—</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-label">Total</div>
+        <div class="breakdown-val" id="bd-total" style="color:var(--accent)">—</div>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="restart()">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const SECTIONS = [
+  { name: "Identification & Identity Proofing", color: "#bc8cff", total: 4 },
+  { name: "Authentication",                     color: "#58a6ff", total: 4 },
+  { name: "Assurance Levels (IAL / AAL)",       color: "#3fb950", total: 4 },
+  { name: "Conditional Access",                 color: "#d29922", total: 4 },
+  { name: "SSO & SAML 2.0",                    color: "#f85149", total: 5 },
+  { name: "OAuth 2.0 & Accountability",         color: "#58a6ff", total: 4 },
+];
+
+const QUESTIONS = [
+  // ── SECTION 0 — Identification & Identity Proofing ──
+  {
+    sec: 0, tag: "concept",
+    q: "CorpNet's IT department receives an account creation request. Before issuing any credentials, they check that the submitted name, date of birth, and employee ID point to a unique, real individual in their HR database. Which step of identity proofing does this describe?",
+    opts: ["Validation", "Verification", "Resolution", "Assurance"],
+    ans: 2,
+    fb: "Resolution is the first step — confirming that the claimed attributes (name, DOB, ID) map to a single, real individual. Validation checks whether the documents are genuine. Verification confirms the person presenting them is actually that individual."
+  },
+  {
+    sec: 0, tag: "apply",
+    q: "A new CorpNet employee submits a scanned passport during remote onboarding. The HR system checks that the passport number is valid, the format matches genuine documents, and the MRZ data is consistent. Which identity proofing step is this?",
+    opts: ["Resolution", "Validation", "Verification", "Credential Binding"],
+    ans: 1,
+    fb: "Validation checks the authenticity and integrity of the presented evidence — in this case, whether the passport document itself is genuine. It does not yet confirm the person holding it is the passport's owner."
+  },
+  {
+    sec: 0, tag: "soc",
+    q: "An attacker calls CorpNet's HR helpdesk, claims to be a senior engineer, and convinces HR to create an account using fabricated documents. From an IAM perspective, which control failed?",
+    opts: ["Authentication", "Authorization", "Identity Proofing — Verification", "Credential Issuance"],
+    ans: 2,
+    fb: "The verification step failed — no one confirmed the person making the request was actually the individual the documents claimed. This is exactly the MGM 2023 breach pattern: social engineering bypassed identity proofing, making all downstream controls irrelevant."
+  },
+  {
+    sec: 0, tag: "concept",
+    q: "Which statement correctly describes the relationship between an identity and a credential in IAM?",
+    opts: [
+      "A credential IS the identity — they are the same thing",
+      "The credential is issued to represent the identity; it can be stolen without the identity being stolen",
+      "An identity cannot exist without a credential being assigned first",
+      "Credentials are only issued at IAL3"
+    ],
+    ans: 1,
+    fb: "A credential (password, smart card, token) is a representation of an identity issued by the system. The identity is the verified human entity. Credentials can be stolen or compromised; the underlying identity remains. This is why credential theft does not equal identity theft in all cases."
+  },
+
+  // ── SECTION 1 — Authentication ──
+  {
+    sec: 1, tag: "concept",
+    q: "In CorpNet's authentication flow, which component receives Ahmed's credentials, checks their validity against the identity store, and then asserts the result to the HR portal?",
+    opts: ["The HR Portal itself", "The Authenticator", "The Verifier", "The Session Manager"],
+    ans: 2,
+    fb: "The Verifier is the component that checks the submitted authenticator against the stored credential. Critically, the HR portal (Service Provider) does not perform this check itself — it trusts the verifier's assertion. This separation is the foundation of federated authentication."
+  },
+  {
+    sec: 1, tag: "apply",
+    q: "CorpNet originally had each application — HR portal, file server, email, wiki — maintaining its own user database and performing its own authentication. What is the PRIMARY operational security problem with this design?",
+    opts: [
+      "Users must remember multiple passwords",
+      "Disabling a terminated employee requires action in each system separately — creating revocation gaps",
+      "Each system uses a different encryption algorithm",
+      "Audit logs cannot be generated"
+    ],
+    ans: 1,
+    fb: "The critical security failure is revocation lag. When an employee is terminated, each system must be updated independently. A missed system means the terminated employee's credentials remain active. Centralized identity management solves this: one disable action propagates everywhere."
+  },
+  {
+    sec: 1, tag: "scenario",
+    q: "Ahmed successfully authenticates to CorpNet's IDP. The IDP then communicates \"Ahmed is authenticated\" to the HR portal without Ahmed re-entering credentials. What is the IDP performing?",
+    scenario: "Ahmed logs in at 09:00. At 09:45 he navigates from his email client to the HR portal. He is not prompted for a password.",
+    opts: ["Authorization", "Identity Assertion", "Credential Issuance", "Privilege Escalation"],
+    ans: 1,
+    fb: "The IDP is performing identity assertion — communicating a trusted statement about Ahmed's authenticated identity to a relying party (the HR portal). This is the core mechanism behind Single Sign-On and protocols like SAML 2.0."
+  },
+  {
+    sec: 1, tag: "soc",
+    q: "A SOC analyst reviews authentication logs and sees 847 failed login attempts against the HR portal for the username 'ahmed.hassan' over 3 minutes, followed by one success. What attack pattern does this indicate?",
+    opts: ["Pass-the-Hash", "Credential Stuffing / Brute Force", "Golden SAML Attack", "OAuth Token Theft"],
+    ans: 1,
+    fb: "This is a classic brute force / credential stuffing pattern: automated attempts across a large password list until one succeeds. The SOC response should include: locking the account, reviewing the successful login's source IP and session behavior, and checking whether conditional access should have blocked the anomalous login."
+  },
+
+  // ── SECTION 2 — Assurance Levels ──
+  {
+    sec: 2, tag: "concept",
+    q: "A CorpNet employee signs up for access to the internal wiki by providing only their name and work email — no document check, no in-person verification. Which Identity Assurance Level does this onboarding represent?",
+    opts: ["IAL1", "IAL2", "IAL3", "AAL1"],
+    ans: 0,
+    fb: "IAL1 involves no real-world identity verification. The person provides self-asserted attributes and the system accepts them without checking. This is appropriate for low-risk resources like an internal wiki but entirely inappropriate for privileged accounts."
+  },
+  {
+    sec: 2, tag: "apply",
+    q: "CorpNet requires that all system administrators verify their identity in person with a trained HR officer who physically inspects government-issued documents before an account is provisioned. Which assurance level does this describe?",
+    opts: ["IAL1", "IAL2", "IAL3", "AAL2"],
+    ans: 2,
+    fb: "IAL3 requires in-person identity proofing by a trained professional with physical document inspection. It is the highest identity assurance level, appropriate for accounts with elevated privileges or access to critical systems."
+  },
+  {
+    sec: 2, tag: "concept",
+    q: "What is the key distinction between AAL2 and AAL3 that makes AAL3 resistant to phishing attacks?",
+    opts: [
+      "AAL3 requires two passwords instead of one",
+      "AAL3 requires a hardware-bound cryptographic authenticator that cannot respond to fake domains",
+      "AAL3 uses biometrics while AAL2 uses OTP codes",
+      "AAL3 adds a security question as a third factor"
+    ],
+    ans: 1,
+    fb: "AAL3's hardware-bound authenticator (e.g., FIDO2 security key) is cryptographically bound to the legitimate domain. Even if an attacker tricks Ahmed into visiting a fake portal, the hardware key will not produce a valid response for the fraudulent domain — making real-time phishing impossible."
+  },
+  {
+    sec: 2, tag: "soc",
+    q: "A CorpNet admin account is protected at AAL2 (MFA via authenticator app). An analyst discovers the account was compromised through a real-time phishing proxy that intercepted both the password and the OTP. What would have prevented this?",
+    opts: [
+      "Longer password requirement",
+      "IP allowlisting only",
+      "Upgrading to AAL3 with a hardware security key",
+      "Disabling the account after 3 failed attempts"
+    ],
+    ans: 2,
+    fb: "Real-time phishing proxies can capture TOTP codes because they are valid for 30 seconds and can be immediately relayed. Hardware security keys (AAL3) use challenge-response cryptography bound to the origin domain — they cannot be relayed or replayed against a different site."
+  },
+
+  // ── SECTION 3 — Conditional Access ──
+  {
+    sec: 3, tag: "concept",
+    q: "Where in the authentication flow does a conditional access policy engine sit?",
+    opts: [
+      "Before the user presents credentials",
+      "After successful authentication, before session is granted",
+      "During credential issuance at onboarding",
+      "Inside the SAML assertion"
+    ],
+    ans: 1,
+    fb: "Conditional access evaluates context after authentication succeeds. The credential was valid — but the policy engine then asks: is this context trusted? Unusual location, unmanaged device, or anomalous time can trigger step-up authentication or block access entirely, even for a valid credential."
+  },
+  {
+    sec: 3, tag: "scenario",
+    q: "Which conditional access response is most appropriate for this login event?",
+    scenario: "Ahmed's account authenticates successfully at 02:15 AM from an IP in a country Ahmed has never accessed from, on a device not enrolled in CorpNet's MDM. Ahmed's usual pattern is 08:00–18:00 from Cairo.",
+    opts: [
+      "Allow — credentials were valid",
+      "Allow with read-only session",
+      "Step-up: require hardware token re-authentication",
+      "Block and alert SOC"
+    ],
+    ans: 3,
+    fb: "Multiple high-risk signals align: impossible geography, off-hours, unknown device. The appropriate response is to block and alert. Step-up auth assumes the legitimate user is present — here, the pattern suggests account compromise. SOC investigation should precede any access grant."
+  },
+  {
+    sec: 3, tag: "soc",
+    q: "A SOC analyst sees a spike of 200 conditional access 'Block' events in 10 minutes, all for accounts in the finance department, all from the same /24 subnet. What is the most likely explanation?",
+    opts: [
+      "Finance employees forgot their passwords",
+      "A credential stuffing attack targeting finance accounts from a single IP range",
+      "The conditional access policy was misconfigured",
+      "The IDP service went down"
+    ],
+    ans: 1,
+    fb: "A burst of blocks from the same subnet targeting a specific department is a strong indicator of credential stuffing from an attacker's infrastructure. The conditional access policy is working correctly — it is detecting and blocking the anomalous context. The SOC should block the subnet, review any successful logins from it, and check for follow-on activity."
+  },
+  {
+    sec: 3, tag: "apply",
+    q: "CorpNet implements a conditional access rule: 'If device is not MDM-enrolled, deny access to the HR portal.' An employee's personal phone attempts access. What is the correct outcome and why?",
+    opts: [
+      "Allow — the credential was valid",
+      "Deny — device compliance is a required context condition for this resource",
+      "Step-up to AAL3 then allow",
+      "Allow with a warning message"
+    ],
+    ans: 1,
+    fb: "The policy explicitly requires device compliance. The credential being valid is not sufficient — context conditions are additional gates. This is 'defense in depth' at the authentication layer: even a stolen valid credential from an unmanaged device cannot access sensitive resources."
+  },
+
+  // ── SECTION 4 — SSO & SAML 2.0 ──
+  {
+    sec: 4, tag: "concept",
+    q: "In SAML 2.0, what is a SAML Assertion?",
+    opts: [
+      "Ahmed's password sent securely to the HR portal",
+      "A signed statement from the IDP declaring who the user is and their attributes",
+      "A session cookie stored in Ahmed's browser",
+      "An access token granting permissions to a specific resource"
+    ],
+    ans: 1,
+    fb: "A SAML Assertion is a signed XML document issued by the Identity Provider. It states: 'I have authenticated this user, here is their identity and attributes.' The Service Provider trusts the assertion because it is digitally signed by the IDP — it never sees the user's credentials."
+  },
+  {
+    sec: 4, tag: "apply",
+    q: "Ahmed has been working in his email all morning (already authenticated to the IDP). He clicks a link to the HR portal. In the SAML flow, what happens differently compared to his first login of the day?",
+    opts: [
+      "Ahmed must re-enter his password at the HR portal",
+      "The IDP detects an existing session and issues an assertion immediately — no login prompt",
+      "Ahmed is redirected to create a new session at the HR portal",
+      "The HR portal queries Ahmed's credentials directly from Active Directory"
+    ],
+    ans: 1,
+    fb: "Because an active IDP session exists, the SAML redirect flow completes silently. The IDP issues the assertion without prompting for credentials. This is the SSO experience — one morning login propagates across all SAML-connected applications for the session duration."
+  },
+  {
+    sec: 4, tag: "concept",
+    q: "Why is the early 'naive SSO' approach — where applications passed credentials between themselves as plaintext scripts — a security failure even if it solved the login experience problem?",
+    opts: [
+      "It was too slow for enterprise use",
+      "Credentials were stored in plaintext across multiple servers, expanding the attack surface dramatically",
+      "It required all applications to use the same vendor",
+      "It only worked for web applications"
+    ],
+    ans: 1,
+    fb: "Storing credentials in scripts or config files on multiple servers means a compromise of any one server exposes credentials for all systems. The login experience improved but the security posture degraded. Centralized authentication (IDP + SAML) ensures credentials are only ever held by one hardened system."
+  },
+  {
+    sec: 4, tag: "soc",
+    q: "A Golden SAML attack allows an attacker to forge SAML assertions even without knowing user passwords. What does this enable the attacker to do?",
+    opts: [
+      "Reset user passwords in Active Directory",
+      "Authenticate to any SAML-connected application as any user, including admins",
+      "Intercept OAuth access tokens in transit",
+      "Bypass conditional access policies at the network layer"
+    ],
+    ans: 1,
+    fb: "Golden SAML (used in the SolarWinds attack) involves stealing the IDP's signing certificate. With it, an attacker can forge assertions claiming to be any user. Since Service Providers trust signed assertions without further verification, the attacker gains valid sessions in every connected application — completely bypassing credentials and MFA."
+  },
+  {
+    sec: 4, tag: "scenario",
+    q: "Which architecture correctly describes the SAML 2.0 trust model?",
+    scenario: "CorpNet wants to implement SSO so that authenticating once gives access to the HR portal, file server, email system, and internal wiki.",
+    opts: [
+      "Each application stores user credentials and shares them peer-to-peer",
+      "One central IDP authenticates users and issues signed assertions; each application trusts the IDP and accepts assertions without handling credentials",
+      "Each application has its own IDP that synchronizes passwords nightly",
+      "Users authenticate to the HR portal first, which then authenticates them to all other applications"
+    ],
+    ans: 1,
+    fb: "SAML SSO centers on one trusted IDP. Applications (Service Providers) delegate authentication entirely to the IDP and accept its signed assertions. No application ever handles user credentials. This is the architectural shift from fragmented per-app authentication to centralized federated identity."
+  },
+
+  // ── SECTION 5 — OAuth 2.0 & Accountability ──
+  {
+    sec: 5, tag: "concept",
+    q: "CorpNet's mobile app requests access to Ahmed's work calendar. Ahmed approves, and the app receives a token scoped to 'calendar.read'. The app cannot access Ahmed's email or reset his password. Which OAuth 2.0 concept does this demonstrate?",
+    opts: ["Authentication delegation", "Scoped authorization — least-privilege access token", "SAML assertion binding", "Credential federation"],
+    ans: 1,
+    fb: "OAuth 2.0 issues access tokens with explicit scopes. The token grants only what was approved — calendar.read — and nothing more. This is least-privilege at the delegation layer: even if the token is stolen, the attacker can only read calendar data, not access other resources or act as the user."
+  },
+  {
+    sec: 5, tag: "concept",
+    q: "What is the fundamental difference in purpose between SAML 2.0 and OAuth 2.0?",
+    opts: [
+      "SAML is for web apps, OAuth is for mobile apps",
+      "SAML handles authentication and identity assertion; OAuth handles delegated authorization",
+      "SAML uses XML, OAuth uses JSON — they solve the same problem differently",
+      "OAuth replaces SAML in all modern enterprise environments"
+    ],
+    ans: 1,
+    fb: "SAML answers: 'Who is this user, and can I trust that identity?' OAuth answers: 'Has this user authorized this application to act on their behalf for a specific scope?' Authentication vs. delegated authorization — they solve different problems and are often used together (OIDC extends OAuth to add identity)."
+  },
+  {
+    sec: 5, tag: "soc",
+    q: "A SOC analyst detects an OAuth access token being used to access the HR portal API from an IP that has never been seen before, at 03:00 AM, for data export operations. The token was issued 6 days ago. What is the most likely threat scenario?",
+    opts: [
+      "Ahmed is working late on a project",
+      "OAuth token theft — a stolen token is being used by an attacker to exfiltrate data",
+      "The conditional access policy expired the token incorrectly",
+      "Ahmed's device changed its public IP due to VPN reconnection"
+    ],
+    ans: 1,
+    fb: "OAuth token theft is a real and common attack. Once stolen, a token grants access without requiring credentials or MFA. The combination of unknown IP, off-hours, data export behavior, and an aged token are all red flags. SOC response: revoke the token immediately, investigate the token's issuance context, audit what data was accessed."
+  },
+  {
+    sec: 5, tag: "apply",
+    q: "CorpNet's payroll file is accessed by three finance team members sharing one service account. A row is deleted. The audit log shows the deletion was made by 'finance-svc'. Why is accountability broken in this scenario?",
+    opts: [
+      "The audit log format is incorrect",
+      "Shared accounts prevent attribution — the log shows the account, not the individual",
+      "Service accounts cannot generate audit logs",
+      "The file server does not support logging"
+    ],
+    ans: 1,
+    fb: "Accountability requires that every action be attributable to an authenticated individual. Shared accounts collapse multiple identities into one log entry. When the deletion needs to be investigated, you know the account — but not the person. IAM best practice: individual accounts, no sharing, with session recording where shared access is unavoidable."
+  },
+];
+
+// ── STATE ──
+let answered = new Array(QUESTIONS.length).fill(false);
+let correct   = new Array(QUESTIONS.length).fill(false);
+let sectionScores = SECTIONS.map(() => ({ c: 0, total: 0, answered: 0 }));
+QUESTIONS.forEach((q, i) => sectionScores[q.sec].total++);
+
+function tagClass(t) {
+  return { concept:'tag-concept', apply:'tag-apply', soc:'tag-soc', scenario:'tag-scenario' }[t] || 'tag-concept';
+}
+function tagLabel(t) {
+  return { concept:'Concept', apply:'Application', soc:'SOC Lens', scenario:'Scenario' }[t] || t;
+}
+
+function buildQuiz() {
+  const wrap = document.getElementById('quiz-wrap');
+  wrap.innerHTML = '';
+
+  let secIdx = -1;
+  QUESTIONS.forEach((q, qi) => {
+    if (q.sec !== secIdx) {
+      secIdx = q.sec;
+      const sec = SECTIONS[secIdx];
+      const block = document.createElement('div');
+      block.className = 'section-block';
+      block.id = `sec-${secIdx}`;
+      block.innerHTML = `
+        <div class="section-header">
+          <div class="section-num">SECTION ${String(secIdx+1).padStart(2,'0')}</div>
+          <div class="section-name" style="color:${sec.color}">${sec.name}</div>
+          <div class="section-count">${sec.total} questions</div>
+        </div>`;
+      wrap.appendChild(block);
+    }
+
+    const block = document.getElementById(`sec-${q.sec}`);
+    const letters = ['A','B','C','D'];
+    const scenarioHTML = q.scenario
+      ? `<div class="q-scenario-box">📋 ${q.scenario}</div>`
+      : '';
+
+    const optsHTML = q.opts.map((o, oi) => `
+      <button class="opt" onclick="answer(${qi}, ${oi})" id="opt-${qi}-${oi}">
+        <span class="opt-letter">${letters[oi]}</span>
+        <span>${o}</span>
+      </button>`).join('');
+
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `qcard-${qi}`;
+    card.innerHTML = `
+      <div class="q-meta">
+        <div class="q-num">Q${qi+1}</div>
+        <div class="q-tag ${tagClass(q.tag)}">${tagLabel(q.tag)}</div>
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${scenarioHTML}
+      <div class="options">${optsHTML}</div>
+      <div class="feedback" id="fb-${qi}">
+        <div class="feedback-head" id="fb-head-${qi}"></div>
+        <div id="fb-body-${qi}"></div>
+      </div>`;
+    block.appendChild(card);
+  });
+}
+
+function answer(qi, chosen) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+
+  const q = QUESTIONS[qi];
+  const isCorrect = chosen === q.ans;
+  correct[qi] = isCorrect;
+
+  // style options
+  q.opts.forEach((_, oi) => {
+    const btn = document.getElementById(`opt-${qi}-${oi}`);
+    btn.disabled = true;
+    if (oi === q.ans) { btn.classList.add('correct'); }
+    else if (oi === chosen && !isCorrect) { btn.classList.add('wrong'); }
+    else { btn.classList.add('dimmed'); }
+  });
+
+  // card border
+  const card = document.getElementById(`qcard-${qi}`);
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  // feedback
+  const fb = document.getElementById(`fb-${qi}`);
+  const fbHead = document.getElementById(`fb-head-${qi}`);
+  const fbBody = document.getElementById(`fb-body-${qi}`);
+  fb.className = 'feedback ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fbHead.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
+  fbBody.textContent = q.fb;
+
+  // section score
+  sectionScores[q.sec].answered++;
+  if (isCorrect) sectionScores[q.sec].c++;
+  updateSectionCard(q.sec);
+  updateProgress();
+
+  const totalAnswered = answered.filter(Boolean).length;
+  if (totalAnswered === QUESTIONS.length) showFinal();
+}
+
+function updateSectionCard(si) {
+  const s = sectionScores[si];
+  const scoreEl = document.getElementById(`sc-score-${si}`);
+  const barEl   = document.getElementById(`sc-bar-${si}`);
+  scoreEl.innerHTML = `${s.c}<span class="denom"> / ${s.total}</span>`;
+  barEl.style.width = `${(s.c / s.total) * 100}%`;
+}
+
+function updateProgress() {
+  const done = answered.filter(Boolean).length;
+  const total = QUESTIONS.length;
+  document.getElementById('progress-label').textContent = `${done} / ${total}`;
+  document.getElementById('progress-bar').style.width = `${(done/total)*100}%`;
+}
+
+function showFinal() {
+  const totalCorrect = correct.filter(Boolean).length;
+  const total = QUESTIONS.length;
+  const pct = Math.round((totalCorrect / total) * 100);
+
+  let title, msg;
+  if (pct >= 88)      { title = "Identity Secured"; msg = "Excellent command of IAM concepts. You can read identity flows, spot anomalies, and understand why each control layer exists."; }
+  else if (pct >= 72) { title = "Strong Foundation"; msg = "Good grasp of core IAM. Review SAML/OAuth flows and assurance level distinctions to close the gaps."; }
+  else if (pct >= 56) { title = "Building Blocks Present"; msg = "Core concepts are taking shape. Focus on the authentication flow sequence and the IDP trust model."; }
+  else                { title = "Keep Drilling"; msg = "Re-read the identification → authentication → accountability arc. The sequence matters — each layer builds on the last."; }
+
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('score-title').textContent = title;
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('bd-correct').textContent = totalCorrect;
+  document.getElementById('bd-wrong').textContent = total - totalCorrect;
+  document.getElementById('bd-total').textContent = total;
+
+  // animate ring
+  const deg = Math.round((pct / 100) * 360);
+  const color = pct >= 72 ? '#3fb950' : pct >= 56 ? '#d29922' : '#f85149';
+  document.getElementById('score-ring').style.background =
+    `conic-gradient(${color} ${deg}deg, #21262d ${deg}deg)`;
+
+  const el = document.getElementById('final-score');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restart() {
+  answered = new Array(QUESTIONS.length).fill(false);
+  correct  = new Array(QUESTIONS.length).fill(false);
+  sectionScores = SECTIONS.map(() => ({ c: 0, total: 0, answered: 0 }));
+  QUESTIONS.forEach((q, i) => sectionScores[q.sec].total++);
+
+  document.getElementById('final-score').style.display = 'none';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('progress-label').textContent = `0 / ${QUESTIONS.length}`;
+  SECTIONS.forEach((_, i) => {
+    document.getElementById(`sc-score-${i}`).innerHTML = `—<span class="denom"> / ${SECTIONS[i].total}</span>`;
+    document.getElementById(`sc-bar-${i}`).style.width = '0%';
+  });
+
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
