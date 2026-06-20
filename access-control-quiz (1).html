@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Control Quiz — SOC Analyst Program</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #21262d;
+    --accent:   #58a6ff;
+    --green:    #3fb950;
+    --red:      #f85149;
+    --yellow:   #d29922;
+    --purple:   #bc8cff;
+    --orange:   #e3852b;
+    --teal:     #39d0c8;
+    --text:     #e6edf3;
+    --muted:    #7d8590;
+    --code-bg:  #1f2937;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .hdr-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    background: rgba(227,133,43,0.12);
+    border: 1px solid rgba(227,133,43,0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .hdr-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .hdr-title span { color: var(--text); font-weight: 600; }
+
+  .hdr-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .prog-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .prog-outer {
+    width: 130px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .prog-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--accent));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 56px 40px 36px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--orange);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .hero h1 .hi { color: var(--orange); }
+
+  .hero-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  /* section scorecards */
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  @media (max-width: 640px) {
+    .sc-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .sc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .sc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sc-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .sc-score .denom { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+  .sc-bar { margin-top: 8px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .sc-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
+
+  /* ── QUIZ WRAP ── */
+  .quiz-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* ── SECTION BLOCK ── */
+  .sec-block { margin-bottom: 52px; }
+
+  .sec-hdr {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sec-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .sec-name {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .sec-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.25s;
+  }
+
+  .q-card.ans-correct { border-color: var(--green); }
+  .q-card.ans-wrong   { border-color: var(--red); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .q-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .tag-concept  { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .tag-apply    { background: rgba(88,166,255,0.15);  color: var(--accent); }
+  .tag-soc      { background: rgba(63,185,80,0.15);   color: var(--green); }
+  .tag-scenario { background: rgba(227,133,43,0.15);  color: var(--orange); }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+
+  .q-scenario {
+    background: var(--code-bg);
+    border-left: 3px solid var(--orange);
+    border-radius: 0 6px 6px 0;
+    padding: 11px 15px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd9e5;
+    line-height: 1.65;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 15px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .opt:hover:not(:disabled) {
+    border-color: var(--orange);
+    background: rgba(227,133,43,0.05);
+  }
+
+  .opt:disabled { cursor: default; }
+
+  .opt-ltr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: var(--code-bg);
+    color: var(--muted);
+    margin-top: 1px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .opt.correct { border-color: var(--green); background: rgba(63,185,80,0.08); }
+  .opt.correct .opt-ltr { background: var(--green); color: #000; }
+
+  .opt.wrong { border-color: var(--red); background: rgba(248,81,73,0.08); }
+  .opt.wrong .opt-ltr { background: var(--red); color: #fff; }
+
+  .opt.dimmed { opacity: 0.38; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    margin-top: 14px;
+    padding: 13px 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.65;
+    display: none;
+  }
+
+  .fb-correct {
+    background: rgba(63,185,80,0.09);
+    border: 1px solid rgba(63,185,80,0.25);
+    display: block;
+  }
+
+  .fb-wrong {
+    background: rgba(248,81,73,0.08);
+    border: 1px solid rgba(248,81,73,0.2);
+    display: block;
+  }
+
+  .fb-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .fb-correct .fb-head { color: var(--green); }
+  .fb-wrong   .fb-head { color: var(--red); }
+
+  /* ── FINAL SCORE ── */
+  #final-score {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 44px 40px;
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .ring-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+
+  .ring {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: conic-gradient(var(--orange) 0deg, var(--border) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background 0.8s ease;
+  }
+
+  .ring::before {
+    content: '';
+    width: 92px;
+    height: 92px;
+    background: var(--surface);
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .ring-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    position: relative;
+    z-index: 1;
+  }
+
+  .score-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+
+  .score-msg {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .breakdown {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .bd-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 22px;
+    min-width: 110px;
+  }
+
+  .bd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .bd-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* Section breakdown table */
+  .sec-breakdown {
+    margin: 0 auto 32px;
+    max-width: 500px;
+    text-align: left;
+  }
+
+  .sbd-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .sbd-row:last-child { border-bottom: none; }
+
+  .sbd-name { flex: 1; color: var(--muted); }
+  .sbd-score { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+  .sbd-mini { width: 80px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .sbd-fill { height: 100%; border-radius: 2px; }
+
+  .btn-restart {
+    background: var(--orange);
+    color: #000;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.15s;
+  }
+
+  .btn-restart:hover { opacity: 0.85; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 18px; }
+    .hero, .quiz-wrap { padding-left: 18px; padding-right: 18px; }
+    .hero h1 { font-size: 22px; }
+    #final-score { padding: 28px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-badge">Module 3</div>
+  <div class="hdr-title">Security Architecture — <span>Access Control</span></div>
+  <div class="hdr-right">
+    <div class="prog-label" id="prog-label">0 / 30</div>
+    <div class="prog-outer"><div class="prog-inner" id="prog-inner"></div></div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">SOC Analyst Training Program · CorpNet Scenario</div>
+  <h1>Access <span class="hi">Control</span></h1>
+  <div class="hero-sub">30 questions across 6 sections — principles, lifecycle, and technical models</div>
+
+  <div class="sc-grid" id="sc-grid"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-wrap" id="quiz-wrap"></div>
+
+<!-- FINAL SCORE -->
+<div class="quiz-wrap">
+  <div id="final-score">
+    <div class="ring-wrap"><div class="ring" id="ring"><div class="ring-pct" id="ring-pct">0%</div></div></div>
+    <div class="score-title" id="score-title">—</div>
+    <div class="score-msg"   id="score-msg">—</div>
+
+    <div class="breakdown">
+      <div class="bd-item">
+        <div class="bd-label">Correct</div>
+        <div class="bd-val" id="bd-correct" style="color:var(--green)">—</div>
+      </div>
+      <div class="bd-item">
+        <div class="bd-label">Wrong</div>
+        <div class="bd-val" id="bd-wrong" style="color:var(--red)">—</div>
+      </div>
+      <div class="bd-item">
+        <div class="bd-label">Score</div>
+        <div class="bd-val" id="bd-pct" style="color:var(--orange)">—</div>
+      </div>
+    </div>
+
+    <div class="sec-breakdown" id="sec-breakdown"></div>
+
+    <button class="btn-restart" onclick="restart()">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   DATA
+───────────────────────────────────────── */
+const SECTIONS = [
+  { name: "Access Control Principles",   color: "#bc8cff", total: 5 },
+  { name: "Access Management Lifecycle", color: "#58a6ff", total: 5 },
+  { name: "DAC",                         color: "#3fb950", total: 5 },
+  { name: "MAC & LBAC",                  color: "#d29922", total: 5 },
+  { name: "RBAC",                        color: "#e3852b", total: 5 },
+  { name: "ABAC & Model Comparison",     color: "#39d0c8", total: 5 },
+];
+
+const Q = [
+
+  /* ══ SECTION 0 — Access Control Principles (5) ══ */
+  {
+    sec: 0, tag: "concept",
+    q: "Ahmed is a junior HR analyst at CorpNet. His role is to process leave requests. Which access set correctly applies the principle of least privilege?",
+    opts: [
+      "Read access to leave requests, employee records, payroll data, and executive files",
+      "Read access to leave requests only — no payroll, no executive files, no system configuration",
+      "Full read/write access to all HR systems so he can assist when colleagues are absent",
+      "Admin access to the HR portal so he can troubleshoot issues himself"
+    ],
+    ans: 1,
+    fb: "Least privilege means giving only the minimum access required to perform the job function — nothing more. Ahmed processes leave requests, so he gets access to the leave request module only. Payroll, executive files, and system configuration are all outside the scope of his role."
+  },
+  {
+    sec: 0, tag: "soc",
+    q: "A SOC analyst sees Ahmed's account querying the payroll database at 02:00 AM — something he has never done before. Ahmed's role is leave request processing. What security principle does this event suggest has been violated?",
+    opts: [
+      "Separation of duties",
+      "Rotation of duties",
+      "Least privilege — the account has access beyond its job function scope",
+      "Need to know — the payroll data classification is too high"
+    ],
+    ans: 2,
+    fb: "Ahmed's account accessing payroll is a least privilege indicator: either the account was over-provisioned (given access it should never have had), or the account is compromised. A least privilege violation appearing in SIEM logs is a high-priority alert — the blast radius is determined by what that account can reach."
+  },
+  {
+    sec: 0, tag: "apply",
+    q: "Two HR analysts, Ahmed and Sara, both hold the HR Analyst role. A confidential executive misconduct investigation file exists on the file server. Sara is directly assigned to the case. Ahmed is not. Should Ahmed be able to access the file?",
+    opts: [
+      "Yes — they have the same role and same clearance level",
+      "Yes — HR staff should have full visibility into all HR matters",
+      "No — Ahmed has no operational reason to access this specific file; need-to-know is not satisfied",
+      "No — Ahmed's clearance level is too low"
+    ],
+    ans: 2,
+    fb: "Need-to-know operates independently of role and clearance. Having the correct role or clearance is necessary but not sufficient. Ahmed must also have a specific operational reason to access that particular file. He is not assigned to the case — his need-to-know is not established."
+  },
+  {
+    sec: 0, tag: "concept",
+    q: "CorpNet's finance process requires one analyst to create a payment request and a different analyst to approve it. No single person can do both. Which principle does this implement?",
+    opts: [
+      "Least privilege",
+      "Need to know",
+      "Separation of duties",
+      "Rotation of duties"
+    ],
+    ans: 2,
+    fb: "Separation of duties divides a critical process across multiple individuals so no single person can complete a sensitive transaction alone. The classic fraud prevention pattern: the person who creates a payment cannot approve it. Collusion between multiple parties is required to commit fraud — and collusion creates evidence."
+  },
+  {
+    sec: 0, tag: "scenario",
+    q: "What is the PRIMARY security benefit of rotating Ahmed out of the payroll management role after three years and replacing him with Sara?",
+    scenario: "Ahmed has managed CorpNet's payroll module for 3 years. He knows the audit schedule, the log format, and which discrepancies are typically ignored. He is moved to a new role and Sara takes over.",
+    opts: [
+      "Sara will perform the job faster than Ahmed",
+      "Sara's fresh review of Ahmed's work will surface irregularities Ahmed may have normalized or concealed over time",
+      "Ahmed's credentials are automatically revoked when he rotates",
+      "The payroll system gets a fresh configuration when a new user takes over"
+    ],
+    ans: 1,
+    fb: "Rotation of duties exposes long-term concealment. An insider committing slow-burn fraud or making small unauthorized changes learns the audit patterns over time. A new person reviewing the same work brings fresh perspective — they see what the previous person normalized. This is the core security benefit of rotation, distinct from separation of duties which prevents real-time fraud."
+  },
+
+  /* ══ SECTION 1 — Access Management Lifecycle (5) ══ */
+  {
+    sec: 1, tag: "concept",
+    q: "Ahmed joins CorpNet and is provisioned with HR Analyst access plus residual admin permissions from a previous test account that was never cleaned up. Six months later, nobody notices because the system has no review process. What access control failure does this describe?",
+    opts: [
+      "Revocation failure",
+      "Privilege creep from poor provisioning and no access review",
+      "Separation of duties violation",
+      "RBAC misconfiguration"
+    ],
+    ans: 1,
+    fb: "Privilege creep occurs when accounts accumulate permissions over time that are never removed. It often starts at provisioning (inheriting permissions from old accounts or templates) and grows without regular access reviews. The most dangerous enterprise accounts are often long-tenured employees with permissions from multiple past roles."
+  },
+  {
+    sec: 1, tag: "soc",
+    q: "Ahmed is promoted from HR Analyst to HR Manager. The IT team adds him to the HR Manager group but does not remove him from the HR Analyst group. Six months later, Ahmed has both sets of permissions. What is this called and what is the SOC risk?",
+    opts: [
+      "Role inheritance — expected behavior with no security risk",
+      "Privilege creep — Ahmed now holds combined permissions that exceed what his current role requires, expanding the blast radius if compromised",
+      "RBAC role explosion — too many roles exist in the system",
+      "DAC override — Ahmed's old permissions are discretionary and self-managed"
+    ],
+    ans: 1,
+    fb: "Privilege creep in the maintenance phase. When role changes happen without revoking old permissions, accounts accumulate access across every role ever held. From a SOC perspective, if Ahmed's account is compromised, the attacker inherits all accumulated permissions — not just the current role. Access recertification (periodic review) is the control that catches this."
+  },
+  {
+    sec: 1, tag: "apply",
+    q: "Which monitoring signal in CorpNet's SIEM is MOST indicative of a terminated employee's account being used by an unauthorized party?",
+    opts: [
+      "Successful login from Ahmed's usual workstation during business hours",
+      "Authentication success for an account marked 'inactive' in HR systems, accessing the file server at 11 PM",
+      "A new HR Analyst account created during onboarding",
+      "Ahmed's account generating 50 read events against leave request records"
+    ],
+    ans: 1,
+    fb: "Revocation failure — an account that HR has marked as terminated but IT has not disabled — is a critical gap. Authentication by an inactive account, especially off-hours, accessing sensitive systems is a high-confidence indicator of either unauthorized use or insider threat. Revocation must be immediate, complete, and verified across every system."
+  },
+  {
+    sec: 1, tag: "scenario",
+    q: "Ahmed's manager receives an email asking her to review and confirm whether each of her team members still requires their current system access. She approves or revokes accordingly. What access lifecycle process is this?",
+    scenario: "CorpNet runs a quarterly process where every manager receives a list of their team's active permissions and must certify whether each permission is still required for the employee's current role.",
+    opts: [
+      "Privilege escalation review",
+      "Access recertification — a periodic review of active permissions to identify and remove stale or excessive access",
+      "Identity proofing audit",
+      "Separation of duties assessment"
+    ],
+    ans: 1,
+    fb: "Access recertification (also called access review or access certification) is the maintenance-phase control that catches privilege creep. Managers attest that their team's permissions still match their current job functions. In regulated environments (SOX, HIPAA, PCI-DSS) this is a mandatory, audited process."
+  },
+  {
+    sec: 1, tag: "soc",
+    q: "CorpNet's SOC analyst discovers that a former employee's OAuth access token — issued 6 days ago — is still being used to query the HR portal API, even though the employee's AD account was disabled on their last day. What does this reveal about CorpNet's revocation process?",
+    opts: [
+      "The SAML assertion was not properly invalidated",
+      "OAuth token revocation was not implemented — disabling the AD account did not invalidate active tokens",
+      "The conditional access policy failed to block the request",
+      "The IAL level of the former employee was too low"
+    ],
+    ans: 1,
+    fb: "Token-based authentication introduces a revocation gap: tokens have their own lifetime independent of the account. Disabling an AD account stops password-based logins but does not automatically invalidate issued access tokens. Complete revocation requires active token invalidation at the authorization server — a step many organizations miss."
+  },
+
+  /* ══ SECTION 2 — DAC (5) ══ */
+  {
+    sec: 2, tag: "concept",
+    q: "Ahmed creates a quarterly performance report on CorpNet's file server. He sets the permissions himself: Sara can read it, the IT admin has full control, and everyone else is denied. Which access control model does this describe?",
+    opts: [
+      "MAC — the system assigned the permissions based on Ahmed's clearance",
+      "DAC — Ahmed as the resource owner decides who can access his file",
+      "RBAC — permissions were assigned based on Sara's role",
+      "ABAC — the permission decision evaluated Ahmed's department attribute"
+    ],
+    ans: 1,
+    fb: "DAC — Discretionary Access Control. The defining characteristic is that the resource owner has the discretion to grant or revoke access to their own resources. Ahmed created the file, Ahmed controls the ACL. The system enforces whatever the owner decides, but the owner makes the decision."
+  },
+  {
+    sec: 2, tag: "concept",
+    q: "In a DAC implementation, what is an Access Control List (ACL)?",
+    opts: [
+      "A log of every access attempt to a resource",
+      "A table attached to each resource listing which users or groups have which permissions on that resource",
+      "A centrally managed policy that classifies resources by sensitivity",
+      "A role definition listing what permissions each job function holds"
+    ],
+    ans: 1,
+    fb: "An ACL is the mechanism by which DAC is implemented. Each resource (file, folder, database table) carries a list mapping users or groups to their permitted operations (read, write, execute, delete). The owner controls this list. If the ACL is configured incorrectly — or if the owner makes a poor access decision — the system enforces that poor decision faithfully."
+  },
+  {
+    sec: 2, tag: "apply",
+    q: "Ahmed shares his performance report with the 'All Staff' group because he forgets to restrict it. The report contains salary benchmarks. A week later, a junior analyst discovers his own salary discrepancy after reading the report. Which DAC weakness does this illustrate?",
+    opts: [
+      "DAC cannot enforce read permissions — only write permissions",
+      "The resource owner making poor or careless access decisions — DAC provides no organizational policy override",
+      "ACLs cannot be applied to file servers, only to web applications",
+      "DAC requires admin approval for every permission change, which was bypassed here"
+    ],
+    ans: 1,
+    fb: "DAC's core weakness: access control quality depends entirely on the owner's judgment. Ahmed made a careless decision and the system faithfully enforced it. In MAC or RBAC, a central policy or administrator would control access to salary data — individual owners cannot override the policy. DAC is flexible but provides the weakest security guarantee."
+  },
+  {
+    sec: 2, tag: "soc",
+    q: "A SOC analyst reviewing DLP alerts finds that a sensitive CorpNet contract file is accessible to 380 employees because a project manager set the ACL to 'Domain Users' three years ago and nobody reviewed it. What monitoring or governance control would have caught this earlier?",
+    opts: [
+      "Conditional access policy on the file server",
+      "Periodic access recertification and data classification reviews that include ACL auditing",
+      "Upgrading from DAC to AAL3 authentication",
+      "Deploying a SAML IDP for the file server"
+    ],
+    ans: 1,
+    fb: "DAC permission sprawl is caught through access reviews and data classification audits. A tool or process that periodically scans file server ACLs against expected access patterns — and flags broad permissions on sensitive data — would surface this. DLP caught the symptom (data accessible to too many people); access recertification would have caught the cause before data was exposed."
+  },
+  {
+    sec: 2, tag: "scenario",
+    q: "CorpNet uses DAC for its general file server. An attacker compromises Ahmed's account. What access does the attacker immediately gain?",
+    scenario: "Ahmed owns 14 files on the file server and has read access to 23 files shared with him by other employees. Ahmed's account is compromised via credential stuffing.",
+    opts: [
+      "No access — compromised accounts are automatically suspended by DAC",
+      "All access Ahmed has — owner rights to his 14 files and read rights to the 23 shared files — plus the ability to change ACLs on his own files",
+      "Read-only access to all files on the file server",
+      "Access only to files Ahmed accessed in the last 24 hours"
+    ],
+    ans: 1,
+    fb: "In DAC, a compromised account inherits all the owner's rights — including the ability to modify ACLs on owned files. An attacker can read all files Ahmed has access to, and can also grant themselves persistent access by modifying ACLs (adding a backdoor account with owner rights). This is why least privilege on DAC systems still matters enormously."
+  },
+
+  /* ══ SECTION 3 — MAC & LBAC (5) ══ */
+  {
+    sec: 3, tag: "concept",
+    q: "CorpNet implements MAC for its executive file server. Ahmed has INTERNAL clearance. A file is labeled CONFIDENTIAL. What happens when Ahmed tries to open it?",
+    opts: [
+      "Ahmed is prompted to request access from the file owner",
+      "Ahmed is granted access because he is an employee",
+      "Access is denied — Ahmed's INTERNAL clearance does not meet the CONFIDENTIAL classification threshold",
+      "Ahmed can read it but not write to it"
+    ],
+    ans: 2,
+    fb: "MAC enforces the equal-or-higher rule: a subject can access an object only if their clearance level is equal to or higher than the object's classification. Ahmed's INTERNAL clearance is below CONFIDENTIAL. The system denies access automatically — Ahmed cannot appeal to the file owner, the file owner cannot override the system, and Ahmed cannot grant himself access."
+  },
+  {
+    sec: 3, tag: "concept",
+    q: "What is the key difference between MAC and DAC regarding who controls access decisions?",
+    opts: [
+      "In MAC the user decides; in DAC the system decides",
+      "In DAC the resource owner decides; in MAC the system decides based on centrally defined labels and policy",
+      "Both are controlled by the system administrator — the difference is only in implementation",
+      "MAC is for files; DAC is for network resources"
+    ],
+    ans: 1,
+    fb: "This is the fundamental philosophical distinction. DAC: the resource owner has discretion — they set permissions on their own resources. MAC: the system enforces centrally defined policy based on security labels — no individual user, including the resource owner, can override it. MAC removes human judgment from access decisions and replaces it with policy."
+  },
+  {
+    sec: 3, tag: "apply",
+    q: "Sara holds TOP SECRET clearance. She is working on a TOP SECRET analysis and wants to paste a summary into an UNCLASSIFIED internal newsletter. The MAC system blocks the paste operation. Which Bell-LaPadula property is being enforced?",
+    opts: [
+      "Simple Security Property — No Read Up",
+      "Star Property (★) — No Write Down",
+      "The equal-or-higher read rule",
+      "Need-to-know enforcement"
+    ],
+    ans: 1,
+    fb: "The Star Property (★ Property / No Write Down) prevents subjects from writing information to objects at a lower classification level than their clearance. Sara cannot write TOP SECRET content into an UNCLASSIFIED document because that would leak classified information downward. The Simple Security Property controls reading (No Read Up). Together they prevent both unauthorized access and information leakage."
+  },
+  {
+    sec: 3, tag: "concept",
+    q: "CorpNet's classification ladder runs: UNCLASSIFIED → INTERNAL → CONFIDENTIAL → TOP SECRET. An analyst with CONFIDENTIAL clearance tries to read a TOP SECRET file. Which Bell-LaPadula property blocks this?",
+    opts: [
+      "Star Property — No Write Down",
+      "Simple Security Property — No Read Up",
+      "The need-to-know principle",
+      "DAC ACL enforcement"
+    ],
+    ans: 1,
+    fb: "The Simple Security Property states: a subject may NOT read an object at a classification level above their clearance. The analyst's CONFIDENTIAL clearance is below TOP SECRET — they cannot read up. This is the 'No Read Up' rule. The Star Property (★) governs writing, not reading."
+  },
+  {
+    sec: 3, tag: "scenario",
+    q: "CorpNet's MAC system is described as Lattice-Based Access Control. What does the 'lattice' represent in this context?",
+    scenario: "CorpNet's security team designs a classification system with four levels: UNCLASSIFIED, INTERNAL, CONFIDENTIAL, and TOP SECRET, with defined rules about which level can read or write which.",
+    opts: [
+      "The network topology diagram showing how systems are connected",
+      "The hierarchy of security levels with defined dominance relationships — a subject's clearance must dominate an object's classification for access to be granted",
+      "The ACL table attached to each file",
+      "The role hierarchy used in RBAC"
+    ],
+    ans: 1,
+    fb: "A lattice is a mathematical structure that defines partial ordering — in LBAC, it organizes security levels with defined dominance relationships. A clearance 'dominates' a classification if it is equal to or higher. TOP SECRET dominates all levels below it. UNCLASSIFIED is dominated by all levels above it. The lattice defines the legal access paths."
+  },
+
+  /* ══ SECTION 4 — RBAC (5) ══ */
+  {
+    sec: 4, tag: "concept",
+    q: "CorpNet migrates from individual user permissions to RBAC. Instead of assigning permissions directly to Ahmed, permissions are assigned to the 'HR Analyst' role, and Ahmed is assigned to that role. What is the PRIMARY operational benefit?",
+    opts: [
+      "Ahmed now has more permissions than before",
+      "When Ahmed changes jobs, permissions update by changing his role assignment — not by changing 50 individual permission entries",
+      "The system no longer needs an IDP for authentication",
+      "Ahmed can now manage his own permissions within his role"
+    ],
+    ans: 1,
+    fb: "RBAC decouples users from permissions by introducing roles as an intermediary. Permission management is now done at the role level — change the role, and all users in that role are affected simultaneously. Role changes are also operationally simpler: reassigning Ahmed from HR Analyst to HR Manager is one operation, not dozens of individual permission updates."
+  },
+  {
+    sec: 4, tag: "apply",
+    q: "Ahmed is promoted to HR Manager. The IT team adds him to the HR Manager role but forgets to remove him from the HR Analyst role. How does RBAC handle this, and what is the security implication?",
+    opts: [
+      "RBAC automatically removes conflicting roles — no security issue",
+      "Ahmed now holds both role permission sets simultaneously — a form of privilege creep that RBAC prevents structurally only if role assignment governance is enforced",
+      "The HR Manager role overrides the HR Analyst role automatically",
+      "Ahmed must log out and log back in for the new role to take effect"
+    ],
+    ans: 1,
+    fb: "RBAC provides structural least privilege — but only if role lifecycle management is enforced. The technology does not automatically remove old role assignments. Governance processes (access recertification, role change procedures) must ensure that when a user moves to a new role, the old role is revoked. Without this, RBAC becomes a framework for organized privilege creep."
+  },
+  {
+    sec: 4, tag: "concept",
+    q: "CorpNet has grown from 50 to 500 employees. The RBAC system now has 200 roles because each team has created its own variations. Permissions overlap and conflict, and nobody can explain what any given user can actually access. What RBAC problem is this?",
+    opts: [
+      "RBAC explosion — too many roles, destroying the manageability benefit RBAC was designed to provide",
+      "LBAC conflict — the classification labels are incompatible with role definitions",
+      "DAC inheritance — users are receiving discretionary permissions through roles",
+      "ABAC policy conflict — attributes are overriding role assignments"
+    ],
+    ans: 0,
+    fb: "Role explosion is RBAC's most common failure mode in large enterprises. When roles proliferate without governance — teams creating their own roles, exceptions becoming permanent, roles never being deprecated — the system becomes unmanageable. The access matrix becomes impossible to audit. RBAC governance (role ownership, regular role review, role minimization) is required to prevent this."
+  },
+  {
+    sec: 4, tag: "soc",
+    q: "A SOC analyst reviews Ahmed's account and finds he is a member of 11 RBAC roles spanning HR, Finance, IT Helpdesk, and Network Operations. Ahmed is currently an HR Analyst. What is the correct assessment?",
+    opts: [
+      "Normal — RBAC allows users to hold multiple roles simultaneously",
+      "Role accumulation over time — Ahmed likely inherited roles from previous positions that were never revoked, creating a high-risk account",
+      "Ahmed is a system administrator and these roles are expected",
+      "RBAC roles are additive by design — 11 roles means exactly 11 times the access of one role"
+    ],
+    ans: 1,
+    fb: "An HR Analyst with roles spanning Finance, IT, and Network Operations is a red flag. This is the RBAC manifestation of privilege creep — roles accumulated across past positions, transfers, or project assignments that were never removed. From a SOC perspective, if this account is compromised, the attacker can pivot across four departments. This finding should be escalated to access management immediately."
+  },
+  {
+    sec: 4, tag: "scenario",
+    q: "How does RBAC relate to the DAC vs. MAC distinction?",
+    scenario: "A security architect debates whether CorpNet's RBAC implementation should be classified as DAC or MAC.",
+    opts: [
+      "RBAC is always DAC because roles are defined by administrators, not the system",
+      "RBAC is always MAC because users cannot change their own role permissions",
+      "RBAC is a separate model — but it can be configured to behave like DAC or MAC depending on whether users can modify role permissions and whether the system enforces policy centrally",
+      "RBAC replaces both DAC and MAC entirely in modern enterprise environments"
+    ],
+    ans: 2,
+    fb: "RBAC is a mechanism, not a philosophy. If role permissions can be modified by resource owners or users — that is DAC behavior implemented through RBAC. If role permissions are centrally defined and immutable by users — that is MAC behavior. RBAC is policy-neutral: it can implement either philosophy. Most enterprise RBAC implementations behave like MAC because administrators — not users — control role definitions."
+  },
+
+  /* ══ SECTION 5 — ABAC & Model Comparison (5) ══ */
+  {
+    sec: 5, tag: "concept",
+    q: "CorpNet's policy engine evaluates the following rule: IF role=HR Analyst AND clearance>=Confidential AND device=managed AND time between 08:00–18:00 AND network=corporate-VPN THEN allow read. Ahmed meets all conditions at 09:30 from his managed laptop. Sara meets all conditions except she is on her personal phone. What happens?",
+    opts: [
+      "Both Ahmed and Sara are granted access — they hold the same role",
+      "Ahmed is granted access; Sara is denied — her device does not meet the policy condition",
+      "Both are denied — the policy requires all five conditions to be true simultaneously",
+      "Sara is granted read-only access while Ahmed gets full access"
+    ],
+    ans: 1,
+    fb: "ABAC evaluates ALL policy conditions simultaneously at the moment of access. Ahmed satisfies all five conditions — access granted. Sara fails the device=managed condition — access denied, regardless of her role, clearance, time, or network. This is ABAC's core strength: fine-grained, context-aware decisions that static role or classification models cannot make."
+  },
+  {
+    sec: 5, tag: "apply",
+    q: "What makes ABAC fundamentally more powerful than RBAC for dynamic enterprise environments?",
+    opts: [
+      "ABAC uses stronger encryption than RBAC",
+      "ABAC evaluates context at the moment of access — the same user can receive different decisions based on device, location, time, and threat level — while RBAC gives the same access regardless of context",
+      "ABAC does not require a central policy engine while RBAC does",
+      "ABAC replaces the need for authentication entirely"
+    ],
+    ans: 1,
+    fb: "RBAC is static: Ahmed's role gives him the same access at 9am in the office and at 3am from an unknown device in a foreign country. ABAC is dynamic: it evaluates contextual attributes at the moment of access. This is why ABAC is the foundation of Zero Trust architecture — trust is never assumed, it is evaluated continuously based on current context."
+  },
+  {
+    sec: 5, tag: "soc",
+    q: "An ABAC policy engine logs every access decision with the full attribute evaluation — which conditions passed, which failed, and the final decision. Why is this more valuable for SOC analysts than a simple allow/deny log from a DAC ACL?",
+    opts: [
+      "ABAC logs are smaller and faster to process",
+      "ABAC decision logs reveal exactly which context condition triggered a denial or an unexpected grant — enabling analysts to investigate why access occurred, not just that it occurred",
+      "DAC systems do not generate any access logs",
+      "ABAC logs include the user's password hash for verification"
+    ],
+    ans: 1,
+    fb: "ABAC provides the richest access audit trail. A DAC log says 'access granted' or 'access denied.' An ABAC log says 'access granted because: role=HR Analyst ✓, clearance=Confidential ✓, device=managed ✓, time=09:30 ✓, network=corporate-VPN ✓.' When investigating a suspicious access event, analysts can see precisely which conditions were met — and which should not have been, revealing policy gaps or attribute manipulation."
+  },
+  {
+    sec: 5, tag: "scenario",
+    q: "CorpNet needs to choose an access control model for a new scenario. Which model is the BEST fit?",
+    scenario: "CorpNet's legal team handles cases where access to case files must be restricted to assigned attorneys only, must not be possible outside business hours, must require a managed device, and must be automatically revoked when the case is closed — regardless of what the file owner wants.",
+    opts: [
+      "DAC — attorneys manage their own case file permissions",
+      "RBAC alone — assign all attorneys to a 'Legal' role with case file access",
+      "ABAC — policy engine evaluates attorney assignment, time, device, and case status simultaneously; no individual can override it",
+      "MAC/LBAC — classify all case files as TOP SECRET and require corresponding clearance"
+    ],
+    ans: 2,
+    fb: "This scenario requires multiple simultaneous conditions (assignment + time + device + case status) with no owner override capability. DAC fails because owners could grant excess access. RBAC fails because it cannot handle case assignment and case status dynamically. MAC/LBAC handles classification but not contextual conditions like 'case is closed.' ABAC is the correct fit: it evaluates all conditions simultaneously and enforces organizational policy over owner discretion."
+  },
+  {
+    sec: 5, tag: "apply",
+    q: "A CorpNet security architect must choose an access control model for three different systems. Match the model to the scenario.",
+    opts: [
+      "General shared drive where department heads manage their own folders → MAC; Classified executive strategy documents → DAC; HR portal with time/location/device restrictions → ABAC",
+      "General shared drive where department heads manage their own folders → DAC; Classified executive strategy documents → MAC/LBAC; HR portal with time/location/device restrictions → ABAC",
+      "General shared drive → RBAC; Classified documents → ABAC; HR portal → DAC",
+      "All three systems should use MAC — it provides the highest security in all scenarios"
+    ],
+    ans: 1,
+    fb: "The correct mapping: DAC for the general shared drive — department heads as owners managing their own folder permissions is a natural fit. MAC/LBAC for classified executive documents — centrally enforced classification, no owner override, Bell-LaPadula rules. ABAC for the HR portal — dynamic context evaluation (time, device, location) cannot be achieved by static models. Each model is strongest in its intended use case."
+  },
+
+];
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let answered, correct, secScores;
+
+function initState() {
+  answered  = new Array(Q.length).fill(false);
+  correct   = new Array(Q.length).fill(false);
+  secScores = SECTIONS.map(() => ({ c: 0, answered: 0 }));
+}
+
+/* ─────────────────────────────────────────
+   BUILD SCORECARDS
+───────────────────────────────────────── */
+function buildScorecards() {
+  const grid = document.getElementById('sc-grid');
+  grid.innerHTML = '';
+  SECTIONS.forEach((s, i) => {
+    grid.innerHTML += `
+      <div class="sc-card">
+        <div class="sc-label">${s.name}</div>
+        <div class="sc-score" id="sc-score-${i}">—<span class="denom"> / ${s.total}</span></div>
+        <div class="sc-bar"><div class="sc-fill" id="sc-fill-${i}" style="background:${s.color}"></div></div>
+      </div>`;
+  });
+}
+
+function updateScorecard(si) {
+  const s = secScores[si];
+  const total = SECTIONS[si].total;
+  document.getElementById(`sc-score-${si}`).innerHTML =
+    `${s.c}<span class="denom"> / ${total}</span>`;
+  document.getElementById(`sc-fill-${si}`).style.width =
+    `${(s.c / total) * 100}%`;
+}
+
+/* ─────────────────────────────────────────
+   BUILD QUIZ
+───────────────────────────────────────── */
+function buildQuiz() {
+  const wrap = document.getElementById('quiz-wrap');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const tagMap = {
+    concept:  { cls:'tag-concept',  label:'Concept' },
+    apply:    { cls:'tag-apply',    label:'Application' },
+    soc:      { cls:'tag-soc',      label:'SOC Lens' },
+    scenario: { cls:'tag-scenario', label:'Scenario' },
+  };
+
+  let curSec = -1;
+  let secEl = null;
+
+  Q.forEach((q, qi) => {
+    if (q.sec !== curSec) {
+      curSec = q.sec;
+      secEl = document.createElement('div');
+      secEl.className = 'sec-block';
+      secEl.id = `sec-${curSec}`;
+      const s = SECTIONS[curSec];
+      secEl.innerHTML = `
+        <div class="sec-hdr">
+          <div class="sec-num">SECTION ${String(curSec + 1).padStart(2,'0')}</div>
+          <div class="sec-name" style="color:${s.color}">${s.name}</div>
+          <div class="sec-count">${s.total} questions</div>
+        </div>`;
+      wrap.appendChild(secEl);
+    }
+
+    const tm = tagMap[q.tag] || tagMap.concept;
+    const scenarioHTML = q.scenario
+      ? `<div class="q-scenario">📋 ${q.scenario}</div>`
+      : '';
+
+    const optsHTML = q.opts.map((o, oi) => `
+      <button class="opt" id="opt-${qi}-${oi}" onclick="answer(${qi},${oi})">
+        <span class="opt-ltr">${letters[oi]}</span>
+        <span>${o}</span>
+      </button>`).join('');
+
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `qcard-${qi}`;
+    card.innerHTML = `
+      <div class="q-meta">
+        <div class="q-num">Q${qi + 1}</div>
+        <div class="q-tag ${tm.cls}">${tm.label}</div>
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${scenarioHTML}
+      <div class="options">${optsHTML}</div>
+      <div class="feedback" id="fb-${qi}">
+        <div class="fb-head" id="fb-head-${qi}"></div>
+        <div id="fb-body-${qi}"></div>
+      </div>`;
+    secEl.appendChild(card);
+  });
+}
+
+/* ─────────────────────────────────────────
+   ANSWER
+───────────────────────────────────────── */
+function answer(qi, chosen) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+
+  const q = Q[qi];
+  const isCorrect = chosen === q.ans;
+  correct[qi] = isCorrect;
+
+  // style options
+  q.opts.forEach((_, oi) => {
+    const btn = document.getElementById(`opt-${qi}-${oi}`);
+    btn.disabled = true;
+    if (oi === q.ans)                  btn.classList.add('correct');
+    else if (oi === chosen && !isCorrect) btn.classList.add('wrong');
+    else                               btn.classList.add('dimmed');
+  });
+
+  // card border
+  document.getElementById(`qcard-${qi}`)
+    .classList.add(isCorrect ? 'ans-correct' : 'ans-wrong');
+
+  // feedback
+  const fb     = document.getElementById(`fb-${qi}`);
+  const fbHead = document.getElementById(`fb-head-${qi}`);
+  const fbBody = document.getElementById(`fb-body-${qi}`);
+  fb.className = 'feedback ' + (isCorrect ? 'fb-correct' : 'fb-wrong');
+  fbHead.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
+  fbBody.textContent = q.fb;
+
+  // section score
+  secScores[q.sec].answered++;
+  if (isCorrect) secScores[q.sec].c++;
+  updateScorecard(q.sec);
+  updateProgress();
+
+  if (answered.filter(Boolean).length === Q.length) showFinal();
+}
+
+/* ─────────────────────────────────────────
+   PROGRESS
+───────────────────────────────────────── */
+function updateProgress() {
+  const done = answered.filter(Boolean).length;
+  document.getElementById('prog-label').textContent = `${done} / ${Q.length}`;
+  document.getElementById('prog-inner').style.width = `${(done / Q.length) * 100}%`;
+}
+
+/* ─────────────────────────────────────────
+   FINAL SCORE
+───────────────────────────────────────── */
+function showFinal() {
+  const totalC = correct.filter(Boolean).length;
+  const total  = Q.length;
+  const pct    = Math.round((totalC / total) * 100);
+
+  let title, msg;
+  if      (pct >= 87) { title = "Access Enforced";    msg = "Strong command of access control principles, lifecycle, and technical models. You understand not just what each model does — but when each one fails and what that looks like in a SIEM."; }
+  else if (pct >= 73) { title = "Solid Foundation";   msg = "Good grasp of the core models. Review the Bell-LaPadula properties and ABAC condition evaluation — these are the areas most frequently tested in real-world SOC work."; }
+  else if (pct >= 57) { title = "Building Up";        msg = "The principles are landing but the technical models need more work. Focus on the DAC vs. MAC distinction and the LBAC read/write rules — those are the conceptual foundations everything else builds on."; }
+  else                { title = "Keep Drilling";      msg = "Go back to the CorpNet scenario and trace each model from first principles. Start with: who makes the access decision? That one question separates DAC from MAC and everything else follows."; }
+
+  document.getElementById('ring-pct').textContent  = pct + '%';
+  document.getElementById('score-title').textContent = title;
+  document.getElementById('score-msg').textContent   = msg;
+  document.getElementById('bd-correct').textContent  = totalC;
+  document.getElementById('bd-wrong').textContent    = total - totalC;
+  document.getElementById('bd-pct').textContent      = pct + '%';
+
+  // ring animation
+  const deg   = Math.round((pct / 100) * 360);
+  const color = pct >= 73 ? '#3fb950' : pct >= 57 ? '#d29922' : '#f85149';
+  document.getElementById('ring').style.background =
+    `conic-gradient(${color} ${deg}deg, #21262d ${deg}deg)`;
+
+  // section breakdown
+  const sbd = document.getElementById('sec-breakdown');
+  sbd.innerHTML = SECTIONS.map((s, i) => {
+    const sc = secScores[i];
+    const p  = Math.round((sc.c / s.total) * 100);
+    return `
+      <div class="sbd-row">
+        <div class="sbd-name">${s.name}</div>
+        <div class="sbd-score" style="color:${s.color}">${sc.c}/${s.total}</div>
+        <div class="sbd-mini"><div class="sbd-fill" style="background:${s.color};width:${p}%"></div></div>
+      </div>`;
+  }).join('');
+
+  const el = document.getElementById('final-score');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ─────────────────────────────────────────
+   RESTART
+───────────────────────────────────────── */
+function restart() {
+  initState();
+  document.getElementById('final-score').style.display = 'none';
+  document.getElementById('prog-inner').style.width = '0%';
+  document.getElementById('prog-label').textContent = `0 / ${Q.length}`;
+  SECTIONS.forEach((_, i) => {
+    document.getElementById(`sc-score-${i}`).innerHTML =
+      `—<span class="denom"> / ${SECTIONS[i].total}</span>`;
+    document.getElementById(`sc-fill-${i}`).style.width = '0%';
+  });
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+initState();
+buildScorecards();
+buildQuiz();
+</script>
+</body>
+</html>
