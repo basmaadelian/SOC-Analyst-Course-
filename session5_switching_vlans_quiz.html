@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5 Quiz — Switching & VLANs</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1c2330;
+    --border:    #30363d;
+    --border2:   #21262d;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --accent:    #2f81f7;
+    --accent-dim:#1a4a8a;
+    --green:     #3fb950;
+    --green-dim: #1a3a20;
+    --red:       #f85149;
+    --red-dim:   #3a1a1a;
+    --yellow:    #e3b341;
+    --yellow-dim:#3a2d0e;
+    --purple:    #bc8cff;
+    --purple-dim:#2d1f4a;
+    --tag-concept: #1a3a6a;
+    --tag-app:     #1a3a20;
+    --tag-soc:     #3a1a3a;
+    --tag-scenario:#3a2800;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
+
+  .session-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .quiz-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .quiz-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 180px;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .progress-bar-bg {
+    width: 180px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* ── SECTION SCORECARDS ── */
+  .scorecards {
+    max-width: 860px;
+    margin: 28px auto 0;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+
+  .scorecard {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 10px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .scorecard.active { border-color: var(--accent); }
+
+  .sc-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .sc-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+
+  .sc-score.has-answers { color: var(--text); }
+  .sc-score.perfect    { color: var(--green); }
+  .sc-score.partial    { color: var(--yellow); }
+  .sc-score.poor       { color: var(--red); }
+
+  /* ── MAIN ── */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 40px 80px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .question-card.answered-correct { border-color: var(--green); }
+  .question-card.answered-wrong   { border-color: var(--red); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  .q-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+
+  .tag-Concept  { background: var(--tag-concept); color: #58a6ff; border-color: #1f4a8a; }
+  .tag-Application { background: var(--tag-app); color: var(--green); border-color: #2a4a2a; }
+  .tag-SOC      { background: var(--tag-soc); color: var(--purple); border-color: #4a2a4a; }
+  .tag-Scenario { background: var(--tag-scenario); color: var(--yellow); border-color: #4a3800; }
+
+  .q-section-tag {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 18px;
+    line-height: 1.55;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #1a2332;
+  }
+
+  .option:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    min-width: 26px;
+    text-align: center;
+  }
+
+  .option.correct {
+    background: var(--green-dim);
+    border-color: var(--green);
+  }
+  .option.correct .opt-letter {
+    background: var(--green);
+    color: #0d1117;
+    border-color: var(--green);
+  }
+
+  .option.wrong {
+    background: var(--red-dim);
+    border-color: var(--red);
+  }
+  .option.wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+
+  .option.reveal-correct {
+    background: var(--green-dim);
+    border-color: var(--green);
+    opacity: 0.7;
+  }
+  .option.reveal-correct .opt-letter {
+    background: var(--green);
+    color: #0d1117;
+    border-color: var(--green);
+  }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    border-left: 3px solid transparent;
+  }
+
+  .feedback.show { display: block; }
+
+  .feedback.correct-fb {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: #b7f5c0;
+  }
+
+  .feedback.wrong-fb {
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: #ffb3b0;
+  }
+
+  .fb-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .correct-fb .fb-header { color: var(--green); }
+  .wrong-fb   .fb-header { color: var(--red); }
+
+  /* ── SECTION DIVIDERS ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 32px 0 20px;
+  }
+
+  .sd-line { flex: 1; height: 1px; background: var(--border2); }
+
+  .sd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  .sd-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  /* ── FINAL SCORECARD ── */
+  .final-scorecard {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .final-scorecard.show { display: block; }
+
+  .final-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .final-score-big {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .final-score-big.grade-a { color: var(--green); }
+  .final-score-big.grade-b { color: #58a6ff; }
+  .final-score-big.grade-c { color: var(--yellow); }
+  .final-score-big.grade-d { color: var(--red); }
+
+  .final-verdict {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .final-breakdown {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .fb-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px 10px;
+  }
+
+  .fb-card-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .fb-card-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .restart-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .restart-btn:hover { background: #388bfd; transform: translateY(-1px); }
+  .restart-btn:active { transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .header { padding: 20px; }
+    .header-inner { flex-direction: column; align-items: flex-start; }
+    .progress-wrap { align-items: flex-start; }
+    .scorecards { padding: 0 20px; grid-template-columns: repeat(3, 1fr); }
+    .main { padding: 24px 20px 60px; }
+    .question-card { padding: 20px; }
+    .final-breakdown { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <span class="session-label">Module 1 · Session 5</span>
+      <span class="quiz-title">Switching &amp; VLANs</span>
+      <span class="quiz-subtitle">Network Fundamentals · SOC Analyst Curriculum</span>
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-label" id="progress-label">0 / 20 answered</span>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION SCORECARDS -->
+<div class="scorecards">
+  <div class="scorecard" id="sc-0">
+    <div class="sc-label">Hubs vs<br>Switches</div>
+    <div class="sc-score" id="scs-0">—</div>
+  </div>
+  <div class="scorecard" id="sc-1">
+    <div class="sc-label">MAC Table /<br>Flood &amp; Learn</div>
+    <div class="sc-score" id="scs-1">—</div>
+  </div>
+  <div class="scorecard" id="sc-2">
+    <div class="sc-label">VLANs &amp;<br>802.1Q</div>
+    <div class="sc-score" id="scs-2">—</div>
+  </div>
+  <div class="scorecard" id="sc-3">
+    <div class="sc-label">VLANs vs<br>Subnetting</div>
+    <div class="sc-score" id="scs-3">—</div>
+  </div>
+  <div class="scorecard" id="sc-4">
+    <div class="sc-label">STP &amp;<br>Broadcast Storms</div>
+    <div class="sc-score" id="scs-4">—</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="quiz-main">
+  <!-- Questions injected by JS -->
+</div>
+
+<!-- FINAL SCORECARD -->
+<div class="final-scorecard" id="final-scorecard">
+  <div class="final-label">Quiz Complete</div>
+  <div class="final-score-big" id="final-big">—</div>
+  <div class="final-verdict" id="final-verdict"></div>
+  <div class="final-breakdown" id="final-breakdown"></div>
+  <button class="restart-btn" onclick="restartQuiz()">↺ Restart Quiz</button>
+</div>
+
+<script>
+const SECTIONS = [
+  "Hubs vs Switches",
+  "MAC Table / Flood & Learn",
+  "VLANs & 802.1Q",
+  "VLANs vs Subnetting",
+  "STP & Broadcast Storms"
+];
+
+const QUESTIONS = [
+  // ── SECTION 0: Hubs vs Switches (Q1–4) ──────────────────────────────
+  {
+    section: 0,
+    type: "Concept",
+    text: "What is the fundamental forwarding difference between a hub and a switch?",
+    options: [
+      "A hub forwards frames only to the destination port; a switch floods frames to all ports.",
+      "A hub repeats incoming data to every port simultaneously; a switch forwards frames only to the port of the intended destination.",
+      "A hub operates at Layer 3; a switch operates at Layer 2.",
+      "A hub uses IP addresses to make forwarding decisions; a switch uses MAC addresses."
+    ],
+    correct: 1,
+    feedback: "A hub is a Layer 1 device — it has no intelligence. Every frame it receives is repeated out every port, regardless of destination. A switch reads the destination MAC address and delivers the frame only to the correct port. This is the core reason switches replaced hubs entirely."
+  },
+  {
+    section: 0,
+    type: "Concept",
+    text: "How many collision domains exist on a 24-port hub compared to a 24-port switch?",
+    options: [
+      "Hub: 24 collision domains. Switch: 1 collision domain.",
+      "Hub: 1 collision domain. Switch: 24 collision domains.",
+      "Hub: 1 collision domain. Switch: 1 collision domain.",
+      "Hub: 24 collision domains. Switch: 24 collision domains."
+    ],
+    correct: 1,
+    feedback: "A hub has one shared collision domain across all ports — only one device can transmit at a time and collisions are handled with CSMA/CD. A switch gives each port its own collision domain, so devices can transmit simultaneously without interfering. This is what enables full-duplex operation on a switch."
+  },
+  {
+    section: 0,
+    type: "Concept",
+    text: "A switch defaults to which duplex mode, and why does this matter?",
+    options: [
+      "Half-duplex, because switches use CSMA/CD to prevent collisions.",
+      "Full-duplex, because each port is its own collision domain — devices can send and receive simultaneously with no collisions.",
+      "Half-duplex on access ports, full-duplex on trunk ports only.",
+      "Full-duplex, but only when connected to another switch — not to end devices."
+    ],
+    correct: 1,
+    feedback: "Because each switch port is its own isolated collision domain, there is nothing to collide with. This makes full-duplex possible — a device can transmit and receive at the same time. Hubs, by contrast, force all devices into a single collision domain and half-duplex operation."
+  },
+  {
+    section: 0,
+    type: "Concept",
+    text: "On a hub, how many broadcast domains exist across all ports?",
+    options: [
+      "One broadcast domain shared across all ports.",
+      "One broadcast domain per port.",
+      "One broadcast domain per connected device.",
+      "No broadcast domains — hubs do not process broadcasts."
+    ],
+    correct: 0,
+    feedback: "A hub is entirely Layer 1 — it has no concept of broadcast domains. Every frame, including broadcasts, is flooded out every port. All ports on a hub share a single broadcast domain. A switch also has one broadcast domain by default, but VLANs allow a switch to create multiple isolated broadcast domains."
+  },
+
+  // ── SECTION 1: MAC Table / Flood & Learn (Q5–8) ──────────────────────
+  {
+    section: 1,
+    type: "Concept",
+    text: "What information does a switch record in its MAC address table when a frame arrives?",
+    options: [
+      "The destination MAC address and the port the frame arrived on.",
+      "The source MAC address and the port the frame arrived on.",
+      "The source IP address and the VLAN ID of the frame.",
+      "Both source and destination MAC addresses, mapped to the same port."
+    ],
+    correct: 1,
+    feedback: "The switch learns by reading the SOURCE MAC address of incoming frames — it records 'this MAC address is reachable via this port.' This is the learn phase of flood-and-learn. The destination MAC is used to make the forwarding decision, but it is the source that teaches the switch about the network topology."
+  },
+  {
+    section: 1,
+    type: "Application",
+    text: "A switch receives a frame destined for a MAC address not yet in its CAM table. What does it do?",
+    options: [
+      "Drops the frame and sends an error to the sender.",
+      "Buffers the frame until the destination MAC is learned.",
+      "Floods the frame out every active port except the port it arrived on.",
+      "Sends an ARP request to discover the destination MAC address."
+    ],
+    correct: 2,
+    feedback: "When the destination MAC is unknown, the switch has no choice but to flood — it sends the frame out every active port except the source port. This ensures the frame reaches the destination, and once the destination replies, its source MAC is learned. This is the flood phase of flood-and-learn. Note: ARP is a Layer 3 function performed by hosts, not by switches."
+  },
+  {
+    section: 1,
+    type: "Concept",
+    text: "By default, how long does an entry remain in a switch's MAC address table before being aged out?",
+    options: [
+      "1 minute of inactivity.",
+      "5 minutes of inactivity.",
+      "10 minutes of inactivity.",
+      "Entries never expire — they must be cleared manually."
+    ],
+    correct: 1,
+    feedback: "MAC address table entries age out after 5 minutes of inactivity by default on most switches. This allows the table to stay current as devices move between ports or disconnect. If a device has been silent for 5 minutes and then sends traffic again, the switch re-learns its location from the source MAC of that new frame."
+  },
+  {
+    section: 1,
+    type: "Concept",
+    text: "What are the three forwarding rules that govern every decision a switch makes?",
+    options: [
+      "Forward if TTL > 0. Drop if VLAN mismatch. Flood if broadcast.",
+      "Forward to known destination port. Flood to all ports except source if unknown. Flood all ports except source if broadcast.",
+      "Check routing table first. If no route, use MAC table. If no entry, drop the frame.",
+      "Forward to all ports if unicast. Forward to one port if multicast. Drop if destination is unresolvable."
+    ],
+    correct: 1,
+    feedback: "The three rules are the complete logic of Layer 2 switching: (1) If the destination MAC is known — forward to that port only. (2) If the destination MAC is unknown — flood all ports except the source. (3) If the destination is a broadcast (FF:FF:FF:FF:FF:FF) — flood all ports except the source. Every forwarding decision a switch makes falls into one of these three categories."
+  },
+
+  // ── SECTION 2: VLANs & 802.1Q (Q9–13) ───────────────────────────────
+  {
+    section: 2,
+    type: "Concept",
+    text: "What are the two core problems that VLANs solve that exist in a flat network?",
+    options: [
+      "IP address exhaustion and routing table size.",
+      "Security (broadcast domain isolation) and performance (reduced broadcast traffic).",
+      "Spanning tree convergence time and MAC table overflow.",
+      "Duplex mismatch and bandwidth contention between departments."
+    ],
+    correct: 1,
+    feedback: "A flat network puts every device in the same broadcast domain. Problem 1 — Security: Finance and HR traffic is visible to every device, including Guest Wi-Fi. Problem 2 — Performance: In a 500-device flat network, every ARP, DHCP, and discovery broadcast hits all 500 devices simultaneously. VLANs solve both without additional hardware, purely through switch port configuration."
+  },
+  {
+    section: 2,
+    type: "Concept",
+    text: "What is an 802.1Q tag, and at what point is it added and removed from a frame?",
+    options: [
+      "A 4-byte field added to the IP header to identify the VLAN. Added by the router, removed by the destination host.",
+      "A 4-byte field inserted into the Ethernet frame header by the switch when a frame crosses a trunk link. Removed before delivery to the end device.",
+      "A 6-byte field prepended to the entire frame. Added by access ports, removed by trunk ports.",
+      "A field inside the TCP header that identifies which VLAN the session belongs to."
+    ],
+    correct: 1,
+    feedback: "802.1Q inserts a 4-byte tag into the Ethernet frame header between the source MAC and the EtherType fields. The most important field inside the tag is the 12-bit VLAN ID, which supports up to 4,094 VLANs. The switch adds the tag when a frame enters a trunk link and strips it before delivering the frame to the end device — the end device never sees the tag."
+  },
+  {
+    section: 2,
+    type: "Concept",
+    text: "What is the difference between an access port and a trunk port?",
+    options: [
+      "An access port carries many VLANs using 802.1Q tags. A trunk port carries exactly one VLAN with no tag.",
+      "An access port carries exactly one VLAN and sends frames untagged. A trunk port carries many VLANs simultaneously using 802.1Q tags.",
+      "An access port is used for switch-to-switch links. A trunk port is used for end devices.",
+      "Access ports are used for uplinks to routers. Trunk ports are used for uplinks to servers."
+    ],
+    correct: 1,
+    feedback: "Access ports connect to end devices (PCs, printers, phones). They belong to exactly one VLAN and frames are untagged — the end device has no idea it is on a VLAN. Trunk ports connect switches to other switches or to routers. They carry traffic for many VLANs simultaneously, and each frame is tagged with an 802.1Q header so the receiving device knows which VLAN it belongs to."
+  },
+  {
+    section: 2,
+    type: "Concept",
+    text: "What is the Native VLAN on a trunk port, and why is a native VLAN mismatch a problem?",
+    options: [
+      "The highest-numbered VLAN on a trunk. A mismatch causes STP to elect the wrong root bridge.",
+      "The default management VLAN for switch administration. A mismatch prevents SSH access.",
+      "The one VLAN whose frames travel untagged across a trunk. A mismatch causes untagged frames to leak between the two mismatched VLANs.",
+      "The VLAN assigned to all new ports by default. A mismatch causes ARP to fail between VLANs."
+    ],
+    correct: 2,
+    feedback: "The Native VLAN is the one VLAN that does not get an 802.1Q tag on a trunk link — it travels untagged for backward compatibility (default is VLAN 1). If Switch A has Native VLAN 1 and Switch B has Native VLAN 10, untagged frames from Switch A are assigned to VLAN 10 on Switch B, and vice versa. This causes frames to leak between VLANs without ever passing through a router — a serious security misconfiguration. Best practice: set Native VLAN to an unused VLAN ID on all trunks."
+  },
+  {
+    section: 2,
+    type: "Application",
+    text: "A 48-port switch has ports 1–16 in VLAN 10, ports 17–32 in VLAN 20, and ports 33–48 in VLAN 30. A device on port 5 sends a broadcast frame. Which ports receive it?",
+    options: [
+      "All 48 ports — the broadcast is flooded to the entire switch.",
+      "Only ports 1–16 — the broadcast stays within VLAN 10.",
+      "Ports 1–16 and the trunk port — but not ports in VLAN 20 or 30.",
+      "All ports except port 5 — broadcasts are always flooded to all ports except the source."
+    ],
+    correct: 1,
+    feedback: "VLANs create isolated broadcast domains at Layer 2. A broadcast sent from port 5 (VLAN 10) is flooded only to other ports in VLAN 10 (ports 1–16 minus port 5). Ports in VLAN 20 and VLAN 30 never see it. This is the performance benefit of VLANs — broadcast traffic does not cross VLAN boundaries, so 500 devices can be segmented into groups of ~167 each with dramatically less broadcast noise."
+  },
+
+  // ── SECTION 3: VLANs vs Subnetting (Q14–16) ──────────────────────────
+  {
+    section: 3,
+    type: "Concept",
+    text: "VLANs operate at which OSI layer, and subnets operate at which OSI layer?",
+    options: [
+      "VLANs: Layer 3 (Network). Subnets: Layer 2 (Data Link).",
+      "VLANs: Layer 2 (Data Link). Subnets: Layer 3 (Network).",
+      "Both VLANs and subnets operate at Layer 3.",
+      "VLANs: Layer 1 (Physical). Subnets: Layer 4 (Transport)."
+    ],
+    correct: 1,
+    feedback: "VLANs are a Layer 2 (Data Link) construct — they deal with MAC addresses and Ethernet frames, and are configured on switch ports using VLAN IDs. Subnets are a Layer 3 (Network) construct — they deal with IP addresses and packets, and are configured on router interfaces or host IP settings. They solve different problems at different layers."
+  },
+  {
+    section: 3,
+    type: "Application",
+    text: "Two PCs are in the same IP subnet (192.168.1.0/24) but assigned to different VLANs. Can they communicate? Why or why not?",
+    options: [
+      "Yes — because they share the same IP subnet, the switch will route traffic between them.",
+      "Yes — IP addressing takes precedence over VLAN assignments at Layer 2.",
+      "No — the switch enforces VLAN isolation at Layer 2. Ethernet frames never reach a router, so IP addressing is irrelevant.",
+      "No — but only if the switch has port security enabled. Without port security, they can communicate freely."
+    ],
+    correct: 2,
+    feedback: "This is a critical concept. VLAN isolation happens at Layer 2, before any IP routing can occur. Even if both PCs have valid IP addresses in the same subnet, the Ethernet frame never makes it past the switch. The switch separates them at Layer 2 based on VLAN membership — their IP addresses are completely irrelevant because the frame never reaches a router. VLANs and subnets are independent constructs that happen to be mapped together in practice."
+  },
+  {
+    section: 3,
+    type: "Concept",
+    text: "What is required for two devices in different VLANs to communicate, and what is the industry convention for VLAN-to-subnet mapping?",
+    options: [
+      "A Layer 2 switch with STP disabled. Convention: all VLANs share one subnet.",
+      "A router or Layer 3 switch for inter-VLAN routing. Convention: one VLAN maps to one subnet (e.g., VLAN 10 → 192.168.10.0/24).",
+      "A trunk port directly connecting the two VLANs. Convention: subnets are assigned automatically by the switch.",
+      "A DHCP server with scopes for each VLAN. Convention: each VLAN uses the same subnet with different host ranges."
+    ],
+    correct: 1,
+    feedback: "Because VLANs isolate at Layer 2, crossing a VLAN boundary requires a Layer 3 forwarding decision — a router or Layer 3 switch. The industry convention of one VLAN = one subnet (VLAN 10 → 192.168.10.0/24, VLAN 20 → 192.168.20.0/24) avoids ARP resolution problems and keeps network design predictable and consistent. Two VLANs on the same physical switch are as isolated as if they were on completely separate physical infrastructure."
+  },
+
+  // ── SECTION 4: STP & Broadcast Storms (Q17–20) ───────────────────────
+  {
+    section: 4,
+    type: "Concept",
+    text: "Why do Ethernet frames in a looped topology create a broadcast storm, while IP packets do not loop indefinitely?",
+    options: [
+      "IP packets use sequence numbers to detect duplicates; Ethernet frames do not.",
+      "IP packets have a TTL field that decrements at each hop and drops the packet at 0; Ethernet frames have no equivalent lifetime field.",
+      "Routers detect and drop duplicate packets automatically; switches cannot.",
+      "Ethernet frames are smaller than IP packets, so they multiply faster in a loop."
+    ],
+    correct: 1,
+    feedback: "IP packets carry a TTL (Time To Live) field that is decremented by 1 at each router hop. When it reaches 0, the packet is dropped. Ethernet frames have no such field — there is no mechanism to limit their lifetime. In a Layer 2 loop, a broadcast frame multiplies exponentially: Switch A floods it to Switch B, Switch B floods copies back to Switch A, Switch A now has multiple copies and floods them all. Within milliseconds, every link is saturated at 100% and the network is completely unusable."
+  },
+  {
+    section: 4,
+    type: "Concept",
+    text: "How does STP elect the Root Bridge, and what happens to a port that is neither a Root Port nor a Designated Port?",
+    options: [
+      "The switch with the highest Bridge ID wins the election. Non-qualifying ports enter Forwarding state.",
+      "The switch with the lowest Bridge ID (priority + MAC) wins. Non-qualifying ports are placed in Blocking state — physically connected but logically disabled.",
+      "The switch with the most active ports becomes Root Bridge. Non-qualifying ports are physically disconnected.",
+      "Root Bridge is manually configured by the admin. Non-qualifying ports are placed in Learning state permanently."
+    ],
+    correct: 1,
+    feedback: "STP election: every switch has a Bridge ID (2-byte priority, default 32768, + 6-byte MAC address). Switches exchange BPDUs. The switch with the LOWEST Bridge ID wins and becomes the Root Bridge — the logical center of the spanning tree. If priorities are equal, the lowest MAC address breaks the tie. Ports that are neither Root Ports nor Designated Ports are placed in Blocking state — they receive BPDUs but forward no user data. The cable is still physically connected; the port is just logically disabled."
+  },
+  {
+    section: 4,
+    type: "Concept",
+    text: "What is the convergence time difference between classic 802.1D STP and Rapid STP (RSTP / 802.1w), and why was RSTP introduced?",
+    options: [
+      "802.1D converges in 1–2 seconds. RSTP converges in 30–50 seconds. RSTP was introduced for slower, more stable networks.",
+      "Both converge in under 5 seconds. RSTP was introduced to support more VLANs.",
+      "802.1D converges in 30–50 seconds (Listening 15s + Learning 15s + Max Age 20s). RSTP converges in 1–2 seconds using a direct handshake. RSTP was introduced because 50 seconds of downtime after a link failure was unacceptable.",
+      "802.1D converges in 5–10 seconds. RSTP converges in under 1 second. RSTP was introduced to support 802.1Q tagging."
+    ],
+    correct: 2,
+    feedback: "Classic 802.1D STP can take 30–50 seconds to converge after a link failure: up to 20 seconds Max Age before the blocked port notices BPDUs are gone, then 15 seconds Listening, then 15 seconds Learning, then finally Forwarding. This was catastrophic for real-time applications. RSTP (802.1w, 2001) uses a direct handshake between switches instead of timed state transitions, achieving convergence in 1–2 seconds. Modern Cisco switches run Rapid PVST+ by default."
+  },
+  {
+    section: 4,
+    type: "Application",
+    text: "In an STP topology, a switch has ports in Blocking, Listening, Learning, and Forwarding states. Which state is the only one that both forwards user data AND learns MAC addresses?",
+    options: [
+      "Learning — it processes all traffic and builds the MAC table.",
+      "Listening — it prepares for forwarding by inspecting frames.",
+      "Forwarding — it is the steady-state where normal operation occurs.",
+      "Blocking — it remains active to detect BPDU failures quickly."
+    ],
+    correct: 2,
+    feedback: "Only the Forwarding state does both: it forwards user data AND learns MAC addresses. The Learning state learns MACs but does NOT forward user data — it exists to let the switch build up its MAC table before traffic flows, preventing unnecessary flooding when a port first transitions to active. Blocking only receives BPDUs (no data, no MAC learning). Listening neither forwards nor learns. Forwarding is the normal steady-state operation."
+  }
+];
+
+// ── State ───────────────────────────────────────────────────────────────
+let answers = new Array(QUESTIONS.length).fill(null);
+
+function buildQuiz() {
+  const main = document.getElementById('quiz-main');
+  main.innerHTML = '';
+
+  let currentSection = -1;
+
+  QUESTIONS.forEach((q, idx) => {
+    // Section divider
+    if (q.section !== currentSection) {
+      currentSection = q.section;
+      const qsInSection = QUESTIONS.filter(x => x.section === currentSection).length;
+      main.insertAdjacentHTML('beforeend', `
+        <div class="section-divider">
+          <div class="sd-line"></div>
+          <span class="sd-label">${SECTIONS[currentSection]}</span>
+          <span class="sd-count">${qsInSection} questions</span>
+          <div class="sd-line"></div>
+        </div>
+      `);
+    }
+
+    // Question card
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${idx}`;
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const optionsHTML = q.options.map((opt, oi) => `
+      <button class="option" id="opt-${idx}-${oi}" onclick="selectAnswer(${idx}, ${oi})">
+        <span class="opt-letter">${letters[oi]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">Q${idx + 1}</span>
+        <span class="q-tag tag-${q.type}">${q.type}</span>
+        <span class="q-section-tag">${SECTIONS[q.section]}</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="options" id="opts-${idx}">${optionsHTML}</div>
+      <div class="feedback" id="fb-${idx}">
+        <div class="fb-header" id="fb-header-${idx}"></div>
+        <div id="fb-text-${idx}"></div>
+      </div>
+    `;
+
+    main.appendChild(card);
+  });
+
+  updateProgress();
+  updateScorecards();
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (answers[qIdx] !== null) return; // already answered
+
+  answers[qIdx] = optIdx;
+  const q = QUESTIONS[qIdx];
+  const isCorrect = optIdx === q.correct;
+
+  // Style options
+  const opts = document.querySelectorAll(`#opts-${qIdx} .option`);
+  opts.forEach((btn, oi) => {
+    btn.disabled = true;
+    if (oi === optIdx && isCorrect) btn.classList.add('correct');
+    else if (oi === optIdx && !isCorrect) btn.classList.add('wrong');
+    else if (oi === q.correct) btn.classList.add('reveal-correct');
+  });
+
+  // Card border
+  const card = document.getElementById(`card-${qIdx}`);
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  // Feedback
+  const fb = document.getElementById(`fb-${qIdx}`);
+  const fbHeader = document.getElementById(`fb-header-${qIdx}`);
+  const fbText = document.getElementById(`fb-text-${qIdx}`);
+  fb.classList.add('show', isCorrect ? 'correct-fb' : 'wrong-fb');
+  fbHeader.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
+  fbText.textContent = q.feedback;
+
+  updateProgress();
+  updateScorecards();
+  checkCompletion();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const total = QUESTIONS.length;
+  document.getElementById('progress-label').textContent = `${answered} / ${total} answered`;
+  document.getElementById('progress-fill').style.width = `${(answered / total) * 100}%`;
+}
+
+function updateScorecards() {
+  SECTIONS.forEach((_, si) => {
+    const sectionQs = QUESTIONS.map((q, i) => ({q, i})).filter(({q}) => q.section === si);
+    const answered = sectionQs.filter(({i}) => answers[i] !== null);
+    const correct = sectionQs.filter(({q, i}) => answers[i] === q.correct).length;
+    const total = sectionQs.length;
+
+    const el = document.getElementById(`scs-${si}`);
+    if (answered.length === 0) {
+      el.textContent = '—';
+      el.className = 'sc-score';
+    } else {
+      el.textContent = `${correct}/${total}`;
+      el.className = 'sc-score has-answers';
+      if (answered.length === total) {
+        const pct = correct / total;
+        if (pct === 1) el.classList.add('perfect');
+        else if (pct >= 0.6) el.classList.add('partial');
+        else el.classList.add('poor');
+      }
+    }
+  });
+}
+
+function checkCompletion() {
+  if (answers.filter(a => a !== null).length < QUESTIONS.length) return;
+
+  const total = QUESTIONS.length;
+  const correct = QUESTIONS.filter((q, i) => answers[i] === q.correct).length;
+  const pct = correct / total;
+
+  // Final scorecard
+  const fs = document.getElementById('final-scorecard');
+  fs.classList.add('show');
+
+  const big = document.getElementById('final-big');
+  big.textContent = `${correct}/${total}`;
+  big.className = 'final-score-big ' +
+    (pct >= 0.9 ? 'grade-a' : pct >= 0.75 ? 'grade-b' : pct >= 0.6 ? 'grade-c' : 'grade-d');
+
+  const verdicts = {
+    a: 'Solid grasp of switching and VLAN fundamentals.',
+    b: 'Good understanding — review the questions you missed.',
+    c: 'Core concepts need reinforcement before moving on.',
+    d: 'Revisit the session material and try again.'
+  };
+  document.getElementById('final-verdict').textContent =
+    pct >= 0.9 ? verdicts.a : pct >= 0.75 ? verdicts.b : pct >= 0.6 ? verdicts.c : verdicts.d;
+
+  // Section breakdown
+  const bd = document.getElementById('final-breakdown');
+  bd.innerHTML = SECTIONS.map((name, si) => {
+    const sQs = QUESTIONS.map((q, i) => ({q, i})).filter(({q}) => q.section === si);
+    const sc = sQs.filter(({q, i}) => answers[i] === q.correct).length;
+    const st = sQs.length;
+    const sp = sc / st;
+    const color = sp === 1 ? 'var(--green)' : sp >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="fb-card">
+      <div class="fb-card-label">${name}</div>
+      <div class="fb-card-score" style="color:${color}">${sc}/${st}</div>
+    </div>`;
+  }).join('');
+
+  fs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restartQuiz() {
+  answers = new Array(QUESTIONS.length).fill(null);
+  document.getElementById('final-scorecard').classList.remove('show');
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
