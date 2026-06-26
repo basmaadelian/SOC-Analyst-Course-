@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cryptography Fundamentals Quiz — SOC Analyst Training</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #1c2330;
+    --border:    #30363d;
+    --border2:   #21262d;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --accent:    #58a6ff;
+    --accent2:   #79c0ff;
+    --green:     #3fb950;
+    --green-bg:  #0d2119;
+    --red:       #f85149;
+    --red-bg:    #2d0f0e;
+    --yellow:    #d29922;
+    --yellow-bg: #271d00;
+    --purple:    #bc8cff;
+    --orange:    #ffa657;
+    --cyan:      #39d0d8;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #1f4080, #58a6ff33);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .header-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .header-title span {
+    display: block;
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .progress-wrap { display: flex; align-items: center; gap: 10px; }
+  .progress-label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .progress-bar-outer {
+    width: 140px; height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── LAYOUT ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* ── INTRO ── */
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .intro-icon { font-size: 28px; margin-top: 2px; flex-shrink: 0; }
+  .intro-card h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .intro-card p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .intro-meta {
+    display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .intro-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .intro-badge.blue { border-color: #1f4080; color: var(--accent); background: #0d1f3c; }
+  .intro-badge.purple { border-color: #3d2b6b; color: var(--purple); background: #1a0f3d; }
+  .intro-badge.green { border-color: #1a4028; color: var(--green); background: var(--green-bg); }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 36px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .section-num.s1 { background: #0d1f3c; color: var(--accent); border: 1px solid #1f4080; }
+  .section-num.s2 { background: #1a0f3d; color: var(--purple); border: 1px solid #3d2b6b; }
+  .section-num.s3 { background: var(--green-bg); color: var(--green); border: 1px solid #1a4028; }
+  .section-num.s4 { background: #1a1500; color: var(--yellow); border: 1px solid #3d3000; }
+  .section-num.s5 { background: #0f1f1f; color: var(--cyan); border: 1px solid #1a3535; }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .section-count { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ── SCORECARD (per section) ── */
+  .scorecard {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .scorecard-label { color: var(--muted); }
+  .scorecard-score { font-weight: 700; font-size: 15px; }
+  .scorecard-score.pending { color: var(--muted); }
+  .scorecard-score.good { color: var(--green); }
+  .scorecard-score.ok { color: var(--yellow); }
+  .scorecard-score.bad { color: var(--red); }
+  .scorecard-bar-outer {
+    flex: 1; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .scorecard-bar-inner {
+    height: 100%; width: 0%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .q-card.answered-correct { border-color: var(--green); }
+  .q-card.answered-wrong   { border-color: var(--red); }
+
+  .q-head {
+    padding: 18px 20px 14px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    padding-top: 2px;
+    flex-shrink: 0;
+    min-width: 28px;
+  }
+  .q-text-wrap { flex: 1; }
+  .q-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 7px;
+    letter-spacing: 0.04em;
+  }
+  .q-tag.concept   { background: #0d1f3c; color: var(--accent); }
+  .q-tag.app       { background: #1a0f3d; color: var(--purple); }
+  .q-tag.soc       { background: var(--green-bg); color: var(--green); }
+  .q-tag.scenario  { background: #1a1500; color: var(--yellow); }
+
+  .q-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.65;
+    font-weight: 500;
+  }
+
+  /* ── OPTIONS ── */
+  .q-options { padding: 0 20px 18px 62px; display: flex; flex-direction: column; gap: 8px; }
+
+  .opt-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #0d1f3c55;
+  }
+  .opt-btn:disabled { cursor: default; }
+  .opt-btn.correct {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .opt-btn.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .opt-btn.missed {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green);
+    opacity: 0.6;
+  }
+  .opt-key {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
+    flex-shrink: 0;
+    padding-top: 1px;
+    opacity: 0.6;
+  }
+  .opt-btn.correct .opt-key,
+  .opt-btn.wrong .opt-key,
+  .opt-btn.missed .opt-key { opacity: 1; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    margin: 0 20px 18px 62px;
+    border-radius: 7px;
+    padding: 13px 15px;
+    font-size: 13px;
+    line-height: 1.65;
+    border-left: 3px solid;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: #7ee89a;
+  }
+  .feedback.wrong {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: #f8908d;
+  }
+  .feedback-head {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+    opacity: 0.8;
+  }
+  .soc-note {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ffffff10;
+    font-size: 12px;
+    opacity: 0.85;
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+  }
+  .soc-note::before { content: "⬡"; font-size: 11px; flex-shrink: 0; padding-top: 1px; }
+
+  /* ── FINAL SCORECARD ── */
+  .final-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-top: 40px;
+    text-align: center;
+  }
+  .final-card.show { display: block; }
+  .final-grade {
+    font-family: var(--mono);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    margin: 12px 0 4px;
+  }
+  .final-grade.A { color: var(--green); }
+  .final-grade.B { color: var(--accent); }
+  .final-grade.C { color: var(--yellow); }
+  .final-grade.F { color: var(--red); }
+  .final-label { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .final-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .breakdown-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: left;
+  }
+  .breakdown-section { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .breakdown-score { font-family: var(--mono); font-size: 18px; font-weight: 700; }
+  .breakdown-score.good { color: var(--green); }
+  .breakdown-score.ok   { color: var(--yellow); }
+  .breakdown-score.bad  { color: var(--red); }
+
+  .retry-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    letter-spacing: 0.04em;
+    transition: opacity 0.2s;
+  }
+  .retry-btn:hover { opacity: 0.85; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header-inner { flex-direction: column; align-items: flex-start; }
+    .q-options { padding-left: 20px; }
+    .feedback { margin-left: 20px; }
+    .intro-card { flex-direction: column; }
+    .final-grade { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-icon">🔐</div>
+      <div class="header-title">
+        MODULE 3 · SESSION 6
+        <span>Cryptography Fundamentals</span>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-label" id="prog-label">0 / 25</span>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="prog-bar"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="intro-card">
+    <div class="intro-icon">🛡️</div>
+    <div>
+      <h1>Cryptography for SOC Analysts</h1>
+      <p>Every alert you triage, every encrypted C2 channel you investigate, every certificate anomaly you flag — cryptography is underneath it. This quiz tests your understanding of the core concepts: ciphers, keys, symmetric and asymmetric encryption, PKI, digital signatures, and where each one shows up in your SOC workflow.</p>
+      <div class="intro-meta">
+        <span class="intro-badge blue">25 Questions</span>
+        <span class="intro-badge purple">5 Sections</span>
+        <span class="intro-badge green">CorpNet Scenarios</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1 ══ -->
+  <div class="section-header">
+    <span class="section-num s1">SECTION 01</span>
+    <span class="section-title">Ciphers, Algorithms & Keys</span>
+    <span class="section-count">Q1–Q5</span>
+  </div>
+  <div class="scorecard" id="sc-1">
+    <span class="scorecard-label">Score</span>
+    <span class="scorecard-score pending" id="sc-1-val">–/5</span>
+    <div class="scorecard-bar-outer"><div class="scorecard-bar-inner" id="sc-1-bar" style="background: var(--accent);"></div></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="qc-1">
+    <div class="q-head">
+      <span class="q-num">Q1</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is a cipher?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(1,'A','B')"><span class="opt-key">A</span>A system that converts data into a different format for compatibility between systems</button>
+      <button class="opt-btn" onclick="answer(1,'B','B')"><span class="opt-key">B</span>An algorithm that performs encryption and decryption transformations on data</button>
+      <button class="opt-btn" onclick="answer(1,'C','B')"><span class="opt-key">C</span>A secret value used to lock and unlock encrypted data</button>
+      <button class="opt-btn" onclick="answer(1,'D','B')"><span class="opt-key">D</span>A one-way mathematical function that produces a fixed-length output</button>
+    </div>
+    <div class="feedback" id="fb-1">
+      <div class="feedback-head">✓ CORRECT</div>
+      A cipher is the algorithm — the set of mathematical rules — that transforms plaintext into ciphertext (encryption) and back again (decryption). The key is a separate input that drives the cipher. Encoding (option A) and hashing (option D) are different operations entirely.
+      <div class="soc-note">In your alerts, you'll see cipher names like AES-256-GCM or RC4 in TLS negotiation logs. Weak or deprecated ciphers (RC4, DES) in TLS handshakes are a detection signal — they indicate either a legacy system or an attacker downgrading the connection.</div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="qc-2">
+    <div class="q-head">
+      <span class="q-num">Q2</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is the role of a key in an encryption algorithm?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(2,'A','C')"><span class="opt-key">A</span>It defines which cipher algorithm is used</button>
+      <button class="opt-btn" onclick="answer(2,'B','C')"><span class="opt-key">B</span>It determines the output length of the encrypted data</button>
+      <button class="opt-btn" onclick="answer(2,'C','C')"><span class="opt-key">C</span>It controls how the algorithm transforms the data, making each encryption unique</button>
+      <button class="opt-btn" onclick="answer(2,'D','C')"><span class="opt-key">D</span>It verifies the identity of the sender before encryption begins</button>
+    </div>
+    <div class="feedback" id="fb-2">
+      <div class="feedback-head">✓ CORRECT</div>
+      The key is the secret input that drives the cipher's transformation. The same plaintext encrypted with AES using two different keys produces completely different ciphertext. This is why key management is the hardest problem in cryptography — if you lose control of the key, the algorithm itself gives you nothing.
+      <div class="soc-note">Ransomware generates a unique AES key per victim, encrypts files, then sends the key to the attacker's C2 server. The victim can't recover files without that key — which is why C2 communications during the encryption phase are a critical detection window.</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="qc-3">
+    <div class="q-head">
+      <span class="q-num">Q3</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">AES-256 means AES is used with a 256-bit key. What does increasing the key length primarily affect?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(3,'A','B')"><span class="opt-key">A</span>The speed of encryption — longer keys encrypt data faster</button>
+      <button class="opt-btn" onclick="answer(3,'B','B')"><span class="opt-key">B</span>The number of possible key combinations an attacker must try to brute-force the key</button>
+      <button class="opt-btn" onclick="answer(3,'C','B')"><span class="opt-key">C</span>The algorithm used — AES-128 and AES-256 use different underlying ciphers</button>
+      <button class="opt-btn" onclick="answer(3,'D','B')"><span class="opt-key">D</span>The size of the output ciphertext</button>
+    </div>
+    <div class="feedback" id="fb-3">
+      <div class="feedback-head">✓ CORRECT</div>
+      A 256-bit key has 2²⁵⁶ possible values — a number larger than the estimated atoms in the observable universe. Doubling the key length squares the brute-force difficulty. AES-128 and AES-256 use the same cipher with the same structure; only the key size and number of processing rounds differ.
+      <div class="soc-note">When reviewing TLS configurations on CorpNet's HR portal, AES-128 is acceptable, but seeing AES-56 or DES in negotiated cipher suites should trigger an immediate finding — those are brute-forceable with modern hardware.</div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="qc-4">
+    <div class="q-head">
+      <span class="q-num">Q4</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is the difference between a block cipher and a stream cipher?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(4,'A','A')"><span class="opt-key">A</span>Block ciphers encrypt fixed-size chunks of data; stream ciphers encrypt one bit or byte at a time</button>
+      <button class="opt-btn" onclick="answer(4,'B','A')"><span class="opt-key">B</span>Block ciphers use symmetric keys; stream ciphers use asymmetric keys</button>
+      <button class="opt-btn" onclick="answer(4,'C','A')"><span class="opt-key">C</span>Block ciphers are reversible; stream ciphers are one-way</button>
+      <button class="opt-btn" onclick="answer(4,'D','A')"><span class="opt-key">D</span>Block ciphers are used for files; stream ciphers are used for network traffic only</button>
+    </div>
+    <div class="feedback" id="fb-4">
+      <div class="feedback-head">✓ CORRECT</div>
+      AES is a block cipher — it processes 128-bit blocks at a time. RC4 is a stream cipher — it generates a continuous keystream XORed with each byte. Both can be symmetric. The distinction matters for performance and security properties, not for what data they protect.
+      <div class="soc-note">RC4 was used in early WEP Wi-Fi encryption and older SSL versions. Its stream cipher implementation had serious weaknesses — statistical patterns in the keystream allowed attackers to recover plaintexts. Seeing RC4 in a TLS negotiation log today is a major red flag.</div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="qc-5">
+    <div class="q-head">
+      <span class="q-num">Q5</span>
+      <div class="q-text-wrap">
+        <span class="q-tag scenario">SCENARIO</span>
+        <p class="q-text">An analyst reviewing CorpNet's firewall logs notices HTTPS traffic to an external IP using TLS 1.0 with cipher suite RC4-MD5. Why is this a finding worth escalating?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(5,'A','C')"><span class="opt-key">A</span>TLS 1.0 is not a real protocol version — this traffic must be malformed</button>
+      <button class="opt-btn" onclick="answer(5,'B','C')"><span class="opt-key">B</span>HTTPS traffic to external IPs is always suspicious regardless of cipher</button>
+      <button class="opt-btn" onclick="answer(5,'C','C')"><span class="opt-key">C</span>Both TLS 1.0 and RC4 are deprecated due to known vulnerabilities that allow traffic decryption</button>
+      <button class="opt-btn" onclick="answer(5,'D','C')"><span class="opt-key">D</span>MD5 in the cipher suite name indicates the traffic is unencrypted</button>
+    </div>
+    <div class="feedback" id="fb-5">
+      <div class="feedback-head">✓ CORRECT</div>
+      TLS 1.0 was deprecated in 2020 (RFC 8996) and contains known vulnerabilities like POODLE and BEAST. RC4 has been prohibited in TLS since RFC 7465. A connection negotiating both suggests either a very old unpatched system or a deliberate downgrade attack — both require investigation.
+      <div class="soc-note">Modern SOC playbooks flag any TLS version below 1.2 as an automatic finding. If CorpNet's HR portal is accepting TLS 1.0 connections, that's a remediation ticket. If an endpoint is initiating them to an external IP, that's a potential indicator of C2 communication over a deliberately weakened channel.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2 ══ -->
+  <div class="section-header">
+    <span class="section-num s2">SECTION 02</span>
+    <span class="section-title">Symmetric Encryption & Its Risks</span>
+    <span class="section-count">Q6–Q11</span>
+  </div>
+  <div class="scorecard" id="sc-2">
+    <span class="scorecard-label">Score</span>
+    <span class="scorecard-score pending" id="sc-2-val">–/6</span>
+    <div class="scorecard-bar-outer"><div class="scorecard-bar-inner" id="sc-2-bar" style="background: var(--purple);"></div></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="qc-6">
+    <div class="q-head">
+      <span class="q-num">Q6</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What defines symmetric encryption?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(6,'A','B')"><span class="opt-key">A</span>The same algorithm is used on every platform</button>
+      <button class="opt-btn" onclick="answer(6,'B','B')"><span class="opt-key">B</span>The same key is used for both encryption and decryption</button>
+      <button class="opt-btn" onclick="answer(6,'C','B')"><span class="opt-key">C</span>Two different keys are used — one public, one private</button>
+      <button class="opt-btn" onclick="answer(6,'D','B')"><span class="opt-key">D</span>Encryption and decryption happen simultaneously on both ends</button>
+    </div>
+    <div class="feedback" id="fb-6">
+      <div class="feedback-head">✓ CORRECT</div>
+      Symmetric encryption uses a single shared secret key for both operations. This makes it fast and efficient for large data volumes — which is why AES is used to encrypt hard drives, backups, and bulk file transfers. The challenge isn't the encryption itself; it's getting that key to the other party securely.
+      <div class="soc-note">WannaCry used AES-128 symmetric encryption to lock victim files. The AES key was then encrypted with an RSA public key and sent to the attacker's C2 — that's the combination of symmetric and asymmetric encryption in a real-world attack.</div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" id="qc-7">
+    <div class="q-head">
+      <span class="q-num">Q7</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is the key distribution problem in symmetric encryption?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(7,'A','C')"><span class="opt-key">A</span>Symmetric keys are too short to distribute securely over a network</button>
+      <button class="opt-btn" onclick="answer(7,'B','C')"><span class="opt-key">B</span>Only one party can hold the key at a time</button>
+      <button class="opt-btn" onclick="answer(7,'C','C')"><span class="opt-key">C</span>Both parties need the same secret key, but sharing it over an insecure channel risks interception</button>
+      <button class="opt-btn" onclick="answer(7,'D','C')"><span class="opt-key">D</span>Symmetric keys expire after a single use and must be regenerated constantly</button>
+    </div>
+    <div class="feedback" id="fb-7">
+      <div class="feedback-head">✓ CORRECT</div>
+      If Alice wants to send Bob an AES-encrypted file, she needs Bob to have the key first. But if she sends the key over the internet unprotected, an eavesdropper gets everything. This is the fundamental problem that asymmetric encryption was designed to solve — and why TLS uses RSA or ECDH to exchange a symmetric session key securely.
+      <div class="soc-note">This is directly relevant to ransomware incident response. Victims can't decrypt their own files because they don't hold the AES key — the attacker does. There is no "symmetric key recovery" without the attacker's cooperation or a flaw in their implementation.</div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="qc-8">
+    <div class="q-head">
+      <span class="q-num">Q8</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">CorpNet uses AES-256 to encrypt its file server backups. The encryption key is stored in a text file on the same file server. What is wrong with this setup?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(8,'A','B')"><span class="opt-key">A</span>AES-256 is too strong for backup encryption — a lighter algorithm should be used</button>
+      <button class="opt-btn" onclick="answer(8,'B','B')"><span class="opt-key">B</span>Storing the key with the data it protects means anyone who accesses the server can decrypt everything</button>
+      <button class="opt-btn" onclick="answer(8,'C','B')"><span class="opt-key">C</span>AES keys must be regenerated after every backup or the encryption becomes invalid</button>
+      <button class="opt-btn" onclick="answer(8,'D','B')"><span class="opt-key">D</span>Text files cannot store encryption keys — a binary format is required</button>
+    </div>
+    <div class="feedback" id="fb-8">
+      <div class="feedback-head">✓ CORRECT</div>
+      Collocating the key and the encrypted data defeats the entire purpose of encryption. An attacker who compromises the file server gets both — the encrypted backups and the key to decrypt them. Keys must be stored separately, ideally in a dedicated key management system (KMS) or hardware security module (HSM).
+      <div class="soc-note">In post-breach forensics, this is a critical finding. If CorpNet's incident report shows the attacker accessed both the backup directory and a file named "backup_key.txt" on the same server, the backup data must be treated as fully compromised regardless of the encryption algorithm used.</div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" id="qc-9">
+    <div class="q-head">
+      <span class="q-num">Q9</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">Which of the following is a known risk of symmetric encryption that asymmetric encryption does NOT share?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(9,'A','A')"><span class="opt-key">A</span>Secure key exchange — both parties must share the secret key before communicating securely</button>
+      <button class="opt-btn" onclick="answer(9,'B','A')"><span class="opt-key">B</span>Performance — symmetric encryption is much slower than asymmetric</button>
+      <button class="opt-btn" onclick="answer(9,'C','A')"><span class="opt-key">C</span>Key length — symmetric keys are shorter and easier to brute-force</button>
+      <button class="opt-btn" onclick="answer(9,'D','A')"><span class="opt-key">D</span>Non-repudiation — symmetric encryption cannot prove who sent a message</button>
+    </div>
+    <div class="feedback" id="fb-9">
+      <div class="feedback-head">✓ CORRECT</div>
+      Symmetric encryption's core risk is key distribution — both parties need the same secret, but sharing it is the exposure point. Asymmetric encryption solves this: you share your public key openly, and only your private key decrypts. Note: option D (non-repudiation) is also a real limitation of symmetric encryption, but it's not unique to it vs. asymmetric — digital signatures handle non-repudiation separately.
+      <div class="soc-note">TLS uses both: asymmetric cryptography (RSA/ECDH) during the handshake to safely exchange a symmetric session key, then switches to AES for the actual data transfer. This hybrid approach gets the security benefits of asymmetric with the speed of symmetric.</div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="qc-10">
+    <div class="q-head">
+      <span class="q-num">Q10</span>
+      <div class="q-text-wrap">
+        <span class="q-tag scenario">SCENARIO</span>
+        <p class="q-text">A threat intel report states that a ransomware group generates a unique AES key per victim, uses it to encrypt all files, then encrypts the AES key with the attacker's RSA public key. Why is the AES key encrypted with RSA before exfiltration?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(10,'A','C')"><span class="opt-key">A</span>RSA encryption is faster than AES, so it's used to speed up the key transmission</button>
+      <button class="opt-btn" onclick="answer(10,'B','C')"><span class="opt-key">B</span>AES keys cannot be transmitted over a network without being converted to RSA first</button>
+      <button class="opt-btn" onclick="answer(10,'C','C')"><span class="opt-key">C</span>Only the attacker's RSA private key can decrypt it — so only they can recover the AES key and offer decryption</button>
+      <button class="opt-btn" onclick="answer(10,'D','C')"><span class="opt-key">D</span>The RSA encryption adds a digital signature so victims can verify the ransom note is authentic</button>
+    </div>
+    <div class="feedback" id="fb-10">
+      <div class="feedback-head">✓ CORRECT</div>
+      This is a classic hybrid encryption pattern used offensively. AES encrypts fast (terabytes of files). RSA protects the AES key so only the attacker — holding the RSA private key — can recover it. The victim can see the encrypted AES key but cannot use it without the RSA private key. This design makes decryption impossible without paying (or finding a flaw in the implementation).
+      <div class="soc-note">The detection opportunity is during the C2 callback when the encrypted AES key is exfiltrated. If your SIEM or EDR captures that outbound connection before it succeeds, the attacker never receives the key — and technically, neither did the victim. Some ransomware variants fail silently when C2 is blocked, leaving files unencrypted.</div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="qc-11">
+    <div class="q-head">
+      <span class="q-num">Q11</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">Why is AES preferred over DES for modern encryption?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(11,'A','B')"><span class="opt-key">A</span>AES is open-source while DES is proprietary</button>
+      <button class="opt-btn" onclick="answer(11,'B','B')"><span class="opt-key">B</span>AES uses a much larger key size (128–256 bit vs DES's 56-bit), making brute-force infeasible</button>
+      <button class="opt-btn" onclick="answer(11,'C','B')"><span class="opt-key">C</span>AES is a stream cipher which is inherently more secure than DES's block cipher design</button>
+      <button class="opt-btn" onclick="answer(11,'D','B')"><span class="opt-key">D</span>DES was designed for hardware only and cannot run on modern software systems</button>
+    </div>
+    <div class="feedback" id="fb-11">
+      <div class="feedback-head">✓ CORRECT</div>
+      DES uses a 56-bit key — meaning 2⁵⁶ possible values. In 1999, the EFF cracked a DES key in under 24 hours using dedicated hardware. AES-128 provides 2¹²⁸ combinations — the difference is astronomical. Both are block ciphers; key size is the decisive factor here.
+      <div class="soc-note">Finding DES or 3DES in any active system today is an immediate vulnerability finding. PCI DSS explicitly prohibits 3DES in new implementations as of 2023. If CorpNet's legacy HR portal still negotiates DES cipher suites, that's a high-severity finding in any security assessment.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3 ══ -->
+  <div class="section-header">
+    <span class="section-num s3">SECTION 03</span>
+    <span class="section-title">Asymmetric Encryption</span>
+    <span class="section-count">Q12–Q16</span>
+  </div>
+  <div class="scorecard" id="sc-3">
+    <span class="scorecard-label">Score</span>
+    <span class="scorecard-score pending" id="sc-3-val">–/5</span>
+    <div class="scorecard-bar-outer"><div class="scorecard-bar-inner" id="sc-3-bar" style="background: var(--green);"></div></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="qc-12">
+    <div class="q-head">
+      <span class="q-num">Q12</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">In asymmetric encryption, if Alice wants to send Bob an encrypted message that only Bob can read, which key does Alice use to encrypt it?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(12,'A','B')"><span class="opt-key">A</span>Alice's private key</button>
+      <button class="opt-btn" onclick="answer(12,'B','B')"><span class="opt-key">B</span>Bob's public key</button>
+      <button class="opt-btn" onclick="answer(12,'C','B')"><span class="opt-key">C</span>A shared symmetric key generated by both parties</button>
+      <button class="opt-btn" onclick="answer(12,'D','B')"><span class="opt-key">D</span>Alice's public key</button>
+    </div>
+    <div class="feedback" id="fb-12">
+      <div class="feedback-head">✓ CORRECT</div>
+      Alice encrypts with Bob's public key. Only Bob's matching private key can decrypt it. Bob's public key is freely distributed — anyone can use it to send Bob an encrypted message — but only Bob holds the private key needed to read it. This solves the key distribution problem completely.
+      <div class="soc-note">This is exactly how encrypted email works (PGP/S/MIME). It's also the foundation of TLS: your browser uses the web server's public key (from its certificate) during the handshake to securely negotiate the session key. No prior secret exchange needed.</div>
+    </div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card" id="qc-13">
+    <div class="q-head">
+      <span class="q-num">Q13</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">Why is asymmetric encryption NOT used to encrypt large files directly, despite its stronger security model?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(13,'A','C')"><span class="opt-key">A</span>Asymmetric algorithms cannot produce ciphertext larger than the key size</button>
+      <button class="opt-btn" onclick="answer(13,'B','C')"><span class="opt-key">B</span>Asymmetric encryption requires both parties to be online simultaneously</button>
+      <button class="opt-btn" onclick="answer(13,'C','C')"><span class="opt-key">C</span>Asymmetric encryption is computationally much slower than symmetric — it's impractical for bulk data</button>
+      <button class="opt-btn" onclick="answer(13,'D','C')"><span class="opt-key">D</span>Large files exceed the maximum input size for RSA key pairs</button>
+    </div>
+    <div class="feedback" id="fb-13">
+      <div class="feedback-head">✓ CORRECT</div>
+      RSA and ECC are orders of magnitude slower than AES for bulk data. The practical solution is hybrid encryption: use asymmetric to securely exchange a symmetric key, then use that symmetric key for the actual data. This is exactly what TLS, PGP, and ransomware all do.
+      <div class="soc-note">When you see a TLS handshake in Wireshark, the "Client Key Exchange" or ECDH parameters in the handshake phase are the asymmetric part. After that, the stream switches to symmetric AES for all application data. The handshake is expensive; the data transfer is cheap.</div>
+    </div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="qc-14">
+    <div class="q-head">
+      <span class="q-num">Q14</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is the mathematical relationship between a public key and its corresponding private key?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(14,'A','C')"><span class="opt-key">A</span>The private key is a hash of the public key</button>
+      <button class="opt-btn" onclick="answer(14,'B','C')"><span class="opt-key">B</span>They are identical — the public key is just a labeled copy of the private key</button>
+      <button class="opt-btn" onclick="answer(14,'C','C')"><span class="opt-key">C</span>They are mathematically linked — data encrypted with one can only be decrypted with the other — but deriving the private key from the public key is computationally infeasible</button>
+      <button class="opt-btn" onclick="answer(14,'D','C')"><span class="opt-key">D</span>The public key is generated from the private key using a reversible algorithm, so both can always be recovered from each other</button>
+    </div>
+    <div class="feedback" id="fb-14">
+      <div class="feedback-head">✓ CORRECT</div>
+      The key pair is generated together from a mathematical relationship (prime factorization in RSA, elliptic curve operations in ECC). The public key is derived from the private key, but reversing that derivation — computing the private key from the public key — requires solving a computationally intractable problem. This one-way relationship is the foundation of asymmetric security.
+      <div class="soc-note">Private key compromise is catastrophic. If an attacker extracts CorpNet's web server private key, they can impersonate the server, decrypt past recorded TLS sessions (if forward secrecy wasn't used), and sign anything as the server. Certificate revocation and reissuance is mandatory upon private key exposure.</div>
+    </div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="qc-15">
+    <div class="q-head">
+      <span class="q-num">Q15</span>
+      <div class="q-text-wrap">
+        <span class="q-tag scenario">SCENARIO</span>
+        <p class="q-text">CorpNet's security team discovers an attacker performed a man-in-the-middle attack on the HR portal, intercepting TLS traffic. The attacker presented a fake certificate for corpnet.com. What cryptographic mechanism should have prevented the browser from trusting that certificate?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(15,'A','D')"><span class="opt-key">A</span>AES-256 encryption of the certificate contents</button>
+      <button class="opt-btn" onclick="answer(15,'B','D')"><span class="opt-key">B</span>The symmetric session key negotiated during the TLS handshake</button>
+      <button class="opt-btn" onclick="answer(15,'C','D')"><span class="opt-key">C</span>The RSA key length used in the certificate</button>
+      <button class="opt-btn" onclick="answer(15,'D','D')"><span class="opt-key">D</span>Certificate validation against a trusted Certificate Authority — the fake cert would lack a valid CA signature</button>
+    </div>
+    <div class="feedback" id="fb-15">
+      <div class="feedback-head">✓ CORRECT</div>
+      A browser trusts a certificate because a trusted CA has cryptographically signed it. An attacker can generate a certificate for any domain, but they cannot forge the CA's digital signature without the CA's private key. Without a valid CA signature, the browser displays a certificate error — which is exactly the warning users should never click through.
+      <div class="soc-note">Corporate SSL inspection proxies do this deliberately — they intercept TLS, present their own certificate signed by an internal corporate CA (which is installed as trusted on all endpoints). This is legitimate and is how your NGFW inspects encrypted traffic. But it means your SIEM will see the proxy's certificate, not the destination site's.</div>
+    </div>
+  </div>
+
+  <!-- Q16 -->
+  <div class="q-card" id="qc-16">
+    <div class="q-head">
+      <span class="q-num">Q16</span>
+      <div class="q-text-wrap">
+        <span class="q-tag soc">SOC LENS</span>
+        <p class="q-text">An EDR alert fires on a CorpNet endpoint: a process generated an RSA key pair and immediately made an outbound connection. What is the most likely malicious interpretation?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(16,'A','C')"><span class="opt-key">A</span>The endpoint is updating its TLS certificate through a legitimate ACME protocol renewal</button>
+      <button class="opt-btn" onclick="answer(16,'B','C')"><span class="opt-key">B</span>A developer is testing an encryption library — this is normal developer behavior</button>
+      <button class="opt-btn" onclick="answer(16,'C','C')"><span class="opt-key">C</span>Ransomware generating its encryption key pair and calling back to C2 to send the public key before beginning file encryption</button>
+      <button class="opt-btn" onclick="answer(16,'D','C')"><span class="opt-key">D</span>The endpoint's VPN client is negotiating a new asymmetric session — normal behavior</button>
+    </div>
+    <div class="feedback" id="fb-16">
+      <div class="feedback-head">✓ CORRECT</div>
+      Ransomware commonly generates its key pair locally, sends the public key to the attacker's C2 (keeping the private key off-victim), then uses the public key to encrypt the symmetric file encryption key. This sequence — key generation followed immediately by outbound connection — from a non-administrative process on an endpoint is a high-confidence ransomware pre-encryption indicator.
+      <div class="soc-note">This is a kill-chain moment. If EDR fires on this behavior, the correct response is to isolate the endpoint immediately — before file encryption begins. Every minute of delay is potentially thousands of encrypted files. The outbound connection attempt is your detection window.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 4 ══ -->
+  <div class="section-header">
+    <span class="section-num s4">SECTION 04</span>
+    <span class="section-title">Certificate Authorities & PKI</span>
+    <span class="section-count">Q17–Q21</span>
+  </div>
+  <div class="scorecard" id="sc-4">
+    <span class="scorecard-label">Score</span>
+    <span class="scorecard-score pending" id="sc-4-val">–/5</span>
+    <div class="scorecard-bar-outer"><div class="scorecard-bar-inner" id="sc-4-bar" style="background: var(--yellow);"></div></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card" id="qc-17">
+    <div class="q-head">
+      <span class="q-num">Q17</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What problem does a Certificate Authority (CA) solve in asymmetric encryption?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(17,'A','C')"><span class="opt-key">A</span>It speeds up asymmetric encryption by pre-computing key pairs</button>
+      <button class="opt-btn" onclick="answer(17,'B','C')"><span class="opt-key">B</span>It stores private keys so users don't have to manage them</button>
+      <button class="opt-btn" onclick="answer(17,'C','C')"><span class="opt-key">C</span>It provides a trusted third party that vouches for the binding between a public key and its owner's identity</button>
+      <button class="opt-btn" onclick="answer(17,'D','C')"><span class="opt-key">D</span>It generates symmetric keys for all parties involved in a secure communication</button>
+    </div>
+    <div class="feedback" id="fb-17">
+      <div class="feedback-head">✓ CORRECT</div>
+      The trust problem: anyone can generate an RSA key pair and claim it belongs to "bank.com." A CA solves this by verifying identity (domain ownership, organization identity, extended validation) and signing the certificate with its own private key. Browsers trust specific root CAs — if a certificate chains to a trusted root, the browser accepts the identity claim.
+      <div class="soc-note">There are roughly 150 trusted root CAs in a typical browser trust store. Any of them can sign a certificate for any domain. This is why rogue or compromised CAs are catastrophic — DigiNotar issued fraudulent Google certificates in 2011, enabling nation-state MITM attacks on Iranian users. DigiNotar was revoked and went bankrupt within weeks.</div>
+    </div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card" id="qc-18">
+    <div class="q-head">
+      <span class="q-num">Q18</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">What is a certificate chain of trust?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(18,'A','B')"><span class="opt-key">A</span>A list of all certificates ever issued by a CA, stored on a public ledger</button>
+      <button class="opt-btn" onclick="answer(18,'B','B')"><span class="opt-key">B</span>A hierarchy from a trusted root CA through intermediate CAs to an end-entity certificate, where each level signs the next</button>
+      <button class="opt-btn" onclick="answer(18,'C','B')"><span class="opt-key">C</span>A blockchain record linking a domain name to its IP address</button>
+      <button class="opt-btn" onclick="answer(18,'D','B')"><span class="opt-key">D</span>An encryption chain where each message is encrypted with the previous session's key</button>
+    </div>
+    <div class="feedback" id="fb-18">
+      <div class="feedback-head">✓ CORRECT</div>
+      Root CAs sign intermediate CAs; intermediate CAs sign end-entity (leaf) certificates. The browser validates the entire chain: leaf → intermediate → root. Root CA private keys are kept offline in hardware security modules — they're too valuable to expose. Intermediates do the day-to-day signing.
+      <div class="soc-note">When you see a certificate error "certificate chain incomplete," the server isn't sending its intermediate CA certificate. Browsers can't validate the chain and display a warning. This is a misconfiguration, not an attack — but it looks identical to a self-signed certificate warning to an untrained user. Know the difference when investigating user-reported phishing.</div>
+    </div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card" id="qc-19">
+    <div class="q-head">
+      <span class="q-num">Q19</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">What is certificate revocation, and why does it matter to a SOC analyst?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(19,'A','C')"><span class="opt-key">A</span>It's the process of renewing an expired certificate before it causes downtime</button>
+      <button class="opt-btn" onclick="answer(19,'B','C')"><span class="opt-key">B</span>It's upgrading a certificate from SHA-1 to SHA-256 signing</button>
+      <button class="opt-btn" onclick="answer(19,'C','C')"><span class="opt-key">C</span>It's the CA invalidating a certificate before its expiry — typically because the private key was compromised</button>
+      <button class="opt-btn" onclick="answer(19,'D','C')"><span class="opt-key">D</span>It's the process of transferring a certificate from one domain to another</button>
+    </div>
+    <div class="feedback" id="fb-19">
+      <div class="feedback-head">✓ CORRECT</div>
+      If a private key is stolen, the certificate is still technically valid until expiry — which could be years. Revocation (via CRL or OCSP) tells browsers to stop trusting it immediately. But revocation checking is notoriously unreliable — many browsers soft-fail if they can't reach the OCSP responder.
+      <div class="soc-note">In an incident involving a compromised web server, determining whether the TLS certificate's private key was accessed is critical. If yes, revocation and certificate reissuance are mandatory response steps. Certificate Transparency logs (crt.sh) let you verify what certificates have been issued for your domain — unexpected entries may indicate an attacker obtained a fraudulent cert.</div>
+    </div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card" id="qc-20">
+    <div class="q-head">
+      <span class="q-num">Q20</span>
+      <div class="q-text-wrap">
+        <span class="q-tag scenario">SCENARIO</span>
+        <p class="q-text">CorpNet's SOC receives an alert: a user's browser accepted an HTTPS certificate for hr.corpnet.com signed by an internal CA not in the corporate trust store. What should the analyst investigate first?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(20,'A','B')"><span class="opt-key">A</span>Whether the certificate uses SHA-1 or SHA-256 signing</button>
+      <button class="opt-btn" onclick="answer(20,'B','B')"><span class="opt-key">B</span>Whether the user's browser trust store was modified to add a rogue CA — a common malware and MITM tactic</button>
+      <button class="opt-btn" onclick="answer(20,'C','B')"><span class="opt-key">C</span>Whether the certificate has expired</button>
+      <button class="opt-btn" onclick="answer(20,'D','B')"><span class="opt-key">D</span>Whether the web server's TLS version is up to date</button>
+    </div>
+    <div class="feedback" id="fb-20">
+      <div class="feedback-head">✓ CORRECT</div>
+      A rogue root CA being trusted by a browser is a serious finding. Malware, corporate spyware, and MITM attack tools (like mitmproxy) install their own CA into the system trust store to intercept HTTPS without browser warnings. If the CA isn't in your standard corporate baseline, that endpoint needs immediate investigation.
+      <div class="soc-note">Enumerate trusted CAs on endpoints as part of your baseline. Group Policy or MDM should enforce the approved CA list. Any deviation — an extra root CA not in the approved list — is an immediate escalation. Check the endpoint for evidence of SSL inspection tools, proxy configurations, and malware simultaneously.</div>
+    </div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card" id="qc-21">
+    <div class="q-head">
+      <span class="q-num">Q21</span>
+      <div class="q-text-wrap">
+        <span class="q-tag soc">SOC LENS</span>
+        <p class="q-text">What does Certificate Transparency (CT) logging provide that helps threat hunters?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(21,'A','D')"><span class="opt-key">A</span>Real-time alerts when any HTTPS connection is made to your domain</button>
+      <button class="opt-btn" onclick="answer(21,'B','D')"><span class="opt-key">B</span>A log of all private key operations performed by CAs</button>
+      <button class="opt-btn" onclick="answer(21,'C','D')"><span class="opt-key">C</span>An encrypted audit trail of all TLS sessions to your web server</button>
+      <button class="opt-btn" onclick="answer(21,'D','D')"><span class="opt-key">D</span>A public, append-only log of every certificate issued — so you can detect unauthorized certificates for your domain</button>
+    </div>
+    <div class="feedback" id="fb-21">
+      <div class="feedback-head">✓ CORRECT</div>
+      Every certificate issued by a trusted CA must be logged in public CT logs. Tools like crt.sh let you search all certificates ever issued for a domain. This is powerful for defenders: if an attacker obtains a fraudulent certificate for hr.corpnet.com from a rogue CA, it will appear in CT logs — often before any attack begins.
+      <div class="soc-note">Threat hunters use crt.sh to monitor certificate issuance for their domains. New subdomains appearing in CT logs (like "vpn2.corpnet.com" that your team didn't create) can indicate attacker reconnaissance or phishing infrastructure setup. This is a proactive detection technique, not a reactive one.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 5 ══ -->
+  <div class="section-header">
+    <span class="section-num s5">SECTION 05</span>
+    <span class="section-title">Digital Signatures</span>
+    <span class="section-count">Q22–Q25</span>
+  </div>
+  <div class="scorecard" id="sc-5">
+    <span class="scorecard-label">Score</span>
+    <span class="scorecard-score pending" id="sc-5-val">–/4</span>
+    <div class="scorecard-bar-outer"><div class="scorecard-bar-inner" id="sc-5-bar" style="background: var(--cyan);"></div></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card" id="qc-22">
+    <div class="q-head">
+      <span class="q-num">Q22</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">When Alice digitally signs a document, which key does she use to create the signature?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(22,'A','B')"><span class="opt-key">A</span>Bob's public key — so only Bob can verify it</button>
+      <button class="opt-btn" onclick="answer(22,'B','B')"><span class="opt-key">B</span>Alice's private key — so anyone with her public key can verify she signed it</button>
+      <button class="opt-btn" onclick="answer(22,'C','B')"><span class="opt-key">C</span>A shared symmetric key negotiated with the recipient</button>
+      <button class="opt-btn" onclick="answer(22,'D','B')"><span class="opt-key">D</span>The CA's public key — so the CA can verify the signature</button>
+    </div>
+    <div class="feedback" id="fb-22">
+      <div class="feedback-head">✓ CORRECT</div>
+      Signing uses the sender's private key. Only Alice holds her private key — so only she could have produced that signature. Anyone with Alice's public key can verify it. This is the inverse of encryption: encrypt with recipient's public key; sign with sender's private key.
+      <div class="soc-note">Code signing works on this principle. Windows checks that executables are signed by a trusted publisher before running them. Malware that uses stolen or forged code signing certificates (like the SolarWinds attackers did) bypasses this control — which is why signed-but-unknown binaries still warrant investigation.</div>
+    </div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card" id="qc-23">
+    <div class="q-head">
+      <span class="q-num">Q23</span>
+      <div class="q-text-wrap">
+        <span class="q-tag concept">CONCEPT</span>
+        <p class="q-text">A digital signature provides two security properties. Which pair is correct?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(23,'A','C')"><span class="opt-key">A</span>Confidentiality and availability</button>
+      <button class="opt-btn" onclick="answer(23,'B','C')"><span class="opt-key">B</span>Encryption and compression</button>
+      <button class="opt-btn" onclick="answer(23,'C','C')"><span class="opt-key">C</span>Authentication (proves who signed) and integrity (proves the content hasn't changed)</button>
+      <button class="opt-btn" onclick="answer(23,'D','C')"><span class="opt-key">D</span>Availability and non-repudiation only</button>
+    </div>
+    <div class="feedback" id="fb-23">
+      <div class="feedback-head">✓ CORRECT</div>
+      A digital signature proves: (1) this specific person signed it — because only they hold the private key, and (2) the content is unchanged — because the signature is computed over a hash of the document; any modification breaks the hash and invalidates the signature. Combined, this gives non-repudiation: the signer cannot later deny having signed it.
+      <div class="soc-note">Email DKIM (DomainKeys Identified Mail) uses digital signatures. The sending mail server signs each email with the domain's private key; receiving servers verify with the public key in DNS. When you're investigating a phishing email, checking whether DKIM passed tells you if it genuinely came from the claimed sending domain — or if the from address was spoofed.</div>
+    </div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card" id="qc-24">
+    <div class="q-head">
+      <span class="q-num">Q24</span>
+      <div class="q-text-wrap">
+        <span class="q-tag app">APPLICATION</span>
+        <p class="q-text">Why does a digital signature use a hash of the document rather than signing the entire document directly?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(24,'A','B')"><span class="opt-key">A</span>Hashing adds an extra layer of encryption to protect the document contents</button>
+      <button class="opt-btn" onclick="answer(24,'B','B')"><span class="opt-key">B</span>Asymmetric operations on large documents are impractically slow — signing a fixed-length hash is fast and the integrity property is equivalent</button>
+      <button class="opt-btn" onclick="answer(24,'C','B')"><span class="opt-key">C</span>The hash makes the signature transferable to any document</button>
+      <button class="opt-btn" onclick="answer(24,'D','B')"><span class="opt-key">D</span>Direct document signing would reveal the contents of the private key</button>
+    </div>
+    <div class="feedback" id="fb-24">
+      <div class="feedback-head">✓ CORRECT</div>
+      RSA signing a 1GB file directly would be prohibitively slow. Instead: hash the document (SHA-256 produces 32 bytes regardless of input size), then sign the 32-byte hash with RSA. Since any change to the document changes the hash, integrity is preserved. The signature covers the hash; the hash covers the document.
+      <div class="soc-note">File integrity monitoring (FIM) in your SIEM uses this principle — it hashes critical system files at baseline and alerts when hashes change. If an attacker modifies a system binary, the hash changes and the alert fires, even if the file size, timestamps, and name are identical. This is one of the hardest controls for attackers to evade silently.</div>
+    </div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="qc-25">
+    <div class="q-head">
+      <span class="q-num">Q25</span>
+      <div class="q-text-wrap">
+        <span class="q-tag scenario">SCENARIO</span>
+        <p class="q-text">CorpNet's HR team receives a digitally signed email from "CEO@corpnet.com" authorizing an urgent wire transfer. The DKIM signature passes, but the email came from an external server. What does this tell the analyst?</p>
+      </div>
+    </div>
+    <div class="q-options">
+      <button class="opt-btn" onclick="answer(25,'A','C')"><span class="opt-key">A</span>The email is legitimate — DKIM passing means it genuinely came from the CEO</button>
+      <button class="opt-btn" onclick="answer(25,'B','C')"><span class="opt-key">B</span>DKIM passing confirms both the sender identity and the legitimacy of the request</button>
+      <button class="opt-btn" onclick="answer(25,'C','C')"><span class="opt-key">C</span>DKIM only proves the domain's signing key was used — the CEO's email account may have been compromised, or the DKIM key itself may have been stolen</button>
+      <button class="opt-btn" onclick="answer(25,'D','C')"><span class="opt-key">D</span>This is impossible — DKIM signatures cannot pass on emails sent from external servers</button>
+    </div>
+    <div class="feedback" id="fb-25">
+      <div class="feedback-head">✓ CORRECT</div>
+      DKIM proves the email was signed by a key associated with the domain — not that the CEO personally sent it. If the CEO's account was compromised (BEC — Business Email Compromise), or if the DKIM private key was stolen, an attacker can send DKIM-valid emails as any address at that domain. Authentication passes; authorization still requires human verification for high-value requests like wire transfers.
+      <div class="soc-note">BEC is the highest-revenue cybercrime category by financial loss. The playbook is: compromise executive email → send urgent financial requests → DKIM/SPF/DMARC all pass because the account is legitimate. The defense isn't cryptographic — it's procedural: out-of-band verification (phone call to a known number) for any financial authorization. A passing digital signature is necessary but not sufficient evidence of legitimacy.</div>
+    </div>
+  </div>
+
+  <!-- ══ FINAL SCORECARD ══ -->
+  <div class="final-card" id="final-card">
+    <div style="font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.08em;">FINAL SCORE</div>
+    <div class="final-grade" id="final-grade">–</div>
+    <div class="final-label" id="final-label">– / 25 correct</div>
+    <div id="final-msg" style="font-size: 14px; color: var(--muted); max-width: 500px; margin: 0 auto 24px;"></div>
+
+    <div class="final-breakdown" id="final-breakdown"></div>
+
+    <button class="retry-btn" onclick="retryQuiz()">↺ RETRY QUIZ</button>
+  </div>
+
+</main>
+
+<script>
+  // ── State ──
+  const TOTAL = 25;
+  const SECTIONS = {
+    1: { qs: [1,2,3,4,5],       label: 'Ciphers, Algorithms & Keys',    color: 'var(--accent)' },
+    2: { qs: [6,7,8,9,10,11],   label: 'Symmetric Encryption & Risks',  color: 'var(--purple)' },
+    3: { qs: [12,13,14,15,16],  label: 'Asymmetric Encryption',         color: 'var(--green)' },
+    4: { qs: [17,18,19,20,21],  label: 'Certificate Authorities & PKI', color: 'var(--yellow)' },
+    5: { qs: [22,23,24,25],     label: 'Digital Signatures',            color: 'var(--cyan)' }
+  };
+
+  let answered = {};  // qNum -> correct(true/false)
+
+  function answer(qNum, chosen, correct) {
+    if (answered[qNum] !== undefined) return;
+    answered[qNum] = (chosen === correct);
+
+    const card = document.getElementById('qc-' + qNum);
+    const fb   = document.getElementById('fb-' + qNum);
+    const opts = card.querySelectorAll('.opt-btn');
+
+    opts.forEach(btn => {
+      btn.disabled = true;
+      const key = btn.querySelector('.opt-key').textContent.trim();
+      if (key === correct) {
+        if (chosen === correct) btn.classList.add('correct');
+        else btn.classList.add('missed');
+      } else if (key === chosen) {
+        btn.classList.add('wrong');
+      }
+    });
+
+    fb.classList.add('show');
+    fb.classList.add(chosen === correct ? 'correct' : 'wrong');
+    const head = fb.querySelector('.feedback-head');
+    if (chosen !== correct) {
+      head.textContent = '✗ INCORRECT';
+    }
+
+    card.classList.add(chosen === correct ? 'answered-correct' : 'answered-wrong');
+
+    updateProgress();
+    updateSectionScore(qNum);
+    if (Object.keys(answered).length === TOTAL) showFinal();
+  }
+
+  function getSectionFor(qNum) {
+    for (const [s, data] of Object.entries(SECTIONS)) {
+      if (data.qs.includes(qNum)) return parseInt(s);
+    }
+  }
+
+  function updateSectionScore(qNum) {
+    const s = getSectionFor(qNum);
+    const data = SECTIONS[s];
+    const done = data.qs.filter(q => answered[q] !== undefined);
+    const correct = data.qs.filter(q => answered[q] === true).length;
+    const total = data.qs.length;
+
+    const valEl = document.getElementById('sc-' + s + '-val');
+    const barEl = document.getElementById('sc-' + s + '-bar');
+    const pct = done.length > 0 ? (correct / total) * 100 : 0;
+
+    valEl.textContent = correct + '/' + total;
+    valEl.className = 'scorecard-score';
+    if (done.length === total) {
+      if (pct >= 80) valEl.classList.add('good');
+      else if (pct >= 60) valEl.classList.add('ok');
+      else valEl.classList.add('bad');
+    } else {
+      valEl.classList.add('ok');
+    }
+
+    barEl.style.width = pct + '%';
+  }
+
+  function updateProgress() {
+    const done = Object.keys(answered).length;
+    document.getElementById('prog-label').textContent = done + ' / ' + TOTAL;
+    document.getElementById('prog-bar').style.width = (done / TOTAL * 100) + '%';
+  }
+
+  function showFinal() {
+    const total = Object.values(answered).filter(Boolean).length;
+    const pct = total / TOTAL * 100;
+
+    let grade, cls, msg;
+    if (pct >= 90) { grade = 'A'; cls = 'A'; msg = "Outstanding. You understand the cryptographic foundations that underpin every secure protocol you'll investigate. Take this confidence into the PKI lab."; }
+    else if (pct >= 75) { grade = 'B'; cls = 'B'; msg = "Solid foundation. A few concepts need reinforcement — review the sections where you dropped points before moving to the PKI lab."; }
+    else if (pct >= 60) { grade = 'C'; cls = 'C'; msg = "Core concepts understood, but key gaps remain. Revisit symmetric key management and the CA trust chain sections before moving forward."; }
+    else { grade = 'F'; cls = 'F'; msg = "Retry this section with the session notes open. Cryptography is foundational to everything in Module 3 — it's worth getting right before moving on."; }
+
+    const finalEl = document.getElementById('final-card');
+    document.getElementById('final-grade').textContent = grade;
+    document.getElementById('final-grade').className = 'final-grade ' + cls;
+    document.getElementById('final-label').textContent = total + ' / ' + TOTAL + ' correct  (' + Math.round(pct) + '%)';
+    document.getElementById('final-msg').textContent = msg;
+
+    const breakdown = document.getElementById('final-breakdown');
+    breakdown.innerHTML = '';
+    for (const [s, data] of Object.entries(SECTIONS)) {
+      const correct = data.qs.filter(q => answered[q] === true).length;
+      const total_s = data.qs.length;
+      const p = (correct / total_s) * 100;
+      const scoreClass = p >= 80 ? 'good' : p >= 60 ? 'ok' : 'bad';
+      breakdown.innerHTML += `
+        <div class="breakdown-cell">
+          <div class="breakdown-section">${data.label}</div>
+          <div class="breakdown-score ${scoreClass}">${correct}/${total_s}</div>
+        </div>`;
+    }
+
+    finalEl.classList.add('show');
+    finalEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function retryQuiz() {
+    answered = {};
+    document.querySelectorAll('.q-card').forEach(c => c.className = 'q-card');
+    document.querySelectorAll('.opt-btn').forEach(b => { b.disabled = false; b.className = 'opt-btn'; });
+    document.querySelectorAll('.feedback').forEach(f => { f.className = 'feedback'; });
+    document.getElementById('final-card').classList.remove('show');
+    document.getElementById('prog-bar').style.width = '0%';
+    document.getElementById('prog-label').textContent = '0 / ' + TOTAL;
+    for (let s = 1; s <= 5; s++) {
+      document.getElementById('sc-'+s+'-val').className = 'scorecard-score pending';
+      document.getElementById('sc-'+s+'-val').textContent = '–/' + SECTIONS[s].qs.length;
+      document.getElementById('sc-'+s+'-bar').style.width = '0%';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
