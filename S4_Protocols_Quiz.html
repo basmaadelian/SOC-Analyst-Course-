@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4 — Network Protocols Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0a0e14;
+    --surface:   #111720;
+    --surface2:  #18202e;
+    --border:    #1e2d40;
+    --accent:    #00c2ff;
+    --accent2:   #0077aa;
+    --green:     #00e676;
+    --red:       #ff4f4f;
+    --yellow:    #ffc107;
+    --text:      #cdd6e4;
+    --muted:     #5a6a80;
+    --mono:      'Share Tech Mono', monospace;
+    --sans:      'Inter', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ── STICKY HEADER ── */
+  #sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #080c11ee;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #sticky-header h1 {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .08em;
+  }
+  #score-strip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .score-pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all .3s;
+    white-space: nowrap;
+  }
+  .score-pill.active  { border-color: var(--accent);  color: var(--accent); }
+  .score-pill.done    { border-color: var(--green);   color: var(--green);  background: #00e67611; }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 48px 0 40px;
+  }
+  .hero .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e8f4ff;
+    margin-bottom: 8px;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 44px 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--accent2);
+    color: var(--accent);
+    letter-spacing: .12em;
+  }
+  .section-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0eaf8;
+  }
+  .section-header .port-label {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 24px 18px;
+    margin-bottom: 14px;
+    transition: border-color .25s;
+  }
+  .q-card.correct  { border-color: var(--green); }
+  .q-card.wrong    { border-color: var(--red);   }
+
+  .q-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .q-type {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .type-concept   { background: #1a2a3a; color: #60a0c8; }
+  .type-soc       { background: #1a2a20; color: #60c890; }
+  .type-app       { background: #2a1a30; color: #b060c8; }
+  .type-scenario  { background: #2a1a10; color: #c88060; }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: #dce8f8;
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+
+  /* code snippet inside question */
+  .q-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #07090d;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0 14px;
+    color: #80c0e0;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 14px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color .15s, background .15s;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: #141c28;
+  }
+  .opt-btn .opt-letter {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 16px;
+    padding-top: 2px;
+  }
+  .opt-btn.selected-correct {
+    border-color: var(--green);
+    background: #00e67610;
+    color: #a0ffcc;
+  }
+  .opt-btn.selected-wrong {
+    border-color: var(--red);
+    background: #ff4f4f10;
+    color: #ffaaaa;
+  }
+  .opt-btn.reveal-correct {
+    border-color: var(--green);
+    background: #00e67608;
+    color: #80d8a8;
+  }
+  .opt-btn:disabled { cursor: default; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .feedback.correct {
+    display: block;
+    background: #00e67610;
+    border: 1px solid #00e67640;
+    color: #80ffbb;
+  }
+  .feedback.wrong {
+    display: block;
+    background: #ff4f4f10;
+    border: 1px solid #ff4f4f40;
+    color: #ffaaaa;
+  }
+  .feedback strong { color: inherit; }
+  .feedback .soc-lens {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .04em;
+  }
+
+  /* ── SCORECARD ── */
+  #final-scorecard {
+    display: none;
+    margin-top: 60px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 32px;
+    text-align: center;
+  }
+  #final-scorecard h2 {
+    font-family: var(--mono);
+    font-size: 20px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  #final-scorecard .grade {
+    font-size: 52px;
+    font-weight: 700;
+    margin: 14px 0 4px;
+    line-height: 1;
+  }
+  #final-scorecard .verdict {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .section-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .sec-result {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 12px;
+    text-align: left;
+  }
+  .sec-result .sec-name {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: .12em;
+    margin-bottom: 6px;
+  }
+  .sec-result .sec-score {
+    font-size: 20px;
+    font-weight: 700;
+    color: #dce8f8;
+  }
+  .sec-result .sec-total {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  #restart-btn {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .1em;
+    padding: 12px 32px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  #restart-btn:hover { background: var(--accent); color: var(--bg); }
+
+  /* progress bar */
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+  .progress-bar-fill {
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  @media(max-width:600px){
+    .section-results { grid-template-columns: 1fr 1fr; }
+    .hero h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<div id="sticky-header">
+  <h1>SESSION 4 &mdash; NETWORK PROTOCOLS QUIZ</h1>
+  <div id="score-strip">
+    <span class="score-pill" id="pill-dns">DNS</span>
+    <span class="score-pill" id="pill-http">HTTP/S</span>
+    <span class="score-pill" id="pill-ftp">FTP</span>
+    <span class="score-pill" id="pill-ssh">SSH</span>
+    <span class="score-pill" id="pill-smtp">SMTP</span>
+    <span class="score-pill" id="pill-icmp">ICMP</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">Module 1 &mdash; Network Fundamentals</div>
+    <h2>Network Protocols &amp; Security</h2>
+    <p>30 questions &nbsp;·&nbsp; 6 sections &nbsp;·&nbsp; SOC analyst lens</p>
+    <div class="progress-bar-wrap" style="margin-top:18px;">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 1: DNS ═══════════ -->
+  <div class="section-header" id="sec-dns">
+    <span class="section-tag">SECTION 1</span>
+    <h3>DNS — Domain Name System</h3>
+    <span class="port-label">UDP · Port 53</span>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="q1" data-section="dns" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q1</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">What is the correct order of the DNS resolution process when a user visits a website not cached locally?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Browser → Authoritative NS → TLD Server → Root Server → IP returned</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Browser → Recursive Resolver → Root Server → TLD Server → Authoritative NS → IP returned</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Browser → Root Server → Recursive Resolver → Authoritative NS → IP returned</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Browser → TLD Server → Root Server → Recursive Resolver → IP returned</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="q2" data-section="dns" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q2</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">Which DNS record type would a mail server query to find the address of the server responsible for delivering email to a domain?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>A record</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>CNAME record</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>MX record</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>TXT record</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="q3" data-section="dns" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q3</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">In DNS cache poisoning, what is the "race condition" an attacker must win?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Sending a flood of DNS queries before rate limiting kicks in</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Registering a lookalike domain before the legitimate owner notices</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Exhausting the resolver's cache before DNSSEC can validate</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Delivering a forged DNS reply to the resolver before the legitimate authoritative nameserver responds</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="q4" data-section="dns" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q4</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">A SOC analyst reviews DNS logs and sees the following query repeated hundreds of times per hour from an internal host:
+      <div class="q-code">dGhpcylpcylleGZpbHRyYXRlZClkYXRh.s3rv3r.attacker-domain.xyz</div>
+      What is the most likely explanation?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>DNS tunneling — the subdomain carries base64-encoded exfiltrated data</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>DNS cache poisoning — the resolver is being fed forged responses</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>A legitimate CDN subdomain used for content delivery</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>A CNAME alias chain resolving across multiple domains</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="q5" data-section="dns" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q5</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">DNSSEC protects against DNS cache poisoning by doing which of the following?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Encrypting all DNS queries so they cannot be intercepted in transit</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Adding cryptographic digital signatures to DNS responses so their authenticity can be verified</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Routing all DNS traffic through a trusted recursive resolver</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Blocking UDP port 53 and forcing DNS over TCP</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ═══════════ SECTION 2: HTTP & HTTPS ═══════════ -->
+  <div class="section-header" id="sec-http">
+    <span class="section-tag">SECTION 2</span>
+    <h3>HTTP &amp; HTTPS</h3>
+    <span class="port-label">TCP · 80 / 443</span>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="q6" data-section="http" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q6</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">An analyst sees a flood of HTTP POST requests to <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/login</code> on CorpNet's HR portal from a single external IP. What attack does this most likely indicate?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Directory traversal — the attacker is mapping the web server's file structure</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>SQL injection — malicious payloads are being inserted into login fields</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Brute-force or credential stuffing — repeated POST requests testing username/password combinations</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Cross-site scripting — script payloads are being submitted via POST</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" id="q7" data-section="http" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q7</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">Which HTTP status code range indicates that the client's request was understood but the server failed to fulfill it?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>2xx</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>3xx</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>4xx</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>5xx</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="q8" data-section="http" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q8</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">A spike in HTTP 404 responses is visible in CorpNet's web server logs over a 10-minute window. What should an analyst suspect first?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Directory scanning — an attacker is probing for hidden paths and resources</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>A DDoS attack — the server is overwhelmed and returning errors</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>A misconfigured redirect rule causing broken links</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>SSL certificate expiry causing failed HTTPS requests</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" id="q9" data-section="http" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q9</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">During the TLS handshake, when does encrypted data transfer actually begin?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>After the client sends the ClientHello message</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>After both parties exchange cryptographic keys and establish the session</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>After the server sends its SSL certificate</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Immediately when the TCP connection is established on port 443</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="q10" data-section="http" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q10</span>
+      <span class="q-type type-app">Application</span>
+    </div>
+    <div class="q-text">An employee reports that their browser shows a padlock for a site, yet they downloaded malware from it. Which of the following best explains this?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>The certificate was expired and TLS encryption was disabled</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>HTTPS was not actually in use — the padlock was a browser rendering bug</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>TLS encrypts the channel, not the content — malware can be delivered over a valid HTTPS connection</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>The attacker obtained a forged TLS certificate from a rogue CA</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ═══════════ SECTION 3: FTP ═══════════ -->
+  <div class="section-header" id="sec-ftp">
+    <span class="section-tag">SECTION 3</span>
+    <h3>FTP — File Transfer Protocol</h3>
+    <span class="port-label">TCP · 21 (ctrl) / 20 (data)</span>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="q11" data-section="ftp" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q11</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">In FTP active mode, the data connection is initiated by whom, and from which port?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>The client initiates the data connection from port 21</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>The client initiates the data connection from port 20</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>The server opens a listening port and waits for the client to connect</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>The server initiates the data connection from port 20 back to a port the client opened</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="q12" data-section="ftp" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q12</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">Why do modern FTP clients default to passive mode instead of active mode?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Passive mode encrypts the data channel automatically</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Passive mode eliminates inbound connections from the server to the client, avoiding client-side firewall blocks</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Passive mode transfers data faster because it uses a single channel</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Passive mode uses port 22 which is always open in enterprise firewalls</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card" id="q13" data-section="ftp" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q13</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">An analyst captures this FTP session in Wireshark:
+      <div class="q-code">USER admin
+PASS admin123
+230 Login successful
+RETR /var/www/html/database_backup.sql
+226 Transfer complete</div>
+      What are the two most critical observations?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Credentials transmitted in cleartext AND a high-value database file exfiltrated over unencrypted FTP</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>The RETR command failed AND the session used active mode</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>The session occurred on port 443 AND used FTPS encryption</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Anonymous login was used AND the server responded with a 530 error</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="q14" data-section="ftp" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q14</span>
+      <span class="q-type type-app">Application</span>
+    </div>
+    <div class="q-text">What is the key architectural difference between SFTP and FTPS?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>SFTP uses two channels like FTP; FTPS uses a single channel</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>FTPS is a subsystem of SSH; SFTP adds TLS to standard FTP</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>SFTP is a completely separate protocol built into SSH on port 22; FTPS adds TLS/SSL encryption to standard FTP on port 21 or 990</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>SFTP and FTPS are different names for the same protocol</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="q15" data-section="ftp" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q15</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">Which FTP log indicator most strongly suggests a brute-force attack in progress?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>STOR commands uploading unusually large files</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>A single session using the USER anonymous command</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>RETR commands retrieving files with sensitive-sounding names</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Repeated USER and PASS commands followed by 530 Login incorrect responses from a single IP</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ═══════════ SECTION 4: SSH ═══════════ -->
+  <div class="section-header" id="sec-ssh">
+    <span class="section-tag">SECTION 4</span>
+    <h3>SSH — Secure Shell</h3>
+    <span class="port-label">TCP · Port 22</span>
+  </div>
+
+  <!-- Q16 -->
+  <div class="q-card" id="q16" data-section="ssh" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q16</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">In SSH key-based authentication, what is transmitted over the network during the authentication process?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>The private key, encrypted with the public key</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>A cryptographic signature of the server's challenge — the private key itself is never sent</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>A hashed version of the private key for the server to compare</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>The public key is sent at login time for the server to store</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card" id="q17" data-section="ssh" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q17</span>
+      <span class="q-type type-scenario">Scenario</span>
+    </div>
+    <div class="q-text">An analyst sees the following auth log pattern:
+      <div class="q-code">May 15 03:14:22 server01 sshd: Failed password for root from 185.220.101.45
+May 15 03:14:58 server01 sshd: Accepted password for root from 185.220.101.45</div>
+      What is the most accurate assessment and recommended immediate action?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Normal — a user forgot their password. No action needed.</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Suspicious — monitor for further failed attempts and alert the user</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Textbook successful SSH brute-force — block the source IP immediately, investigate the active root session, open an incident</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>A legitimate admin reset — the failure was likely a typo; the accepted login confirms it</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card" id="q18" data-section="ssh" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q18</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">An attacker on a compromised internal machine sets up a reverse SSH tunnel to their external server. Why is this particularly difficult to block?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Reverse tunnels use a proprietary protocol that evades signature detection</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>The tunnel uses inbound SSH which firewalls cannot block</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Firewalls cannot inspect SSH traffic at all due to encryption</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>The connection is outbound SSH (port 22 or 443) which firewalls typically allow, hiding all attack traffic inside an encrypted tunnel</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card" id="q19" data-section="ssh" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q19</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">Which of the following SSH log indicators most strongly suggests a tunnel being held open for covert access rather than legitimate administration?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>A long-duration SSH session with no commands issued during the session</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>An SSH session from an admin workstation during business hours</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Multiple SSH sessions from different users to the same server</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>An SSH session that transferred a large file before disconnecting</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card" id="q20" data-section="ssh" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q20</span>
+      <span class="q-type type-app">Application</span>
+    </div>
+    <div class="q-text">On a Linux server, which log file should an analyst check first when investigating potential SSH compromise?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>/var/log/syslog</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>/var/log/auth.log or /var/log/secure</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>/var/log/ssh.log</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>/etc/ssh/sshd_config</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ═══════════ SECTION 5: SMTP ═══════════ -->
+  <div class="section-header" id="sec-smtp">
+    <span class="section-tag">SECTION 5</span>
+    <h3>SMTP — Simple Mail Transfer Protocol</h3>
+    <span class="port-label">TCP · 25 / 587 / 465</span>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card" id="q21" data-section="smtp" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q21</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">An analyst reviews an email header and sees the From address shows "PayPal Security" while the Received header shows <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">mail.paypa1.com</code>. Which SMTP concept does this exploit?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>DNS spoofing — the attacker redirected the real paypal.com MX record</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>DKIM signature replay — a valid signature was copied from a real PayPal email</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>The SMTP envelope/header separation — the visible From address is independent of the actual sending server</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>An open relay — the attacker routed the email through PayPal's own mail server</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card" id="q22" data-section="smtp" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q22</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">Which email authentication mechanism acts as the <em>enforcement layer</em> — telling receiving servers what to do when SPF and DKIM checks fail?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>DMARC</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>SPF</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>DKIM</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>STARTTLS</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card" id="q23" data-section="smtp" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q23</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">SPF works by publishing a DNS record that does which of the following?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Signs every outgoing email with a cryptographic signature</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Defines which MX servers are allowed to receive email for the domain</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Instructs receiving servers to reject emails that fail DKIM checks</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Lists every IP address authorized to send email on behalf of the domain</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card" id="q24" data-section="smtp" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q24</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">When investigating a suspected phishing email, which email header field should an analyst check first to identify authentication failures?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>From</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Authentication-Results</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Reply-To</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>X-Mailer</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="q25" data-section="smtp" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q25</span>
+      <span class="q-type type-app">Application</span>
+    </div>
+    <div class="q-text">An organization's DMARC policy is set to <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">p=none</code>. What does this mean for phishing emails that fail SPF and DKIM?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>All failing emails are automatically rejected at the gateway</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>All failing emails are quarantined to the spam folder</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Failing emails are still delivered — the policy only monitors and reports, with no enforcement action</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>DMARC overrides SPF and DKIM — no emails will be rejected</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ═══════════ SECTION 6: ICMP ═══════════ -->
+  <div class="section-header" id="sec-icmp">
+    <span class="section-tag">SECTION 6</span>
+    <h3>ICMP — Internet Control Message Protocol</h3>
+    <span class="port-label">IP Layer 3 · No ports</span>
+  </div>
+
+  <!-- Q26 -->
+  <div class="q-card" id="q26" data-section="icmp" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q26</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">Unlike TCP and UDP, ICMP does not use port numbers. How are ICMP messages identified instead?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>By the TTL value in the IP header</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>By source and destination IP address pairs</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>By a session ID assigned at connection start</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>By type and code numbers in the ICMP header</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q27 -->
+  <div class="q-card" id="q27" data-section="icmp" data-answer="A">
+    <div class="q-meta">
+      <span class="q-num">Q27</span>
+      <span class="q-type type-concept">Concept</span>
+    </div>
+    <div class="q-text">How does traceroute map every hop between source and destination?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>It sends packets with incrementing TTL values; each router that drops a packet at TTL=0 sends back an ICMP Time Exceeded message revealing its address</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>It sends ICMP Echo Requests to every possible router IP in sequence until it reaches the destination</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>It queries the BGP routing table to enumerate all hops in the path</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>It establishes a TCP session to each router along the path and reads the routing table</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q28 -->
+  <div class="q-card" id="q28" data-section="icmp" data-answer="C">
+    <div class="q-meta">
+      <span class="q-num">Q28</span>
+      <span class="q-type type-soc">SOC</span>
+    </div>
+    <div class="q-text">An analyst sees ICMP Echo Request packets from an internal workstation to an external IP. Each packet is 1480 bytes, contains non-ASCII characters, and fires every 5 seconds continuously for 2 hours. What is the most likely conclusion?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>A network admin is running an extended connectivity test</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>The workstation is experiencing a fragmentation issue causing large ICMP packets</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>ICMP tunneling — the workstation is infected with malware using ICMP as a covert C2 channel</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Normal behavior — modern operating systems use large ICMP packets for path MTU discovery</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q29 -->
+  <div class="q-card" id="q29" data-section="icmp" data-answer="B">
+    <div class="q-meta">
+      <span class="q-num">Q29</span>
+      <span class="q-type type-app">Application</span>
+    </div>
+    <div class="q-text">A security team wants to block ICMP entirely at the perimeter firewall. What unintended consequence would blocking ICMP Type 3 Code 4 cause?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Ping would stop working — administrators couldn't test host reachability</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Path MTU Discovery would break — causing mysterious failures for large packet transfers</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Traceroute would break — revealing less network topology to attackers</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>DNS resolution would slow down — DNS relies on ICMP for latency measurement</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q30 -->
+  <div class="q-card" id="q30" data-section="icmp" data-answer="D">
+    <div class="q-meta">
+      <span class="q-num">Q30</span>
+      <span class="q-type type-scenario">Scenario</span>
+    </div>
+    <div class="q-text">CorpNet's SOC receives an alert about unusual ICMP traffic. The analyst wants to monitor for ICMP tunneling without breaking legitimate network diagnostic functions. Which approach follows best practice?</div>
+    <div class="options">
+      <button class="opt-btn" data-opt="A"><span class="opt-letter">A</span>Block all ICMP at the perimeter — this eliminates the attack surface completely</button>
+      <button class="opt-btn" data-opt="B"><span class="opt-letter">B</span>Block only ICMP Echo Requests from internal hosts — they should never ping the internet</button>
+      <button class="opt-btn" data-opt="C"><span class="opt-letter">C</span>Allow all ICMP — blocking it creates more problems than it solves</button>
+      <button class="opt-btn" data-opt="D"><span class="opt-letter">D</span>Use selective ICMP filtering — allow Types 3 and 11, rate-limit Echo Requests from untrusted external sources, and monitor ICMP payloads for tunneling indicators</button>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- FINAL SCORECARD -->
+  <div id="final-scorecard">
+    <h2>// QUIZ COMPLETE</h2>
+    <div class="grade" id="grade-display"></div>
+    <div class="verdict" id="verdict-display"></div>
+    <div class="section-results" id="section-results"></div>
+    <button id="restart-btn" onclick="restartQuiz()">↺ RESTART QUIZ</button>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const FEEDBACK = {
+  q1:  { correct: "The full 5-step process runs: browser → recursive resolver → root server → TLD server → authoritative nameserver → IP returned to browser. The recursive resolver does all the legwork on behalf of the client.", soc: "Every network action starts with a DNS query. Malware C2 callbacks, phishing redirects, and lateral movement all leave DNS footprints first." },
+  q2:  { correct: "MX (Mail Exchange) records specify which mail servers handle email delivery for a domain. The MTA queries DNS for MX records before routing an email.", soc: "SPF records live in TXT records, not MX records — a common exam trap. MX = where to send mail. TXT = SPF/DKIM policies." },
+  q3:  { correct: "The attacker must deliver their forged reply to the DNS resolver within milliseconds — before the legitimate authoritative nameserver's real response arrives. This narrow window is the race condition.", soc: "Signs of cache poisoning: sudden unexpected drop in web traffic to a domain, or mass redirects noticed by users." },
+  q4:  { correct: "The long base64-encoded subdomain string is the giveaway for DNS tunneling. The data is encoded into the subdomain label and sent to an attacker-controlled authoritative server that decodes and logs it.", soc: "Detection indicators: unusually long subdomain strings (approaching 255 chars), base64 characters, high query volume to a single domain, queries to newly registered domains." },
+  q5:  { correct: "DNSSEC uses cryptographic digital signatures tied to a trusted public key certificate. Receiving resolvers verify the signature to confirm the response is authentic and unmodified.", soc: "DNSSEC does NOT encrypt DNS — it authenticates responses. DNS traffic is still visible; it just can't be forged undetected." },
+  q6:  { correct: "A flood of POST requests to a login endpoint from one IP is the textbook signature of brute-force or credential stuffing attacks — automated tools testing username/password combinations at scale.", soc: "A flood of POSTs to a login page often signals brute-force or credential stuffing. Alert threshold: >20 POSTs/min from a single IP to the same endpoint." },
+  q7:  { correct: "5xx codes indicate server-side errors — the server received a valid request but failed to fulfill it. 4xx codes indicate client errors (bad syntax, unauthorized, not found).", soc: "A spike in 5xx errors during an incident can indicate the server is overwhelmed (DDoS) or has been compromised and is crashing on malicious inputs." },
+  q8:  { correct: "A spike in 404 errors often means directory scanning — an attacker using a tool like dirb or gobuster to enumerate hidden paths, admin panels, and config files.", soc: "404 spike = likely directory scanning. Look for sequential path requests, tool signatures in User-Agent headers, and rapid-fire timing." },
+  q9:  { correct: "Encrypted data transfer begins only after both parties complete the handshake: ClientHello → ServerHello + certificate → key exchange → session established. Only then does encrypted data flow.", soc: "The domain name remains visible in the SNI field of the TLS handshake even before encryption begins. This is why analysts can identify the destination even in encrypted traffic." },
+  q10: { correct: "TLS encrypts the channel, not the content. An attacker can host malware on a validly-certificated HTTPS site. The padlock only guarantees the connection is private — not that the content is safe.", soc: "SSL inspection at the proxy/NGFW is the only way for a SOC to inspect content delivered over HTTPS. Without it, malware delivery inside HTTPS is invisible." },
+  q11: { correct: "In active mode, the server initiates the data connection from its port 20 back to the client's chosen listening port. This inbound connection from the server looks suspicious to client-side firewalls — which is why firewalls often block it.", soc: "Active mode creates server→client inbound connections that firewalls flag. This is why most FTP deployments default to passive mode today." },
+  q12: { correct: "In passive mode, the server opens a temporary port and waits. The client connects outbound to it. There's no inbound connection back to the client, so client firewalls don't interfere.", soc: "Passive mode is the default in modern FTP clients precisely because enterprise firewalls block unexpected inbound connections to client workstations." },
+  q13: { correct: "Both observations are critical: (1) credentials are in cleartext — USER admin / PASS admin123 — and anyone capturing traffic can read them. (2) The RETR command retrieved a full database backup over unencrypted FTP — a complete exfiltration event.", soc: "In Wireshark: Tools → Credentials automatically extracts cleartext FTP usernames and passwords. This maps to MITRE ATT&CK T1040 — Network Traffic Capture." },
+  q14: { correct: "SFTP (SSH File Transfer Protocol) is a completely separate protocol — a file transfer subsystem built into SSH, not FTP with SSH layered on top. It runs on port 22, single connection, fully encrypted. FTPS adds TLS/SSL to standard FTP, using port 21 (explicit) or 990 (implicit).", soc: "SFTP is preferred for its simplicity: one port, one connection, no dual-channel firewall complications. FTPS retains FTP's complex dual-channel behavior even with encryption." },
+  q15: { correct: "Repeated USER and PASS commands followed by '530 Login incorrect' from a single IP is the classic FTP brute-force signature. Each pair represents one failed credential attempt.", soc: "Brute-force indicators: rapid repeated login failures from one IP, automated timing patterns, dictionary-word usernames. Threshold alerts should fire at >10 failures/minute." },
+  q16: { correct: "In key-based auth, the private key never leaves the client machine. The server issues a cryptographic challenge, the client signs it with the private key, and the server verifies the signature using the stored public key.", soc: "The private key never traverses the network — this eliminates credential interception entirely. This is why key-based auth is mandatory on hardened production servers." },
+  q17: { correct: "Failed password followed 36 seconds later by Accepted password for root at 3:14 AM from an external IP is textbook successful brute-force. Immediate actions: block the source IP, investigate the active root session for commands executed, open an incident.", soc: "Check /var/log/auth.log. Pattern: many failures → single success from same IP = confirmed brute-force. Root login from external IP at 3 AM = critical severity incident." },
+  q18: { correct: "Reverse tunneling works by establishing an outbound SSH connection from the compromised machine to the attacker's server. Firewalls see legitimate-looking outbound SSH (or HTTPS on port 443) and allow it. All attack traffic then flows inward through that tunnel.", soc: "Detection: long-duration SSH sessions with no commands, SSH on non-standard ports (443, 80), sessions from unusual geos, SSH processes spawning unexpected child processes." },
+  q19: { correct: "A long-duration SSH session with no commands issued is a strong indicator of a tunnel being held open — the connection exists purely to maintain the tunnel, not to administer the server.", soc: "Legitimate admins log in, run commands, and log out. An SSH session open for hours with no activity is the tunnel pattern. Correlate with any unusual outbound traffic from that server." },
+  q20: { correct: "/var/log/auth.log (Debian/Ubuntu) or /var/log/secure (RHEL/CentOS) records all SSH authentication events — successful logins, failed attempts, key-based auth, and sudo usage.", soc: "Look for: failed logins → single success (brute-force), root logins, sudo abuse, logins from unexpected IPs or outside business hours." },
+  q21: { correct: "The SMTP envelope (used by mail servers) is separate from the email headers (seen by users). The visible From address can say anything regardless of the actual sending server — attackers exploit this to make phishing emails appear legitimate.", soc: "SPF checks the sending IP against the envelope sender's domain. DKIM signs the message header. DMARC ties both together. All three must be checked during phishing investigation." },
+  q22: { correct: "DMARC (Domain-based Message Authentication, Reporting and Conformance) is the policy layer. It tells receiving servers what to do when SPF or DKIM fails — none (monitor), quarantine, or reject. Without DMARC, failing emails are often still delivered.", soc: "Many organizations have SPF and DKIM configured but DMARC set to 'none' — meaning phishing emails that fail both checks still reach the inbox. Check Authentication-Results header for spf=fail; dkim=fail; dmarc=fail." },
+  q23: { correct: "SPF uses a DNS TXT record that lists every IP address authorized to send email on behalf of the domain. Receiving servers check whether the sending IP appears in that list.", soc: "SPF = 'guest list of authorized sending IPs'. If the sending IP isn't on the list, SPF fails. But without DMARC enforcement, a failing SPF alone won't stop delivery." },
+  q24: { correct: "The Authentication-Results header shows the results of all authentication checks — spf=pass/fail, dkim=pass/fail, dmarc=pass/fail. This is the first place to look when triaging a suspected phishing email.", soc: "Always check Authentication-Results first. A phishing email typically shows: spf=fail; dkim=fail; dmarc=fail. The From address can look completely legitimate while all three fail." },
+  q25: { correct: "DMARC p=none is monitor-only mode. Emails that fail SPF and DKIM are still delivered to the inbox. Reports are generated for the domain owner, but no enforcement action is taken.", soc: "Many organizations run p=none for months to baseline legitimate email traffic before moving to quarantine or reject. During this window, phishing emails still reach users." },
+  q26: { correct: "ICMP messages are identified by type and code numbers in the ICMP header — not port numbers. Type 8 = Echo Request (ping), Type 0 = Echo Reply, Type 3 = Destination Unreachable, Type 11 = Time Exceeded.", soc: "Because ICMP has no ports, standard port-based firewall rules don't apply to it. Detection relies on payload analysis, frequency, and size — not port blocking." },
+  q27: { correct: "Traceroute sends packets with TTL=1, then TTL=2, etc. Each router decrements TTL by 1; when it hits zero, the router drops the packet and sends an ICMP Type 11 (Time Exceeded) message back, revealing its IP address.", soc: "Blocking ICMP Type 11 breaks traceroute — removing a critical diagnostic tool. Attackers also use traceroute for network reconnaissance, so watch for it from external sources." },
+  q28: { correct: "Normal ping payloads are 32–64 bytes. 1480-byte payloads with non-ASCII content, firing every 5 seconds for 2 hours, is automated beaconing — the workstation is almost certainly infected with malware using ICMP as a C2 channel.", soc: "Immediate action: isolate the machine. Key indicators: oversized payload (>64 bytes), non-ASCII/encoded content, regular automated intervals, sustained over time." },
+  q29: { correct: "ICMP Type 3 Code 4 is 'Fragmentation Needed' — the core message that enables Path MTU Discovery. Blocking it causes large packets to be silently dropped, creating mysterious failures for transfers involving large data (file transfers, video, some VPNs).", soc: "Best practice: selective ICMP filtering. Allow Types 3 and 11 (needed for network function), rate-limit or block Echo Requests from external untrusted sources." },
+  q30: { correct: "Selective ICMP filtering is the industry best practice: allow Types 3 (Destination Unreachable) and 11 (Time Exceeded) for network functionality, rate-limit Echo Requests from untrusted external sources, and monitor ICMP payloads for tunneling indicators rather than blindly blocking everything.", soc: "Blocking all ICMP creates diagnostic blind spots. Monitor payload size and frequency instead — tunneled ICMP has large payloads (>64 bytes) and regular automated intervals." }
+};
+
+// Section tracking
+const SECTIONS = { dns:[], http:[], ftp:[], ssh:[], smtp:[], icmp:[] };
+document.querySelectorAll('.q-card').forEach(card => {
+  const id = card.id;
+  const sec = card.dataset.section;
+  if (SECTIONS[sec]) SECTIONS[sec].push(id);
+});
+
+const scores = { dns:{c:0,t:0}, http:{c:0,t:0}, ftp:{c:0,t:0}, ssh:{c:0,t:0}, smtp:{c:0,t:0}, icmp:{c:0,t:0} };
+let answered = 0;
+const TOTAL = 30;
+
+function handleAnswer(card, btn, chosen) {
+  const correct = card.dataset.answer;
+  const sec = card.dataset.section;
+  const qid = card.id;
+  scores[sec].t++;
+
+  card.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+  const fb = card.querySelector('.feedback');
+  const data = FEEDBACK[qid];
+
+  if (chosen === correct) {
+    btn.classList.add('selected-correct');
+    card.classList.add('correct');
+    fb.className = 'feedback correct';
+    fb.innerHTML = `<strong>✓ Correct.</strong> ${data.correct}<div class="soc-lens">⬡ SOC LENS &nbsp;|&nbsp; ${data.soc}</div>`;
+    scores[sec].c++;
+  } else {
+    btn.classList.add('selected-wrong');
+    card.classList.add('wrong');
+    fb.className = 'feedback wrong';
+    // highlight correct
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      if (b.dataset.opt === correct) b.classList.add('reveal-correct');
+    });
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> ${data.correct}<div class="soc-lens">⬡ SOC LENS &nbsp;|&nbsp; ${data.soc}</div>`;
+  }
+
+  answered++;
+  updateProgress();
+  updatePill(sec);
+  if (answered === TOTAL) setTimeout(showScorecard, 600);
+}
+
+function updateProgress() {
+  document.getElementById('progress-fill').style.width = ((answered / TOTAL) * 100) + '%';
+}
+
+function updatePill(sec) {
+  const pill = document.getElementById('pill-' + sec);
+  const s = scores[sec];
+  pill.textContent = sec.toUpperCase() + ' ' + s.c + '/' + s.t;
+  if (s.t < SECTIONS[sec].length) {
+    pill.classList.add('active');
+  } else {
+    pill.classList.remove('active');
+    pill.classList.add('done');
+  }
+}
+
+function showScorecard() {
+  const total_correct = Object.values(scores).reduce((a,v) => a + v.c, 0);
+  const pct = Math.round((total_correct / TOTAL) * 100);
+
+  let grade, verdict, gradeColor;
+  if (pct >= 90) { grade = pct + '%'; verdict = 'Outstanding — SOC analyst ready'; gradeColor = 'var(--green)'; }
+  else if (pct >= 75) { grade = pct + '%'; verdict = 'Solid understanding — review flagged sections'; gradeColor = 'var(--accent)'; }
+  else if (pct >= 60) { grade = pct + '%'; verdict = 'Developing — revisit sessions before moving on'; gradeColor = 'var(--yellow)'; }
+  else { grade = pct + '%'; verdict = 'Needs review — revisit the full session'; gradeColor = 'var(--red)'; }
+
+  const el = document.getElementById('final-scorecard');
+  document.getElementById('grade-display').textContent = grade;
+  document.getElementById('grade-display').style.color = gradeColor;
+  document.getElementById('verdict-display').textContent = verdict;
+
+  const secNames = { dns:'DNS', http:'HTTP/S', ftp:'FTP', ssh:'SSH', smtp:'SMTP', icmp:'ICMP' };
+  const secContainer = document.getElementById('section-results');
+  secContainer.innerHTML = '';
+  Object.entries(scores).forEach(([k, v]) => {
+    const div = document.createElement('div');
+    div.className = 'sec-result';
+    div.innerHTML = `<div class="sec-name">${secNames[k]}</div>
+      <div class="sec-score">${v.c}<span class="sec-total"> / ${v.t}</span></div>`;
+    secContainer.appendChild(div);
+  });
+
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  // reset state
+  Object.keys(scores).forEach(k => { scores[k].c = 0; scores[k].t = 0; });
+  answered = 0;
+
+  document.querySelectorAll('.q-card').forEach(card => {
+    card.classList.remove('correct','wrong');
+    card.querySelectorAll('.opt-btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('selected-correct','selected-wrong','reveal-correct');
+    });
+    card.querySelector('.feedback').className = 'feedback';
+    card.querySelector('.feedback').innerHTML = '';
+  });
+
+  ['dns','http','ftp','ssh','smtp','icmp'].forEach(s => {
+    const pill = document.getElementById('pill-'+s);
+    pill.textContent = s.toUpperCase();
+    pill.className = 'score-pill';
+  });
+
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('final-scorecard').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── ATTACH LISTENERS ──────────────────────────────────────────────────────────
+document.querySelectorAll('.q-card').forEach(card => {
+  card.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      handleAnswer(card, btn, btn.dataset.opt);
+    });
+  });
+});
+</script>
+</body>
+</html>
