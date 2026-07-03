@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6 :: Firewalls &amp; IDS/IPS // CorpNet SOC Quiz</title>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --panel:#0f1620;
+    --panel2:#121a26;
+    --border:#1e2b3a;
+    --accent:#3ba7ff;
+    --accent2:#22d3a5;
+    --warn:#f5a524;
+    --danger:#ff5566;
+    --text:#c9d6e3;
+    --text-dim:#7f93a8;
+    --text-bright:#eaf2fb;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top, #101b2b 0%, #070b11 60%);
+    color:var(--text);
+    font-family:'Consolas','SFMono-Regular','Courier New',monospace;
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  a{color:var(--accent);}
+
+  /* Sticky header */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(10,14,20,0.96);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(6px);
+    padding:14px 20px 10px;
+  }
+  .title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+    max-width:980px;
+    margin:0 auto;
+  }
+  .title-row h1{
+    font-size:1.05rem;
+    color:var(--accent2);
+    margin:0;
+    letter-spacing:0.5px;
+  }
+  .title-row h1 span.prompt{color:var(--text-dim);}
+  .subtitle{
+    max-width:980px;
+    margin:4px auto 10px;
+    color:var(--text-dim);
+    font-size:0.8rem;
+  }
+  .progress-wrap{
+    max-width:980px;
+    margin:0 auto;
+  }
+  .progress-bar-bg{
+    width:100%;
+    height:6px;
+    background:#131c28;
+    border:1px solid var(--border);
+    border-radius:3px;
+    overflow:hidden;
+    margin-top:6px;
+  }
+  .progress-bar-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width 0.3s ease;
+  }
+  .pills{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    font-size:0.72rem;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);}
+  .pill.active{border-color:var(--accent);color:var(--accent);}
+  .pill.active .dot{background:var(--accent);}
+  .pill .score{color:var(--accent2);font-weight:bold;}
+
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:24px 20px 0;
+  }
+
+  .section-banner{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:34px 0 16px;
+    padding-bottom:8px;
+    border-bottom:1px dashed var(--border);
+  }
+  .section-banner h2{
+    font-size:0.95rem;
+    color:var(--text-bright);
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+  .section-banner .tag{
+    font-size:0.7rem;
+    color:var(--bg);
+    background:var(--accent2);
+    padding:2px 8px;
+    border-radius:4px;
+    font-weight:bold;
+  }
+
+  .qcard{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:18px 20px 20px;
+    margin-bottom:18px;
+    position:relative;
+  }
+  .qmeta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .qnum{
+    color:var(--text-dim);
+    font-size:0.78rem;
+  }
+  .qtype{
+    font-size:0.68rem;
+    padding:2px 8px;
+    border-radius:4px;
+    border:1px solid var(--border);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .qtype.Concept{color:var(--accent);border-color:var(--accent);}
+  .qtype.Application{color:var(--accent2);border-color:var(--accent2);}
+  .qtype.SOC{color:var(--warn);border-color:var(--warn);}
+  .qtype.Scenario{color:var(--danger);border-color:var(--danger);}
+
+  .qtext{
+    color:var(--text-bright);
+    font-size:0.95rem;
+    margin-bottom:14px;
+    white-space:pre-line;
+  }
+  .qtext .code{
+    display:block;
+    background:#080c12;
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:10px 12px;
+    margin-top:8px;
+    color:#9fd8ff;
+    font-size:0.82rem;
+    overflow-x:auto;
+    white-space:pre;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .opt{
+    text-align:left;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-family:inherit;
+    font-size:0.86rem;
+    transition:border-color 0.15s, background 0.15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--accent);background:#141f2c;}
+  .opt:disabled{cursor:default;}
+  .opt.correct{
+    border-color:var(--accent2);
+    background:rgba(34,211,165,0.1);
+    color:var(--accent2);
+  }
+  .opt.incorrect{
+    border-color:var(--danger);
+    background:rgba(255,85,102,0.08);
+    color:var(--danger);
+  }
+  .opt.dim{opacity:0.5;}
+
+  .feedback{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:6px;
+    font-size:0.85rem;
+    display:none;
+    border-left:3px solid var(--accent2);
+    background:#0d1520;
+  }
+  .feedback.show{display:block;}
+  .feedback.wrong{border-left-color:var(--danger);}
+  .feedback .verdict{
+    font-weight:bold;
+    margin-bottom:6px;
+  }
+  .feedback.right .verdict{color:var(--accent2);}
+  .feedback.wrong .verdict{color:var(--danger);}
+  .soclens{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--border);
+    color:#9fc9e8;
+    font-size:0.8rem;
+  }
+  .soclens b{color:var(--accent);}
+
+  /* Scorecard */
+  #scorecard{
+    display:none;
+    background:var(--panel);
+    border:1px solid var(--accent);
+    border-radius:10px;
+    padding:26px 24px;
+    margin:40px 0;
+    text-align:center;
+  }
+  #scorecard.show{display:block;}
+  #scorecard h2{color:var(--accent2);margin-top:0;}
+  .big-score{
+    font-size:2.6rem;
+    color:var(--text-bright);
+    margin:8px 0;
+  }
+  .breakdown{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    flex-wrap:wrap;
+    margin:20px 0;
+  }
+  .breakdown div{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 18px;
+    min-width:150px;
+  }
+  .breakdown div .label{font-size:0.75rem;color:var(--text-dim);}
+  .breakdown div .val{font-size:1.3rem;color:var(--accent2);margin-top:4px;}
+  #restartBtn{
+    background:var(--accent);
+    color:#08101a;
+    border:none;
+    padding:10px 22px;
+    border-radius:6px;
+    font-family:inherit;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:0.85rem;
+    margin-top:10px;
+  }
+  #restartBtn:hover{background:var(--accent2);}
+
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:0.72rem;
+    padding:30px 20px;
+  }
+  .cnp-badge{
+    display:inline-block;
+    font-size:0.65rem;
+    color:var(--warn);
+    border:1px solid var(--warn);
+    padding:1px 6px;
+    border-radius:4px;
+    margin-left:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <h1><span class="prompt">soc@corpnet:~$</span> quiz --session=06 --topic="firewalls_ids_ips"</h1>
+    <div id="totalScore" style="color:var(--accent2);font-size:0.8rem;">0 / 20 correct</div>
+  </div>
+  <div class="subtitle">Part 2 — Network Security Devices | Firewalls, NGFW, IDS/IPS | All scenarios anchored to CorpNet</div>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="pills" id="pillsRow"></div>
+  </div>
+</header>
+
+<main>
+
+  <div class="section-banner">
+    <h2>Section 1 — Firewalls</h2>
+    <span class="tag">10 Questions</span>
+  </div>
+  <div id="section-firewalls"></div>
+
+  <div class="section-banner">
+    <h2>Section 2 — IDS &amp; IPS</h2>
+    <span class="tag">10 Questions</span>
+  </div>
+  <div id="section-idsips"></div>
+
+  <div id="scorecard">
+    <h2>&gt; SESSION COMPLETE_</h2>
+    <div class="big-score" id="finalScoreText">0%</div>
+    <div class="breakdown" id="breakdownRow"></div>
+    <p style="color:var(--text-dim);font-size:0.85rem;">Review any missed items above — every question includes a SOC Lens note explaining the analyst-relevant reasoning.</p>
+    <button id="restartBtn" onclick="restartQuiz()">↻ Restart Quiz</button>
+  </div>
+
+</main>
+
+<footer>
+  Session 6: Network Protocols &amp; Security Devices — Part 2 <span class="cnp-badge">CorpNet</span><br>
+  Prepared by Basma Adel · SOC Analyst Training Program
+</footer>
+
+<script>
+const QUESTIONS = [
+  // ================= SECTION: FIREWALLS =================
+  {
+    section:"firewalls",
+    type:"Concept",
+    q:"CorpNet's oldest firewall is a stateless packet filter that just checks source IP and destination port on every packet. What is the fundamental limitation of this design?",
+    options:[
+      "It cannot process IPv6 traffic at all",
+      "It has no concept of whether a packet belongs to an ongoing conversation, so return traffic ports must be left permanently open",
+      "It cannot block traffic on port 443",
+      "It requires a dedicated hardware appliance"
+    ],
+    correct:1,
+    explain:"Stateless filters evaluate every packet in isolation. Because they can't recognize an established conversation, admins must leave return ports permanently open for replies — a gap attackers can exploit.",
+    soclens:"When you see legacy stateless ACLs on a router, ask what permanent 'return traffic' holes were opened to make normal services work."
+  },
+  {
+    section:"firewalls",
+    type:"Concept",
+    q:"CorpNet's stateful firewall watches a client on JUMP-01 open a TCP session to APP-01. Which sequence correctly matches how the firewall updates its state table?",
+    options:[
+      "ACK → NEW, SYN → ESTABLISHED, SYN-ACK → CLOSED",
+      "SYN → NEW, SYN-ACK → ESTABLISHED, ACK → data flows, FIN/RST → entry removed",
+      "SYN-ACK → NEW, ACK → ESTABLISHED, SYN → data flows",
+      "The firewall does not track TCP state, only UDP"
+    ],
+    correct:1,
+    explain:"The three-way handshake maps directly onto state table transitions: SYN creates a NEW entry, SYN-ACK moves it to ESTABLISHED, ACK completes it, and FIN/RST tears the entry down.",
+    soclens:"Session tables are why a stateful firewall can drop an unsolicited 'reply' packet that matches no NEW/ESTABLISHED entry — nobody inside asked for it."
+  },
+  {
+    section:"firewalls",
+    type:"Concept",
+    q:"UDP has no handshake. How does CorpNet's stateful firewall permit a DNS reply back to a workstation that just sent a query?",
+    options:[
+      "It blocks all UDP by default, so DNS never works",
+      "It creates a pseudo-state entry recording source/destination IP and port for a timeout window, and allows matching inbound replies through",
+      "It converts the UDP query into a TCP session automatically",
+      "It relies entirely on the DNS server's TTL field"
+    ],
+    correct:1,
+    explain:"Since UDP is connectionless, stateful firewalls fake a 'session' by remembering the outbound request briefly and permitting a matching inbound reply, while still blocking unsolicited inbound UDP.",
+    soclens:"Pseudo-state timeouts are why an unusually delayed 'DNS reply' arriving after the window closes gets dropped — worth knowing when troubleshooting weird DNS failures."
+  },
+  {
+    section:"firewalls",
+    type:"Application",
+    q:"By the early 2000s, applications moved to using port 443 for almost everything. What is the core blind spot a stateful firewall has in this scenario?",
+    options:[
+      "It cannot see IP addresses on port 443",
+      "It can confirm a connection exists on port 443, but cannot tell whether that traffic is legitimate HTTPS browsing, file sharing, or malware C2",
+      "It automatically decrypts all port 443 traffic",
+      "Stateful firewalls cannot process TCP traffic on any port above 1024"
+    ],
+    correct:1,
+    explain:"Stateful inspection only reads headers, not payload. It can't identify the actual application riding on port 443 — this exact gap is what drove the creation of NGFWs.",
+    soclens:"This is the textbook justification analysts give for why NGFW/DPI is needed at CorpNet's perimeter instead of a stateful-only device."
+  },
+  {
+    section:"firewalls",
+    type:"Concept",
+    q:"CorpNet's NGFW flags a connection on port 443 as BitTorrent traffic disguised as HTTPS and blocks it, while allowing normal HTTPS browsing from the same user on the same port. Which NGFW capability made this possible?",
+    options:[
+      "Integrated threat intelligence feeds",
+      "Application layer awareness via pattern matching and behavioral analysis, independent of port number",
+      "User identity awareness tied to Active Directory",
+      "SSL termination at the load balancer"
+    ],
+    correct:1,
+    explain:"Application awareness lets an NGFW identify the actual application regardless of which port it's using — something a stateful firewall, which only sees 'port 443 = HTTPS,' cannot do.",
+    soclens:"When writing NGFW policy at CorpNet, remember app-ID rules can override 'allow by port' logic entirely — that's the whole point of the feature."
+  },
+  {
+    section:"firewalls",
+    type:"Application",
+    q:"CorpNet's security team wants a rule that says 'the Finance team can reach the payroll database, but Marketing cannot' — enforced automatically no matter which laptop each employee is using. Which NGFW feature enables this?",
+    options:[
+      "Deep Packet Inspection",
+      "User identity awareness, integrated with Active Directory",
+      "SSL/TLS inspection",
+      "Round-robin load balancing"
+    ],
+    correct:1,
+    explain:"User identity awareness ties network activity to the actual authenticated user via AD integration, rather than to an IP address that can change or be shared via NAT.",
+    soclens:"This maps directly to CorpNet's AD environment — DC-01 is the natural integration point for identity-aware firewall policy."
+  },
+  {
+    section:"firewalls",
+    type:"SOC",
+    q:"An analyst reviewing CorpNet's firewall ruleset finds:\nRule 3 — ALLOW: Office IP Range → Any destination, any port\nRule 5 — DENY: Any → Any (default deny)\nWhat is the main weakness with Rule 3, and why does it still matter with Rule 5 present?",
+    options:[
+      "Rule 3 is fine because Rule 5 blocks everything else anyway",
+      "Rule 3 is overly permissive — it lets internal users reach any destination on any port, including potentially malicious services, since it's matched before the default deny is ever reached",
+      "Rule 3 should be deleted because default deny makes all ALLOW rules redundant",
+      "Rule 3 only matters if SSL inspection is disabled"
+    ],
+    correct:1,
+    explain:"Firewall rules are evaluated top-to-bottom, and the first match wins. Rule 3 matches all outbound office traffic before Rule 5 is ever reached, effectively giving users unrestricted outbound access to any port.",
+    soclens:"A mature ruleset would scope Rule 3 down to specific approved outbound categories/ports rather than 'any destination, any port.'"
+  },
+  {
+    section:"firewalls",
+    type:"Concept",
+    q:"What does the 'Default Deny' principle mean when configuring CorpNet's perimeter firewall?",
+    options:[
+      "Start by allowing all traffic, then block known-bad IPs as they're discovered",
+      "Start by blocking all traffic, then explicitly allow only what is required — also called Principle of Least Privilege",
+      "Deny only traffic on well-known ports like 21 and 23",
+      "Deny all traffic during business hours only"
+    ],
+    correct:1,
+    explain:"Default Deny blocks everything by default and only opens the minimum access required for each function, drastically reducing the attack surface compared to an allow-by-default posture.",
+    soclens:"Any ruleset ending in ANY/ANY/ALLOW instead of ANY/ANY/DENY is effectively equivalent to having no firewall."
+  },
+  {
+    section:"firewalls",
+    type:"SOC",
+    q:"CorpNet's SOC lead notices the perimeter firewall's DENY rule has logging disabled. Why is this a problem for the SOC?",
+    options:[
+      "It has no security impact, only a performance impact",
+      "It loses valuable threat intelligence — the SOC can't see what traffic is being blocked, which is often useful for spotting recon or attack attempts",
+      "It causes the firewall to allow traffic instead of denying it",
+      "It only affects billing for the firewall license"
+    ],
+    correct:1,
+    explain:"Denied traffic logs are a rich source of intelligence — repeated blocked attempts against a specific port or IP can reveal reconnaissance or active attack attempts against CorpNet before anything gets through.",
+    soclens:"'Not logging denied traffic' is explicitly listed as one of the most common and costly firewall mistakes."
+  },
+  {
+    section:"firewalls",
+    type:"Scenario",
+    q:"CorpNet's NGFW at the perimeter decrypts inbound HTTPS traffic, inspects it, and re-encrypts it before forwarding to APP-01. What is this capability called, and what blind spot does it solve?",
+    options:[
+      "DNSSEC — it solves DNS cache poisoning",
+      "SSL/TLS inspection — it solves the blind spot where malware delivery, C2 traffic, and data exfiltration hide inside encrypted connections",
+      "IP Hash — it solves session persistence for load-balanced servers",
+      "Domain fronting — it solves CDN routing issues"
+    ],
+    correct:1,
+    explain:"SSL/TLS inspection performs a controlled man-in-the-middle so the NGFW can see plaintext content, closing the gap where threats can otherwise travel invisibly inside encrypted HTTPS sessions.",
+    soclens:"Remember: HTTPS guarantees the channel is private, not that the content inside is safe — SSL inspection is what lets a SOC actually see inside that channel."
+  },
+
+  // ================= SECTION: IDS / IPS =================
+  {
+    section:"idsips",
+    type:"Concept",
+    q:"What is the single core difference between an IDS and an IPS protecting CorpNet's Server VLAN?",
+    options:[
+      "IDS only works on wireless networks; IPS only works on wired networks",
+      "IDS is passive — it alerts and waits for a human; IPS is active — it sits inline and can block threats in real time without human involvement",
+      "IDS uses signatures only; IPS uses anomaly detection only",
+      "There is no meaningful difference, they are marketing terms for the same product"
+    ],
+    correct:1,
+    explain:"IDS monitors a copy of traffic and generates alerts for analyst investigation. IPS sits inline in the live traffic path and can automatically drop packets, reset connections, or block source IPs.",
+    soclens:"Think camera-with-alarm (IDS) vs camera-plus-automatic-door-lock (IPS) — the deployment position is what drives the difference in response capability."
+  },
+  {
+    section:"idsips",
+    type:"Application",
+    q:"CorpNet deploys an IDS sensor that receives a copy of traffic via a SPAN port on the Server VLAN switch. What is the practical downside of this out-of-band deployment?",
+    options:[
+      "It introduces significant latency to all traffic",
+      "It can disrupt legitimate traffic if the sensor fails",
+      "A detected threat continues flowing to its destination while a human analyst investigates, since the sensor only sees a copy",
+      "It cannot detect any signature-based attacks"
+    ],
+    correct:2,
+    explain:"Because the IDS only observes a copy of the traffic (via TAP or SPAN port), it introduces no latency and can't break traffic flow — but it also can't stop the malicious packet from actually reaching its destination.",
+    soclens:"This is exactly why many SOCs pair an out-of-band IDS with an inline IPS or NGFW for anything that needs to be actively blocked, not just alerted on."
+  },
+  {
+    section:"idsips",
+    type:"Concept",
+    q:"A signature-based detection engine protecting CorpNet's DMZ compares traffic against a database of known attack fingerprints. What is its key weakness?",
+    options:[
+      "It generates too many false positives on normal traffic",
+      "It cannot detect zero-day attacks, since no signature exists yet for a brand-new technique",
+      "It cannot process encrypted traffic under any circumstances",
+      "It requires SSL inspection to function at all"
+    ],
+    correct:1,
+    explain:"Signature-based detection is fast and reliable for known attacks with few false positives, but it is completely blind to novel, zero-day techniques that have no existing fingerprint in the database.",
+    soclens:"This is why most production IDS/IPS deployments pair signatures with anomaly-based detection — the hybrid approach covers both known and novel threats."
+  },
+  {
+    section:"idsips",
+    type:"Application",
+    q:"CorpNet's anomaly-based IDS flags a login to DC-01 at 3 AM from a country the account has never connected from before. What tradeoff should the SOC expect from this detection method in general?",
+    options:[
+      "Very low false positive rate but blind to zero-days",
+      "Can catch novel/zero-day threats with no existing signature, but tends to have a higher false positive rate, especially after legitimate network changes",
+      "It requires no baseline and works immediately upon installation",
+      "It can only detect attacks that also have a matching signature"
+    ],
+    correct:1,
+    explain:"Anomaly detection compares activity against a learned baseline of normal behavior, which lets it catch never-before-seen attacks — but legitimate changes (new software, seasonal spikes) can also deviate from baseline and trigger false alarms.",
+    soclens:"Expect anomaly-based alerts to spike after any legitimate infrastructure change at CorpNet — that's the baseline shifting, not necessarily an attack."
+  },
+  {
+    section:"idsips",
+    type:"SOC",
+    q:"CorpNet's IPS blocks a legitimate internal application by mistake because of an untuned rule. Why is this false positive considered worse than the same false positive occurring on an IDS?",
+    options:[
+      "It isn't worse — IDS and IPS false positives have identical impact",
+      "Because the IPS is inline, a false positive actively blocks legitimate traffic — potentially creating a self-inflicted denial-of-service against CorpNet's own users",
+      "IPS false positives only affect logging, not traffic flow",
+      "False positives are impossible on an IPS by design"
+    ],
+    correct:1,
+    explain:"An IDS false positive just wastes analyst time investigating a non-threat. An IPS false positive actively drops or blocks real traffic — which is why IPS systems are tuned more conservatively, prioritizing a low false-positive rate.",
+    soclens:"This is exactly why new IPS rules should run in alert-only mode first before switching to active blocking — see the tuning process."
+  },
+  {
+    section:"idsips",
+    type:"Concept",
+    q:"Match the outcome to its definition: a real attack against CorpNet's HR portal passes through completely undetected by every security control. What is this called?",
+    options:[
+      "True Positive",
+      "True Negative",
+      "False Positive",
+      "False Negative"
+    ],
+    correct:3,
+    explain:"A False Negative is a real attack that goes undetected — considered the most dangerous outcome of the four, since the organization has no awareness an incident is even occurring.",
+    soclens:"Of the four detection outcomes, false negatives are the ones that turn into full-blown breaches discovered weeks later, not the ones that generate noisy alerts."
+  },
+  {
+    section:"idsips",
+    type:"SOC",
+    q:"CorpNet's SOC processes thousands of alerts per day and analysts start dismissing alerts without fully investigating them, similar to what happened in the 2013 Target breach. What is this phenomenon called, and what causes it?",
+    options:[
+      "Signature drift — caused by outdated threat intelligence feeds",
+      "Alert fatigue — caused by analysts being overwhelmed by alert volume, making it hard to separate real threats from noise",
+      "State table exhaustion — caused by too many TCP sessions",
+      "SSL bridging failure — caused by certificate mismatches"
+    ],
+    correct:1,
+    explain:"Alert fatigue happens when the sheer volume of alerts overwhelms analysts, causing genuine threats to get lost in noise — precisely what occurred in the 2013 Target breach where real malware alerts were buried among lower-priority noise.",
+    soclens:"Tuning and severity prioritization exist specifically to fight alert fatigue — an average enterprise SOC processes over 11,000 alerts daily without it."
+  },
+  {
+    section:"idsips",
+    type:"Concept",
+    q:"CorpNet wants to detect malware spreading laterally between two internal workstations after an initial phishing compromise. Where should an IDS/IPS sensor be placed to catch this specific activity?",
+    options:[
+      "Only at the internet perimeter",
+      "Internal segments, to detect lateral movement between internal hosts — perimeter placement alone would miss purely internal traffic",
+      "Only host-based, on DC-01 exclusively",
+      "Sensors cannot detect lateral movement under any deployment"
+    ],
+    correct:1,
+    explain:"Perimeter and DMZ sensors watch traffic entering/leaving the network, but lateral movement between internal workstations never crosses those boundaries — only internal-segment placement can observe it.",
+    soclens:"This maps to CorpNet's five-stage privilege escalation scenario — the lateral movement stage from a phished workstation would only be visible to internal-segment monitoring, not perimeter IDS."
+  },
+  {
+    section:"idsips",
+    type:"Application",
+    q:"CorpNet's SOC is deploying a brand-new IDS/IPS product. Per the recommended tuning process, what should happen before any rule is switched into active IPS blocking mode?",
+    options:[
+      "The rule should immediately block in production to test real-world effectiveness",
+      "The rule should run in alert-only mode first, so the team can confirm it doesn't generate unexpected false positives before it can disrupt service",
+      "The rule should be deleted and rewritten weekly regardless of performance",
+      "Tuning is unnecessary if the vendor's default signature set is used"
+    ],
+    correct:1,
+    explain:"Step 6 of the tuning process is to test new rules in alert-only mode before switching them to active blocking — this prevents service outages caused by unexpected false positives once the rule goes inline.",
+    soclens:"Pushing a default-configuration IPS inline on day one is called out explicitly as a common mistake that damages analyst trust in the tool after the first bad outage."
+  },
+  {
+    section:"idsips",
+    type:"Scenario",
+    q:"An analyst finds a signature firing hundreds of times daily on CorpNet's IPS, but it has never once corresponded to an actual attack — it's written for software CorpNet doesn't even use. What is the recommended tuning action?",
+    options:[
+      "Permanently delete the rule so it can never fire again",
+      "Ignore it — noisy rules are not worth addressing",
+      "Suppress it selectively for the specific known-safe sources triggering it, rather than deleting it outright, preserving its ability to fire for unexpected sources",
+      "Switch the entire IPS to signature-only detection"
+    ],
+    correct:2,
+    explain:"The tuning process recommends suppressing noisy rules selectively for known-safe sources rather than deleting them entirely — this keeps the rule available to catch genuinely unexpected triggers while eliminating routine noise.",
+    soclens:"Deleting rules outright removes coverage permanently; selective suppression is the more defensible, auditable middle ground for a SOC."
+  }
+];
+
+let currentIndex = {firewalls:0, idsips:0};
+let answered = {};
+let scores = {firewalls:{correct:0,total:0}, idsips:{correct:0,total:0}};
+
+function buildQuiz(){
+  const containers = {firewalls:document.getElementById('section-firewalls'), idsips:document.getElementById('section-idsips')};
+  const counters = {firewalls:0, idsips:0};
+
+  QUESTIONS.forEach((q, idx) => {
+    counters[q.section]++;
+    scores[q.section].total++;
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.id = 'q'+idx;
+
+    const optsHtml = q.options.map((opt,i) =>
+      `<button class="opt" data-idx="${i}" onclick="selectAnswer(${idx}, ${i})">${String.fromCharCode(65+i)}. ${opt}</button>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="qmeta">
+        <span class="qnum">${q.section === 'firewalls' ? 'FIREWALLS' : 'IDS/IPS'} · Q${counters[q.section]}</span>
+        <span class="qtype ${q.type}">${q.type}</span>
+      </div>
+      <div class="qtext">${q.q.replace(/\n/g,'<br>')}</div>
+      <div class="options">${optsHtml}</div>
+      <div class="feedback" id="fb${idx}">
+        <div class="verdict" id="verdict${idx}"></div>
+        <div id="explain${idx}"></div>
+        <div class="soclens"><b>SOC Lens:</b> <span id="soclens${idx}"></span></div>
+      </div>
+    `;
+    containers[q.section].appendChild(card);
+  });
+
+  updatePills();
+  updateTotalScore();
+}
+
+function selectAnswer(idx, chosen){
+  if(answered[idx] !== undefined) return;
+  answered[idx] = chosen;
+  const q = QUESTIONS[idx];
+  const isCorrect = chosen === q.correct;
+  if(isCorrect) scores[q.section].correct++;
+
+  const card = document.getElementById('q'+idx);
+  const buttons = card.querySelectorAll('.opt');
+  buttons.forEach((btn,i) => {
+    btn.disabled = true;
+    if(i === q.correct) btn.classList.add('correct');
+    else if(i === chosen) btn.classList.add('incorrect');
+    else btn.classList.add('dim');
+  });
+
+  const fb = document.getElementById('fb'+idx);
+  fb.classList.add('show');
+  fb.classList.add(isCorrect ? 'right' : 'wrong');
+  document.getElementById('verdict'+idx).textContent = isCorrect ? '✓ Correct' : '✗ Incorrect — correct answer highlighted above';
+  document.getElementById('explain'+idx).textContent = q.explain;
+  document.getElementById('soclens'+idx).textContent = q.soclens;
+
+  updatePills();
+  updateTotalScore();
+  checkComplete();
+}
+
+function updatePills(){
+  const row = document.getElementById('pillsRow');
+  row.innerHTML = `
+    <div class="pill active">
+      <span class="dot"></span> Firewalls
+      <span class="score">${scores.firewalls.correct}/${scores.firewalls.total}</span>
+    </div>
+    <div class="pill active">
+      <span class="dot"></span> IDS/IPS
+      <span class="score">${scores.idsips.correct}/${scores.idsips.total}</span>
+    </div>
+  `;
+  const totalAnswered = Object.keys(answered).length;
+  const pct = (totalAnswered / QUESTIONS.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateTotalScore(){
+  const correct = scores.firewalls.correct + scores.idsips.correct;
+  const total = scores.firewalls.total + scores.idsips.total;
+  document.getElementById('totalScore').textContent = `${correct} / ${total} correct`;
+}
+
+function checkComplete(){
+  if(Object.keys(answered).length === QUESTIONS.length){
+    showScorecard();
+  }
+}
+
+function showScorecard(){
+  const correct = scores.firewalls.correct + scores.idsips.correct;
+  const total = scores.firewalls.total + scores.idsips.total;
+  const pct = Math.round((correct/total)*100);
+  document.getElementById('finalScoreText').textContent = `${pct}% (${correct}/${total})`;
+  document.getElementById('breakdownRow').innerHTML = `
+    <div><div class="label">Firewalls</div><div class="val">${scores.firewalls.correct}/${scores.firewalls.total}</div></div>
+    <div><div class="label">IDS/IPS</div><div class="val">${scores.idsips.correct}/${scores.idsips.total}</div></div>
+  `;
+  const card = document.getElementById('scorecard');
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function restartQuiz(){
+  answered = {};
+  scores = {firewalls:{correct:0,total:0}, idsips:{correct:0,total:0}};
+  document.getElementById('section-firewalls').innerHTML = '';
+  document.getElementById('section-idsips').innerHTML = '';
+  document.getElementById('scorecard').classList.remove('show');
+  buildQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+
+</body>
+</html>
