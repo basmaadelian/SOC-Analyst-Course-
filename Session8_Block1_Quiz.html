@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8, Block 1 — Knowledge Check</title>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --panel:#11161d;
+    --panel2:#161d26;
+    --border:#232c37;
+    --text:#c9d1d9;
+    --muted:#7d8894;
+    --green:#3fb950;
+    --green-dim:#1b3a24;
+    --red:#f85149;
+    --red-dim:#3a1f1f;
+    --amber:#d29922;
+    --amber-dim:#3a2f14;
+    --blue:#58a6ff;
+    --purple:#bc8cff;
+    --navy-accent:#0d2b4a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"SF Mono","JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+    min-height:100vh;
+    line-height:1.55;
+  }
+
+  /* ---------- Sticky header ---------- */
+  header.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(10,14,20,0.96);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px 12px 20px;
+  }
+  .topbar-inner{max-width:760px;margin:0 auto;}
+  .titlebar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .titlebar h1{
+    font-size:15px;
+    margin:0;
+    color:var(--text);
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+  .titlebar h1 .prompt{color:var(--green);margin-right:6px;}
+  .titlebar .progress-count{font-size:12.5px;color:var(--muted);white-space:nowrap;}
+
+  .progress-track{
+    margin-top:10px;
+    height:6px;
+    background:var(--panel2);
+    border-radius:4px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--green),#2ea043);
+    width:0%;
+    transition:width .35s ease;
+  }
+
+  .pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:10px;
+  }
+  .pill{
+    font-size:10.5px;
+    padding:4px 9px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    color:var(--muted);
+    background:var(--panel2);
+    white-space:nowrap;
+  }
+  .pill.current{border-color:var(--blue);color:var(--blue);}
+  .pill.done-good{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+  .pill.done-mixed{border-color:var(--amber);color:var(--amber);background:var(--amber-dim);}
+  .pill.done-bad{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+
+  /* ---------- Main content ---------- */
+  main{max-width:760px;margin:0 auto;padding:28px 20px 80px 20px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px 26px 24px 26px;
+  }
+
+  .tagrow{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+  .tag{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:4px;
+  }
+  .tag.section{background:var(--navy-accent);color:#9fc4e3;}
+  .tag.type-concept{background:#122b45;color:var(--blue);}
+  .tag.type-application{background:#2a1f45;color:var(--purple);}
+  .tag.type-soc{background:var(--green-dim);color:var(--green);}
+  .tag.type-scenario{background:var(--amber-dim);color:var(--amber);}
+
+  .qtext{
+    font-size:16px;
+    color:#e6edf3;
+    margin:0 0 20px 0;
+    line-height:1.6;
+  }
+  .qtext .qnum{color:var(--green);margin-right:8px;}
+
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    text-align:left;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:13px 16px;
+    border-radius:8px;
+    font-family:inherit;
+    font-size:14px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    display:flex;
+    gap:10px;
+  }
+  .option:hover:not(.locked){border-color:var(--blue);background:#182230;}
+  .option .letter{color:var(--muted);font-weight:700;}
+  .option.correct{border-color:var(--green);background:var(--green-dim);color:#d7f5df;}
+  .option.correct .letter{color:var(--green);}
+  .option.incorrect{border-color:var(--red);background:var(--red-dim);color:#ffd9d7;}
+  .option.incorrect .letter{color:var(--red);}
+  .option.locked{cursor:default;}
+  .option.faded{opacity:.45;}
+
+  .feedback{
+    margin-top:20px;
+    border-radius:8px;
+    padding:16px 18px;
+    display:none;
+  }
+  .feedback.show{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+
+  .feedback .result-line{
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:10px;
+    letter-spacing:.02em;
+  }
+  .feedback.correct-fb{background:#0f1f14;border:1px solid var(--green);}
+  .feedback.correct-fb .result-line{color:var(--green);}
+  .feedback.incorrect-fb{background:#20100f;border:1px solid var(--red);}
+  .feedback.incorrect-fb .result-line{color:var(--red);}
+
+  .explain{font-size:13.5px;color:#d7dee5;margin-bottom:14px;}
+
+  .soclens{
+    font-size:13px;
+    color:var(--amber);
+    background:var(--amber-dim);
+    border-left:3px solid var(--amber);
+    padding:10px 12px;
+    border-radius:4px;
+  }
+  .soclens .soclabel{
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:5px;
+    color:var(--amber);
+  }
+
+  .navrow{display:flex;justify-content:flex-end;margin-top:22px;}
+  button.nextbtn{
+    background:var(--green);
+    color:#04140a;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:13.5px;
+    padding:11px 22px;
+    border-radius:7px;
+    cursor:pointer;
+    letter-spacing:.02em;
+  }
+  button.nextbtn:hover{background:#4fd063;}
+
+  /* ---------- Results screen ---------- */
+  .results h2{font-size:20px;color:#e6edf3;margin:0 0 4px 0;}
+  .results .sub{color:var(--muted);font-size:13px;margin-bottom:26px;}
+  .bigscore{
+    font-size:52px;
+    font-weight:700;
+    color:var(--green);
+    margin:10px 0 4px 0;
+  }
+  .bigscore.mid{color:var(--amber);}
+  .bigscore.low{color:var(--red);}
+  .scoretag{color:var(--muted);font-size:13px;margin-bottom:28px;}
+
+  .sectionrow{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .sectionrow:last-of-type{border-bottom:none;}
+  .sectionrow .sname{color:#dfe6ec;}
+  .sectionrow .sscore{font-weight:700;}
+  .sectionrow .sscore.good{color:var(--green);}
+  .sectionrow .sscore.mid{color:var(--amber);}
+  .sectionrow .sscore.bad{color:var(--red);}
+
+  .restartbtn{
+    margin-top:28px;
+    background:transparent;
+    border:1px solid var(--blue);
+    color:var(--blue);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:700;
+    padding:11px 22px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .restartbtn:hover{background:#0d1b2a;}
+
+  footer.pagefoot{
+    max-width:760px;
+    margin:0 auto;
+    padding:10px 20px 40px 20px;
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  footer.pagefoot a{color:var(--blue);text-decoration:none;}
+
+  @media (max-width:600px){
+    .qtext{font-size:15px;}
+    .bigscore{font-size:42px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="titlebar">
+      <h1><span class="prompt">&gt;</span>Session 8 · Block 1 — Knowledge Check</h1>
+      <span class="progress-count" id="progressCount">Question 1 of 29</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="pills" id="pillsRow"></div>
+  </div>
+</header>
+
+<main>
+  <div class="card" id="quizCard"></div>
+</main>
+
+<footer class="pagefoot">
+  Basma Adel &nbsp;|&nbsp; <a href="https://linkedin.com/in/basma-adel-3b0968281" target="_blank" rel="noopener">linkedin.com/in/basma-adel-3b0968281</a>
+</footer>
+
+<script>
+const QUIZ_DATA = [
+  {
+    section: "Stage 1 — Core Terms and Definitions",
+    short: "Stage 1",
+    questions: [
+      {
+        type: "Concept",
+        q: "Which of the following best describes the difference between a \"log\" and an \"alert\"?",
+        options: [
+          "They are the same thing — all logs are alerts",
+          "An alert is a filtered subset of logs specifically meant to notify an operator of something requiring attention",
+          "An alert is a raw system indication while a log is the analyzed conclusion",
+          "Alerts are stored long-term while logs are discarded immediately"
+        ],
+        correct: 1,
+        explain: "An alert is a specific type of message meant to notify an operator of a condition requiring attention. All alerts are technically logs, but not all logs are alerts.",
+        soc: "When triaging your queue, remember: every alert started as a log, but the vast majority of logs never become alerts — that filtering is what keeps analysts from drowning in noise."
+      },
+      {
+        type: "Concept",
+        q: "Which function in the logging ecosystem is described as happening in real-time or near-real-time?",
+        options: ["Auditing", "Monitoring", "Logging", "Retention"],
+        correct: 1,
+        explain: "Monitoring is the continuous, real-time or near-real-time observation of activity to detect suspicious events as they happen. Auditing, by contrast, typically happens after the fact.",
+        soc: "If you're reviewing something that already happened last week, that's auditing. If you're watching a dashboard right now, that's monitoring."
+      },
+      {
+        type: "Application",
+        q: "A Windows Event Log needs to be converted into JSON before it can be compared against a Linux syslog entry. What is this conversion process called?",
+        options: ["Augmentation", "Filtering", "Normalization", "Retention"],
+        correct: 2,
+        explain: "Normalization is the process of converting diverse log formats into a common \"language\" so they can be compared and correlated consistently.",
+        soc: "Without normalization, a SIEM can't correlate a Windows logon event with a Linux SSH login even if they're part of the same attack chain."
+      },
+      {
+        type: "SOC",
+        q: "Why does log format consistency matter most to a SOC analyst specifically?",
+        options: [
+          "It makes reports look more professional",
+          "It allows a SIEM to correlate events across different systems based on time and shared attributes",
+          "It reduces the total number of logs generated",
+          "It is only relevant to compliance auditors, not analysts"
+        ],
+        correct: 1,
+        explain: "Centralized correlation depends on consistent formatting — a SIEM can only compare events from different sources if their formats have been normalized into a shared structure.",
+        soc: "This is exactly why a SIEM search that \"misses\" an attacker's lateral movement often traces back to a format inconsistency, not a missing log."
+      },
+      {
+        type: "Scenario",
+        q: "An analyst sees a raw firewall entry that reads \"src=10.1.1.5 dst=8.8.8.8 action=deny\". What kind of log format is this?",
+        options: ["JSON", "Windows Binary/XML", "Key-Value Pairs (CEF/LEEF style)", "CSV"],
+        correct: 2,
+        explain: "This is a key-value pair format (like CEF/LEEF), common in network equipment because it's human-readable without complex parsing.",
+        soc: "Recognizing format at a glance saves time when you're eyeballing raw logs during an active investigation, before they've even hit the SIEM."
+      }
+    ]
+  },
+  {
+    section: "Stage 2 — Centralization and Collection Methods",
+    short: "Stage 2",
+    questions: [
+      {
+        type: "Concept",
+        q: "What is the primary purpose of centralization in log management?",
+        options: [
+          "To reduce the number of security tools needed",
+          "To move log data from disparate sources into a single, unified location for analysis and correlation",
+          "To eliminate the need for a SIEM",
+          "To make logs unreadable to unauthorized users"
+        ],
+        correct: 1,
+        explain: "Centralization is the process of moving log data from scattered sources into one unified location, enabling correlation, analysis, and storage.",
+        soc: "Without centralization, an analyst would need to log into a dozen different systems individually — centralization is what makes a single-pane-of-glass investigation possible."
+      },
+      {
+        type: "Application",
+        q: "Why must Windows event logs almost always use agent-based collection rather than agentless?",
+        options: [
+          "Windows doesn't support networking",
+          "Windows logs are stored in a proprietary binary/XML format requiring specialized agents to convert them",
+          "Agentless collection is always more secure",
+          "Microsoft blocks agentless log collection by policy"
+        ],
+        correct: 1,
+        explain: "Windows logs are stored in a proprietary binary format using an XML schema; specialized agents like NXLog or Winlogbeat are required to convert them into standard formats like JSON or Syslog.",
+        soc: "If a Windows server isn't showing up centrally, check the agent first — agentless won't work here the way it does for a Linux syslog source."
+      },
+      {
+        type: "SOC",
+        q: "In the log collection architecture, why are cloud logs (like Salesforce or S3) pulled rather than pushed?",
+        options: [
+          "Cloud providers don't allow outbound traffic",
+          "Cloud services don't have an agent installed on them, so the collector reaches out via API instead",
+          "Pulling is always faster than pushing",
+          "Cloud logs are not considered security-relevant"
+        ],
+        correct: 1,
+        explain: "Cloud services don't have an agent sitting on them the way an endpoint does, so instead of the service sending logs out, the collector reaches out and pulls them in, typically via API.",
+        soc: "If a cloud log source suddenly goes dark, check API credentials and integration health first — that's the most common failure point for pull-based sources."
+      },
+      {
+        type: "Scenario",
+        q: "Traffic from an external laptop must cross a firewall before reaching the internal Log Relay. What role is the firewall playing in this architecture?",
+        options: [
+          "It normalizes the log format",
+          "It acts as the trust boundary between untrusted and trusted zones",
+          "It stores the logs permanently",
+          "It generates the logs itself"
+        ],
+        correct: 1,
+        explain: "The firewall isn't inspecting log content — it's the checkpoint between the untrusted external zone and the trusted internal zone, only allowing traffic through on the designated syslog port.",
+        soc: "A blocked firewall rule at this exact boundary is one of the most common reasons an external log source silently stops reporting."
+      },
+      {
+        type: "Concept",
+        q: "What are the two jobs performed by the Log Relay / Windows Event Collector?",
+        options: [
+          "Encryption and compression",
+          "Aggregation and normalization",
+          "Alerting and escalation",
+          "Retention and deletion"
+        ],
+        correct: 1,
+        explain: "The collector aggregates logs from every source into one stream, and normalizes them by converting different formats into something consistent, before sending them to the SIEM.",
+        soc: "This is the choke point of the whole pipeline — if the collector itself is misconfigured, every downstream source is affected at once."
+      }
+    ]
+  },
+  {
+    section: "Stage 3 — The Log Management Process",
+    short: "Stage 3",
+    questions: [
+      {
+        type: "Concept",
+        q: "What does a log retention policy define?",
+        options: [
+          "Which analysts are allowed to view logs",
+          "The specific timeframe an organization commits to storing activity records before they are purged",
+          "The color-coding used in a SIEM dashboard",
+          "Which vendors are approved for logging tools"
+        ],
+        correct: 1,
+        explain: "A log retention policy defines the specific timeframe during which an organization commits to storing activity records before they're purged from the system.",
+        soc: "If you ever need to investigate something that happened 8 months ago, whether you can depends entirely on what the retention policy allowed."
+      },
+      {
+        type: "Application",
+        q: "Why must original \"raw\" logs be kept separate from normalized copies used in a SIEM?",
+        options: [
+          "Raw logs take up less storage space",
+          "To ensure legal admissibility in court, since altering original logs during normalization could undermine their evidentiary value",
+          "SIEMs cannot process raw logs at all",
+          "There is no requirement to keep them separate"
+        ],
+        correct: 1,
+        explain: "If original logs are changed or \"normalized\" during aggregation, they may not be admissible in court. Raw logs are preserved separately specifically for regulatory compliance and legal admissibility.",
+        soc: "This is why a good architecture keeps both a raw archive and a normalized SIEM feed — one for legal defensibility, one for daily analysis."
+      },
+      {
+        type: "SOC",
+        q: "What is the purpose of \"augmenting\" a log entry, such as adding geolocation data to a raw IP address?",
+        options: [
+          "To reduce the size of the log file",
+          "To add context that makes correlation and searching more efficient",
+          "To hide the original IP address for privacy",
+          "To convert the log into a different file format"
+        ],
+        correct: 1,
+        explain: "Augmentation (enrichment) adds context to a log based on its existing data — for example, geolocation added to an IP address — enabling more efficient correlation and searching.",
+        soc: "An enriched IP showing \"Russia\" instead of just a raw number is often the visual cue that makes an analyst stop and look twice."
+      },
+      {
+        type: "Scenario",
+        q: "A compliance auditor asks to see proof that daily log reviews were performed for the past quarter, citing PCI DSS. Which part of the log management process addresses this need?",
+        options: [
+          "Parsing",
+          "Retention policy and regulatory compliance evidence",
+          "Agentless collection",
+          "Log filtering"
+        ],
+        correct: 1,
+        explain: "Regulatory frameworks like PCI DSS mandate the ability to prove daily log reviews were performed, which is why retention policies require preserving original logs or summary reports as auditor evidence.",
+        soc: "When an auditor asks \"prove it,\" a well-maintained retention policy is what turns \"we probably did\" into \"here's the report.\""
+      },
+      {
+        type: "Concept",
+        q: "What technique uses regular expressions (regex) to extract specific values from a raw log message into organized fields?",
+        options: ["Augmentation", "Parsing", "Filtering", "Retention"],
+        correct: 1,
+        explain: "Parsing uses regex to identify and extract specific text values from a raw log message into organized data fields, though key-value formats like CEF reduce the need for this labor-intensive process.",
+        soc: "When a new, undocumented log source shows up, parsing is usually the first heavy lift before that source becomes useful in a SIEM."
+      }
+    ]
+  },
+  {
+    section: "Stage 4 — Prioritizing Log Sources",
+    short: "Stage 4",
+    questions: [
+      {
+        type: "Concept",
+        q: "According to the recommended priority order, which log source category should typically be brought under management first?",
+        options: ["Desktops and workstations", "Databases", "Firewalls and network gear", "Internal applications"],
+        correct: 2,
+        explain: "Firewalls and network gear are top priority — they provide a high-level view of traffic and use standardized, easy-to-capture formats like Syslog or key-value pairs.",
+        soc: "This is why almost every SOC's first onboarded log source is the perimeter firewall — it's the fastest path to real visibility."
+      },
+      {
+        type: "Application",
+        q: "Why are databases often implemented later in the log management rollout, despite being high-value targets?",
+        options: [
+          "Databases don't generate logs",
+          "They are historically considered \"too hard to deal with\" during initial setup due to complexity",
+          "Databases are not relevant to security monitoring",
+          "Regulations forbid logging database access"
+        ],
+        correct: 1,
+        explain: "Although primary targets for criminal activity, databases are often implemented later — historically considered too technically challenging to integrate during initial setup.",
+        soc: "This gap between \"high value target\" and \"hard to integrate\" is a real, acknowledged blind spot analysts should stay aware of, not just an implementation footnote."
+      },
+      {
+        type: "SOC",
+        q: "Which of the following is a \"real-time task\" best served by high-priority log sources like firewalls and critical servers?",
+        options: [
+          "Annual budget planning",
+          "Detecting malware outbreaks and reliable intrusion evidence",
+          "Reviewing monthly resource exhaustion trends",
+          "Verifying archival readability"
+        ],
+        correct: 1,
+        explain: "High-priority sources like firewalls and critical servers are essential for real-time tasks such as detecting malware outbreaks and gathering reliable intrusion evidence, since these require immediate action.",
+        soc: "Workstation logs matter too, but they typically support forensics after the fact, not the split-second detection firewalls and servers are built for."
+      },
+      {
+        type: "Scenario",
+        q: "An organization's primary security concern is monitoring insider activity rather than external attackers. How might this affect their log source prioritization?",
+        options: [
+          "It has no effect — the order is always identical",
+          "They may prioritize internal servers before the network perimeter",
+          "They should skip firewall logging entirely",
+          "They should only log workstations"
+        ],
+        correct: 1,
+        explain: "While the natural flow starts with the perimeter (firewalls), an organization may prioritize servers first if its primary security concern is monitoring inside activities rather than external threats.",
+        soc: "Priority order is a starting framework, not a rigid law — the organization's actual threat model should always have the final say."
+      },
+      {
+        type: "Concept",
+        q: "What does \"start with the end in mind\" mean in the context of log source prioritization?",
+        options: [
+          "Always start with the least important systems first",
+          "Identify the critical incidents that would cause the most damage, then prioritize the logs needed to detect those specific events",
+          "Begin logging only after an incident has already occurred",
+          "Prioritize whichever systems are easiest to configure"
+        ],
+        correct: 1,
+        explain: "Planning should begin by identifying which critical incidents would cause the most damage to the organization; priority then goes to the log sources required for timely detection of those specific events.",
+        soc: "This reframes prioritization from \"what's easy to log\" to \"what would hurt us the most if we missed it\" — a much sharper lens for a SOC to use."
+      }
+    ]
+  },
+  {
+    section: "Stage 5 — Log Filtering Strategy",
+    short: "Stage 5",
+    questions: [
+      {
+        type: "Concept",
+        q: "What is the main drawback of pure input-driven filtering (\"log and keep everything\")?",
+        options: [
+          "It misses evidence of new, previously undefined attacks",
+          "It is significantly more expensive in hardware, licensing, and analyst investigation time",
+          "It requires constant filter updates",
+          "It cannot be automated"
+        ],
+        correct: 1,
+        explain: "Input-driven filtering is the most expensive method — hardware and licensing costs increase significantly, and analyst investigation time increases as they search through a massive \"haystack.\"",
+        soc: "The \"haystack\" problem is real: too much undifferentiated data can slow an investigation down just as much as too little data."
+      },
+      {
+        type: "Application",
+        q: "What is the main risk of pure output-driven filtering (\"log only what you know you need\")?",
+        options: [
+          "It costs more in storage",
+          "If an attack type wasn't previously defined as \"interesting,\" the necessary evidence may never have been collected",
+          "It requires too much hardware",
+          "It makes correlation impossible"
+        ],
+        correct: 1,
+        explain: "Output-driven filtering is labor-intensive and risky because filters must be constantly updated — if a new attack type wasn't already defined as interesting, the evidence needed to investigate it may simply never exist.",
+        soc: "This is the nightmare scenario during a novel attack: the exact log you need was never collected because nobody thought to ask for it in advance."
+      },
+      {
+        type: "SOC",
+        q: "What is the recommended hybrid filtering strategy?",
+        options: [
+          "Filter aggressively at ingestion, then keep everything in storage forever",
+          "Collect everything at the input stage, then filter high-volume/low-value logs at the output/storage stage",
+          "Only log critical severity events from the start",
+          "Alternate between input and output filtering monthly"
+        ],
+        correct: 1,
+        explain: "The hybrid approach collects everything at the input stage (since you don't yet know what will be needed), then filters and drops high-volume, low-value noise at the output/storage stage.",
+        soc: "This gives analysts the best of both worlds — nothing is missed up front, but storage and search performance don't collapse under low-value noise."
+      },
+      {
+        type: "Scenario",
+        q: "A security team is debating whether logging every single DNS query forever is a good idea. Using the \"quality over quantity\" principle, what should guide their decision?",
+        options: [
+          "More data is always strictly better regardless of relevance",
+          "Too much low-value data can make it easier for an adversary to hide activity within the noise",
+          "DNS logs should never be collected",
+          "Only paid tools can determine correct filtering"
+        ],
+        correct: 1,
+        explain: "The core tenet of successful logging is to focus on quality over quantity — too much data can make it easier for an adversary to hide activity, not harder to find it.",
+        soc: "A haystack doesn't just slow analysts down — it actively helps attackers blend in, which is why \"log everything forever\" isn't automatically the safest choice."
+      }
+    ]
+  },
+  {
+    section: "Stage 6 — Tools and Monitoring Strategy",
+    short: "Stage 6",
+    questions: [
+      {
+        type: "Concept",
+        q: "What is the primary role of log collection tools?",
+        options: [
+          "To generate alerts automatically",
+          "To bridge the gap between where data is produced and where it's needed for analysis, moving logs from disparate sources to a central repository",
+          "To replace the need for a SIEM",
+          "To encrypt data at rest only"
+        ],
+        correct: 1,
+        explain: "Log collection tools solve the technical challenge of moving logs from disparate sources to a central repository, while also handling secure transport and pre-processing.",
+        soc: "These tools are invisible when working correctly — which is exactly why their failure often goes unnoticed until an analyst realizes a source has gone quiet."
+      },
+      {
+        type: "Application",
+        q: "According to the \"start with the end in mind\" planning approach, what should a security team define first when building a monitoring strategy?",
+        options: [
+          "The exact SIEM vendor to purchase",
+          "The critical incidents that would cause the most damage, to determine which logs are required for timely detection",
+          "The total number of employees at the company",
+          "The color scheme of the SIEM dashboard"
+        ],
+        correct: 1,
+        explain: "Planning begins by identifying the critical incidents that would cause the most damage; the security team then identifies exactly which logs are required for timely detection of those specific events.",
+        soc: "This is the same \"start with the end in mind\" principle from Stage 4, now applied specifically to monitoring strategy rather than raw log source rollout."
+      },
+      {
+        type: "SOC",
+        q: "In the individual log entry review workflow, what distinguishes a \"Known Bad Entry\" from an \"Out-of-Baseline Entry\"?",
+        options: [
+          "There is no difference; both require the same response",
+          "A Known Bad Entry is already documented as a problem indicator and skips straight to Verify Impact, while an Out-of-Baseline Entry has unknown status and requires investigation",
+          "Out-of-Baseline entries are always false positives",
+          "Known Bad Entries never require any action"
+        ],
+        correct: 1,
+        explain: "A Known Bad Entry is already documented from prior experience or threat intelligence and skips straight to Verify Impact. An Out-of-Baseline Entry doesn't match the normal baseline but its status is unknown, so it requires investigation first.",
+        soc: "Recognizing which bucket you're in immediately tells you whether you're confirming scope (known bad) or still determining whether there's a problem at all (out-of-baseline)."
+      },
+      {
+        type: "Scenario",
+        q: "After investigating an out-of-baseline log entry, an analyst still cannot conclusively determine whether it's malicious. What is the correct next step according to the workflow?",
+        options: [
+          "Immediately declare a full incident response",
+          "Escalate the investigation further, without yet declaring it an incident",
+          "Ignore it since it can't be confirmed",
+          "Document it as \"Good\" by default"
+        ],
+        correct: 1,
+        explain: "An \"Unknown (after analysis)\" result escalates to deeper investigation, but is explicitly not yet an incident — escalation and incident declaration are two different things, and conflating them is a common beginner mistake.",
+        soc: "Jumping straight to \"this is an incident\" before escalation is complete can trigger unnecessary containment actions — and just as dangerously, calling something \"not an incident\" too early can let a real one slip past."
+      },
+      {
+        type: "Concept",
+        q: "What does \"tuning\" a monitoring process primarily involve?",
+        options: [
+          "Deleting logs to save storage space",
+          "Adjusting rules and baselines based on confirmed false positives and new use cases to improve detection accuracy over time",
+          "Purchasing new hardware annually",
+          "Restricting analyst access to logs"
+        ],
+        correct: 1,
+        explain: "Tuning involves adjusting rules or security controls based on confirmed-good outcomes to reduce false positives, along with expanding use cases as the program matures — keeping detection accurate over time.",
+        soc: "A monitoring program that's never tuned slowly drowns in its own false positives — tuning is what keeps the signal-to-noise ratio usable for analysts long after go-live."
+      }
+    ]
+  }
+];
+
+// ---------- Flatten questions with section metadata ----------
+const FLAT = [];
+QUIZ_DATA.forEach((sec, sIdx) => {
+  sec.questions.forEach((q, qIdx) => {
+    FLAT.push(Object.assign({}, q, { sectionIndex: sIdx, sectionShort: sec.short, sectionName: sec.section, qIdxInSection: qIdx }));
+  });
+});
+const TOTAL = FLAT.length;
+
+let current = 0;
+let answered = new Array(TOTAL).fill(null); // stores selected option index
+let sectionStats = QUIZ_DATA.map(sec => ({ correct: 0, total: sec.questions.length }));
+
+const letters = ["A", "B", "C", "D", "E"];
+
+function typeClass(t) {
+  return "type-" + t.toLowerCase();
+}
+
+function renderPills() {
+  const row = document.getElementById("pillsRow");
+  row.innerHTML = "";
+  QUIZ_DATA.forEach((sec, i) => {
+    const stat = sectionStats[i];
+    const pill = document.createElement("span");
+    let cls = "pill";
+    const answeredInSection = FLAT.filter((f, idx) => f.sectionIndex === i && answered[idx] !== null).length;
+    if (i === FLAT[current].sectionIndex) cls += " current";
+    if (answeredInSection === stat.total && stat.total > 0) {
+      const ratio = stat.correct / stat.total;
+      if (ratio >= 0.8) cls += " done-good";
+      else if (ratio >= 0.5) cls += " done-mixed";
+      else cls += " done-bad";
+    }
+    pill.className = cls;
+    pill.textContent = sec.short + (answeredInSection === stat.total ? " (" + stat.correct + "/" + stat.total + ")" : "");
+    row.appendChild(pill);
+  });
+}
+
+function renderProgress() {
+  document.getElementById("progressCount").textContent = "Question " + (current + 1) + " of " + TOTAL;
+  const pct = Math.round(((current) / TOTAL) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+}
+
+function renderQuestion() {
+  const item = FLAT[current];
+  const card = document.getElementById("quizCard");
+  const already = answered[current];
+
+  let optionsHtml = "";
+  item.options.forEach((opt, i) => {
+    let cls = "option";
+    if (already !== null) {
+      cls += " locked";
+      if (i === item.correct) cls += " correct";
+      else if (i === already) cls += " incorrect";
+      else cls += " faded";
+    }
+    optionsHtml += '<button class="' + cls + '" data-idx="' + i + '" onclick="selectOption(' + i + ')" ' + (already !== null ? "disabled" : "") + '>' +
+      '<span class="letter">' + letters[i] + '.</span><span>' + opt + '</span></button>';
+  });
+
+  let feedbackHtml = "";
+  if (already !== null) {
+    const isCorrect = already === item.correct;
+    feedbackHtml = '<div class="feedback show ' + (isCorrect ? "correct-fb" : "incorrect-fb") + '">' +
+      '<div class="result-line">' + (isCorrect ? "&#10003; Correct" : "&#10007; Not quite") + '</div>' +
+      '<div class="explain">' + item.explain + '</div>' +
+      '<div class="soclens"><span class="soclabel">SOC Lens</span>' + item.soc + '</div>' +
+      '</div>' +
+      '<div class="navrow"><button class="nextbtn" onclick="nextQuestion()">' + (current === TOTAL - 1 ? "See Results →" : "Next Question →") + '</button></div>';
+  }
+
+  card.innerHTML =
+    '<div class="tagrow">' +
+      '<span class="tag section">' + item.sectionName + '</span>' +
+      '<span class="tag ' + typeClass(item.type) + '">' + item.type + '</span>' +
+    '</div>' +
+    '<p class="qtext"><span class="qnum">Q' + (current + 1) + '.</span>' + item.q + '</p>' +
+    '<div class="options">' + optionsHtml + '</div>' +
+    feedbackHtml;
+
+  renderProgress();
+  renderPills();
+}
+
+function selectOption(i) {
+  if (answered[current] !== null) return;
+  answered[current] = i;
+  const item = FLAT[current];
+  if (i === item.correct) {
+    sectionStats[item.sectionIndex].correct += 1;
+  }
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (current < TOTAL - 1) {
+    current += 1;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("progressCount").textContent = "Complete";
+
+  const totalCorrect = sectionStats.reduce((a, s) => a + s.correct, 0);
+  const pct = Math.round((totalCorrect / TOTAL) * 100);
+  let scoreClass = "";
+  if (pct < 60) scoreClass = "low";
+  else if (pct < 80) scoreClass = "mid";
+
+  let rowsHtml = "";
+  QUIZ_DATA.forEach((sec, i) => {
+    const stat = sectionStats[i];
+    const ratio = stat.correct / stat.total;
+    let sc = "good";
+    if (ratio < 0.5) sc = "bad";
+    else if (ratio < 0.8) sc = "mid";
+    rowsHtml += '<div class="sectionrow"><span class="sname">' + sec.section + '</span><span class="sscore ' + sc + '">' + stat.correct + ' / ' + stat.total + '</span></div>';
+  });
+
+  const card = document.getElementById("quizCard");
+  card.innerHTML =
+    '<div class="results">' +
+    '<h2>Knowledge Check Complete</h2>' +
+    '<div class="sub">Session 8, Block 1 — Logging &amp; Monitoring Best Practices</div>' +
+    '<div class="bigscore ' + scoreClass + '">' + pct + '%</div>' +
+    '<div class="scoretag">' + totalCorrect + ' of ' + TOTAL + ' correct</div>' +
+    rowsHtml +
+    '<button class="restartbtn" onclick="restartQuiz()">&#8635; Restart Quiz</button>' +
+    '</div>';
+
+  renderPillsFinal();
+}
+
+function renderPillsFinal() {
+  const row = document.getElementById("pillsRow");
+  row.innerHTML = "";
+  QUIZ_DATA.forEach((sec, i) => {
+    const stat = sectionStats[i];
+    const ratio = stat.correct / stat.total;
+    let cls = "pill";
+    if (ratio >= 0.8) cls += " done-good";
+    else if (ratio >= 0.5) cls += " done-mixed";
+    else cls += " done-bad";
+    const pill = document.createElement("span");
+    pill.className = cls;
+    pill.textContent = sec.short + " (" + stat.correct + "/" + stat.total + ")";
+    row.appendChild(pill);
+  });
+}
+
+function restartQuiz() {
+  current = 0;
+  answered = new Array(TOTAL).fill(null);
+  sectionStats = QUIZ_DATA.map(sec => ({ correct: 0, total: sec.questions.length }));
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+renderQuestion();
+</script>
+
+</body>
+</html>
