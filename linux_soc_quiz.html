@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 Quiz — Linux Architecture &amp; CLI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --void: #0a0e14;
+    --panel: #121821;
+    --panel-alt: #1a2430;
+    --border: #263241;
+    --amber: #ffb400;
+    --amber-dim: #6b5320;
+    --cyan: #6fd3c7;
+    --ok: #4fc37c;
+    --ok-bg: rgba(79,195,124,0.12);
+    --err: #ff6b5e;
+    --err-bg: rgba(255,107,94,0.12);
+    --text: #d7dde5;
+    --text-dim: #78899a;
+    --text-dimmer: #4d5c6b;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,180,0,0.06), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(111,211,199,0.05), transparent 60%),
+      var(--void);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    padding: 32px 16px 60px;
+  }
+
+  .mono{ font-family:'Space Mono', monospace; }
+
+  .app{
+    width:100%;
+    max-width:720px;
+  }
+
+  /* ---------- status strip ---------- */
+  .status-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 10px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px 8px 0 0;
+    font-family:'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+  }
+  .status-strip .path{ color: var(--cyan); }
+  .status-live{ display:flex; align-items:center; gap:7px; }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--ok);
+    box-shadow: 0 0 8px var(--ok);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.35; }
+  }
+
+  /* ---------- prompt bar ---------- */
+  .prompt-bar{
+    background: #0d1219;
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 14px 16px;
+    font-family:'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    overflow:hidden;
+    white-space: nowrap;
+  }
+  .prompt-bar .u{ color: var(--amber); }
+  .prompt-bar .cmd{ color: var(--text); }
+  #typed-cmd::after{
+    content:"▌";
+    margin-left:2px;
+    color: var(--amber);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ---------- card ---------- */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top:none;
+    border-radius: 0 0 10px 10px;
+    padding: 28px 26px 26px;
+  }
+
+  /* intro screen */
+  .intro h1{
+    font-family:'Space Mono', monospace;
+    font-size: 22px;
+    color: var(--text);
+    margin: 0 0 6px;
+  }
+  .intro h1 span{ color: var(--amber); }
+  .intro p{
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+  .meta-row{
+    display:flex; gap:10px; flex-wrap:wrap;
+    margin-bottom: 22px;
+  }
+  .chip{
+    font-family:'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--cyan);
+    border: 1px solid var(--amber-dim);
+    background: rgba(255,180,0,0.05);
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  .section-list{
+    list-style:none; margin: 0 0 24px; padding:0;
+    display:grid; grid-template-columns: 1fr 1fr; gap:8px;
+  }
+  .section-list li{
+    font-family:'Space Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .section-list li b{ color: var(--text); }
+
+  /* buttons */
+  .btn{
+    font-family:'Space Mono', monospace;
+    font-size: 14px;
+    background: var(--amber);
+    color: #1a1200;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{ box-shadow: 0 0 0 3px rgba(255,180,0,0.18); }
+  .btn:active{ transform: scale(0.98); }
+  .btn:focus-visible{ outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .btn.secondary{
+    background: transparent;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+  }
+  .btn.secondary:hover{ background: rgba(255,180,0,0.08); }
+  .btn.full{ width:100%; }
+  .btn-row{ display:flex; gap:10px; margin-top: 22px; }
+
+  /* progress */
+  .progress-wrap{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom: 24px;
+  }
+  .ticks{
+    flex:1;
+    display:flex;
+    gap:4px;
+  }
+  .tick{
+    flex:1;
+    height:5px;
+    border-radius: 2px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+  }
+  .tick.filled{ background: var(--amber); border-color: var(--amber); }
+  .tick.current{ background: var(--amber-dim); border-color: var(--amber); }
+  .progress-label{
+    font-family:'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    white-space:nowrap;
+  }
+
+  /* question */
+  .q-tag{
+    display:inline-block;
+    font-family:'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+  }
+  .q-text{
+    font-size: 17px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 20px;
+  }
+  .q-text code{
+    font-family:'Space Mono', monospace;
+    background: var(--panel-alt);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 15px;
+    color: var(--cyan);
+  }
+
+  .options{ display:flex; flex-direction:column; gap:9px; }
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    text-align:left;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: border-color .1s ease, background .1s ease;
+  }
+  .option:hover:not(.locked){ border-color: var(--amber-dim); background: #202b38; }
+  .option:focus-visible{ outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .option .letter{
+    font-family:'Space Mono', monospace;
+    color: var(--amber);
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .option.correct{ border-color: var(--ok); background: var(--ok-bg); }
+  .option.incorrect{ border-color: var(--err); background: var(--err-bg); }
+  .option.locked{ cursor: default; }
+  .option.dim{ opacity: 0.55; }
+
+  .explain{
+    margin-top: 16px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    background: var(--panel-alt);
+    border-left: 3px solid var(--cyan);
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+    display:none;
+  }
+  .explain.show{ display:block; }
+  .explain b{ color: var(--cyan); font-family:'Space Mono', monospace; font-size:11.5px; letter-spacing:0.04em; }
+
+  /* results */
+  .results h2{
+    font-family:'Space Mono', monospace;
+    font-size: 20px;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .results .verdict{
+    font-family:'Space Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+  .verdict.ok{ color: var(--ok); }
+  .verdict.warn{ color: var(--amber); }
+  .verdict.err{ color: var(--err); }
+
+  .score-big{
+    font-family:'Space Mono', monospace;
+    font-size: 44px;
+    font-weight:700;
+    color: var(--amber);
+    line-height:1;
+  }
+  .score-sub{ color: var(--text-dim); font-size:13px; margin-bottom:26px; }
+
+  .cat-breakdown{ display:flex; flex-direction:column; gap:12px; margin-bottom: 26px; }
+  .cat-row{ }
+  .cat-row .cat-head{
+    display:flex; justify-content:space-between;
+    font-family:'Space Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .cat-row .cat-head b{ color: var(--text); }
+  .bar-track{
+    height: 8px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow:hidden;
+  }
+  .bar-fill{ height:100%; background: var(--cyan); border-radius: 4px; }
+
+  footer{
+    text-align:center;
+    margin-top: 18px;
+    font-family:'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dimmer);
+  }
+
+  @media (max-width: 480px){
+    .section-list{ grid-template-columns: 1fr; }
+    .score-big{ font-size: 36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .dot{ animation: none; }
+    #typed-cmd::after{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="status-strip">
+    <span><span class="path">soc-training</span> / module_02 / session_01</span>
+    <span class="status-live"><span class="dot"></span>QUIZ ACTIVE</span>
+  </div>
+
+  <div class="prompt-bar">
+    <span class="u">analyst@soc-quiz</span><span class="mono">:~$ </span><span class="cmd" id="typed-cmd"></span>
+  </div>
+
+  <div class="card" id="card"></div>
+
+  <footer>pages 1–13 · Linux Architecture, File System, Shell Efficiency &amp; Essential Commands</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    cat: "ARCH",
+    catFull: "Architecture",
+    q: "Which of the following correctly orders the layers of Linux from lowest to highest?",
+    options: [
+      "Kernel → Hardware → User Space",
+      "Hardware → Kernel → User Space",
+      "User Space → Kernel → Hardware",
+      "Hardware → User Space → Kernel"
+    ],
+    correct: 1,
+    explain: "Linux is built as three layers: hardware at the bottom, the kernel managing it in the middle, and user space — where you, your terminal, and every tool actually run — on top."
+  },
+  {
+    cat: "ARCH",
+    catFull: "Architecture",
+    q: "Why is a kernel-level compromise considered especially dangerous for a SOC analyst to detect?",
+    options: [
+      "It requires physical access to the machine",
+      "It only affects Windows systems",
+      "It can hide processes and files from user-space monitoring tools",
+      "It always causes an immediate system crash"
+    ],
+    correct: 2,
+    explain: "Because monitoring tools run in user space, an attacker with kernel-level access can conceal activity from the very tools meant to detect it."
+  },
+  {
+    cat: "ARCH",
+    catFull: "Architecture",
+    q: "Which distribution is most closely associated with pre-installed offensive security tooling, and also has a blue-team variant?",
+    options: ["Ubuntu", "CentOS", "RHEL", "Kali Linux"],
+    correct: 3,
+    explain: "Kali Linux was built for penetration testers, ships with hundreds of security tools, and has a blue-team-focused variant called Kali Purple."
+  },
+  {
+    cat: "SHELL",
+    catFull: "Shell",
+    q: "In the prompt <code>analyst@soc-server:~$</code>, what does the <code>~$</code> tell you together?",
+    options: [
+      "You are in your home directory, logged in as a normal (non-root) user",
+      "You are in the root directory as an administrator",
+      "You are disconnected from the network",
+      "You are running a background process"
+    ],
+    correct: 0,
+    explain: "The ~ means your current directory is home, and $ (rather than #) means you're operating as a regular user, not root."
+  },
+  {
+    cat: "SHELL",
+    catFull: "Shell",
+    q: "Which single command's output tells you your username, primary group, and every group you belong to — including whether you have sudo access?",
+    options: ["whoami", "uname -a", "id", "pwd"],
+    correct: 2,
+    explain: "id prints your uid, gid, and full group list in one line — including membership in groups like adm (log access) or sudo (admin rights)."
+  },
+  {
+    cat: "FS",
+    catFull: "File System",
+    q: "What makes /var/log the most important directory for SOC analysts, per this module?",
+    options: [
+      "It's the only writable directory on the system",
+      "It contains the primary evidence trail of system and application activity",
+      "It stores all user passwords",
+      "It's where new software gets installed"
+    ],
+    correct: 1,
+    explain: "Log files are the primary source of evidence when investigating what happened on a system — that's why /var/log is called out as foundational."
+  },
+  {
+    cat: "FS",
+    catFull: "File System",
+    q: "Why does /tmp deserve extra attention from analysts?",
+    options: [
+      "It's encrypted by default",
+      "It's only accessible to root",
+      "It is world-writable — any user or process can drop files there without special permission",
+      "It permanently stores deleted files"
+    ],
+    correct: 2,
+    explain: "Because any user or process can write to /tmp without elevated permissions, it's a common place attackers stage files — worth an analyst's attention."
+  },
+  {
+    cat: "FS",
+    catFull: "File System",
+    q: "Which directory is generated live by the kernel and doesn't actually exist on disk?",
+    options: ["/etc", "/proc", "/bin", "/home"],
+    correct: 1,
+    explain: "/proc is virtual — the kernel builds it in real time to reflect currently running processes, each shown in its own numbered directory."
+  },
+  {
+    cat: "FS",
+    catFull: "File System",
+    q: "The Filesystem Hierarchy Standard (FHS) means that...",
+    options: [
+      "Every Linux distro uses a completely different root structure",
+      "/var/log means the same thing on Ubuntu as it does on CentOS",
+      "Only Ubuntu follows a standard file layout",
+      "File permissions are identical across all distros"
+    ],
+    correct: 1,
+    explain: "FHS standardizes where things live — so key directories like /var/log, /etc, and /home mean the same thing regardless of distribution."
+  },
+  {
+    cat: "SHELL",
+    catFull: "Shell",
+    q: "What does typing <code>!4</code> at the bash prompt do?",
+    options: [
+      "Deletes command number 4 from history",
+      "Repeats command number 4 from your history list",
+      "Opens a reverse search starting at line 4",
+      "Shows the 4 most recent commands"
+    ],
+    correct: 1,
+    explain: "!number re-runs a specific command from your history by its number, as shown in the history list."
+  },
+  {
+    cat: "SHELL",
+    catFull: "Shell",
+    q: "Which shortcut re-runs the very last command you typed?",
+    options: ["Ctrl+R", "history", "!!", "Tab"],
+    correct: 2,
+    explain: "!! immediately re-executes your last command — one of four ways bash lets you work with command history."
+  },
+  {
+    cat: "SHELL",
+    catFull: "Shell",
+    q: "Why is a user's .bash_history file relevant to a SOC investigation?",
+    options: [
+      "It stores a user's saved passwords",
+      "It records the commands a user has actually run on the system",
+      "It lists all installed packages",
+      "It contains network traffic logs"
+    ],
+    correct: 1,
+    explain: "The history file is a record of real activity on an account — valuable context when reviewing what a user has actually done on a system."
+  },
+  {
+    cat: "CMD",
+    catFull: "Commands",
+    q: "What does <code>pwd</code> stand for, and why run it before file-altering commands?",
+    options: [
+      "\"Print Working Directory\" — to confirm your location before creating, moving, or deleting files",
+      "\"Print Working Data\" — to check disk usage",
+      "\"Path With Directories\" — to list all folders on the system",
+      "\"Process Work Details\" — to check running processes"
+    ],
+    correct: 0,
+    explain: "pwd shows exactly where you are in the filesystem — the habit that prevents costly mistakes with commands that create, move, or delete."
+  },
+  {
+    cat: "CMD",
+    catFull: "Commands",
+    q: "Which combination of <code>ls</code> flags gives the fullest picture — hidden files AND detailed ownership/permission info — in one command?",
+    options: ["ls -r", "ls -x", "ls -la", "ls -h"],
+    correct: 2,
+    explain: "-l gives the long, detailed format (permissions, owner, size, date) and -a reveals hidden dotfiles — combined, ls -la is the recommended default."
+  },
+  {
+    cat: "CMD",
+    catFull: "Commands",
+    q: "In an <code>ls -l</code> output line, what does the very first character represent?",
+    options: [
+      "The owner's username",
+      "The file size",
+      "The file type — e.g. - for a regular file, d for a directory",
+      "The number of hard links"
+    ],
+    correct: 2,
+    explain: "That leading character is the file type flag: a dash for a regular file, d for a directory, l for a symlink — before the permission bits even start."
+  }
+];
+
+const CATEGORIES = ["ARCH", "FS", "SHELL", "CMD"];
+const CAT_LABELS = { ARCH: "Architecture", FS: "File System", SHELL: "Shell Efficiency", CMD: "Essential Commands" };
+
+let current = 0;
+let score = 0;
+let answered = false;
+let catStats = { ARCH: [0,0], FS: [0,0], SHELL: [0,0], CMD: [0,0] }; // [correct, total]
+
+const card = document.getElementById('card');
+
+function typeCommand(){
+  const el = document.getElementById('typed-cmd');
+  const full = "./run_quiz.sh --module=2 --pages=1-13";
+  let i = 0;
+  el.textContent = "";
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ el.textContent = full; return; }
+  const timer = setInterval(() => {
+    el.textContent = full.slice(0, i+1);
+    i++;
+    if(i >= full.length) clearInterval(timer);
+  }, 28);
+}
+
+function renderIntro(){
+  card.innerHTML = `
+    <div class="intro">
+      <h1><span>[ quiz ]</span> Linux Architecture &amp; CLI</h1>
+      <p>15 questions covering Module 2, Session 1 — pages 1 through 13. Architecture, the file system hierarchy, shell efficiency, and the first essential commands. Answer to reveal feedback immediately, no going back.</p>
+      <div class="meta-row">
+        <span class="chip">15 QUESTIONS</span>
+        <span class="chip">MULTIPLE CHOICE</span>
+        <span class="chip">~4 MIN</span>
+      </div>
+      <ul class="section-list">
+        <li><b>ARCH</b> — Layers &amp; distros</li>
+        <li><b>FS</b> — Filesystem hierarchy</li>
+        <li><b>SHELL</b> — Prompt &amp; history</li>
+        <li><b>CMD</b> — pwd, ls, and flags</li>
+      </ul>
+      <button class="btn full" onclick="startQuiz()">$ ./start_quiz.sh</button>
+    </div>
+  `;
+}
+
+function startQuiz(){
+  current = 0; score = 0; answered = false;
+  catStats = { ARCH: [0,0], FS: [0,0], SHELL: [0,0], CMD: [0,0] };
+  renderQuestion();
+}
+
+function renderProgress(){
+  let ticks = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    let cls = "tick";
+    if(i < current) cls += " filled";
+    else if(i === current) cls += " current";
+    ticks += `<div class="${cls}"></div>`;
+  }
+  return `
+    <div class="progress-wrap">
+      <div class="ticks">${ticks}</div>
+      <div class="progress-label">${current+1} / ${QUESTIONS.length}</div>
+    </div>
+  `;
+}
+
+function renderQuestion(){
+  answered = false;
+  const item = QUESTIONS[current];
+  let optsHtml = "";
+  const letters = ["A","B","C","D"];
+  item.options.forEach((opt, idx) => {
+    optsHtml += `
+      <button class="option" data-idx="${idx}" onclick="selectOption(${idx})">
+        <span class="letter">[${letters[idx]}]</span><span>${opt}</span>
+      </button>
+    `;
+  });
+
+  card.innerHTML = `
+    ${renderProgress()}
+    <span class="q-tag">${item.cat}</span>
+    <p class="q-text">${item.q}</p>
+    <div class="options">${optsHtml}</div>
+    <div class="explain" id="explain"><b>NOTE</b><br>${item.explain}</div>
+    <div class="btn-row" id="nav-row" style="display:none;">
+      <button class="btn full" onclick="nextQuestion()">${current === QUESTIONS.length-1 ? "$ ./view_report.sh" : "$ next_question →"}</button>
+    </div>
+  `;
+}
+
+function selectOption(idx){
+  if(answered) return;
+  answered = true;
+  const item = QUESTIONS[current];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((el, i) => {
+    el.classList.add('locked');
+    if(i === item.correct) el.classList.add('correct');
+    else if(i === idx) el.classList.add('incorrect');
+    else el.classList.add('dim');
+  });
+
+  catStats[item.cat][1]++;
+  if(idx === item.correct){
+    score++;
+    catStats[item.cat][0]++;
+  }
+
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('nav-row').style.display = 'flex';
+}
+
+function nextQuestion(){
+  if(current < QUESTIONS.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    renderResults();
+  }
+}
+
+function renderResults(){
+  const pct = Math.round((score / QUESTIONS.length) * 100);
+  let verdictClass = "ok", verdictText = "[OK] Foundations look solid.";
+  if(pct < 60){ verdictClass = "err"; verdictText = "[WARN] Revisit pages 1–13 before moving on."; }
+  else if(pct < 85){ verdictClass = "warn"; verdictText = "[NOTICE] Good grasp — a few gaps worth a re-read."; }
+
+  let catHtml = "";
+  CATEGORIES.forEach(cat => {
+    const [c, t] = catStats[cat];
+    const barPct = t ? Math.round((c/t)*100) : 0;
+    catHtml += `
+      <div class="cat-row">
+        <div class="cat-head"><span>${CAT_LABELS[cat]}</span><b>${c}/${t}</b></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${barPct}%"></div></div>
+      </div>
+    `;
+  });
+
+  card.innerHTML = `
+    <div class="results">
+      <h2>quiz_report.log</h2>
+      <div class="verdict ${verdictClass}">${verdictText}</div>
+      <div class="score-big">${score}/${QUESTIONS.length}</div>
+      <div class="score-sub">${pct}% correct — Module 2, Session 1, pages 1–13</div>
+      <div class="cat-breakdown">${catHtml}</div>
+      <div class="btn-row">
+        <button class="btn secondary full" onclick="startQuiz()">$ ./quiz --restart</button>
+      </div>
+    </div>
+  `;
+}
+
+typeCommand();
+renderIntro();
+</script>
+
+</body>
+</html>
