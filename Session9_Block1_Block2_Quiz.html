@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 9 Quiz — IR Lifecycle &amp; Digital Forensics</title>
+<style>
+  :root{
+    --bg: #0a0e14;
+    --panel: #10151f;
+    --panel-alt: #131a26;
+    --border: #22293a;
+    --text: #cdd6e4;
+    --dim: #7b8697;
+    --navy: #4fc3f7;
+    --green: #2ecc71;
+    --green-dim: #1c7a45;
+    --red: #ff5c5c;
+    --red-dim: #7a1c1c;
+    --amber: #f5b942;
+    --purple: #b48ead;
+    --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0; background: var(--bg); color: var(--text);
+    font-family: var(--mono);
+    line-height: 1.55;
+    padding-bottom: 80px;
+  }
+  a{ color: var(--navy); }
+
+  /* ---------- Sticky header ---------- */
+  #topbar{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(10,14,20,0.96);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+    padding: 14px 18px 12px;
+  }
+  #topbar .title{
+    font-size: 13px; letter-spacing: 1.5px; color: var(--navy); text-transform: uppercase; font-weight: 600;
+  }
+  #topbar .subtitle{
+    font-size: 11px; color: var(--dim); margin-top: 2px;
+  }
+  .progress-row{
+    display:flex; align-items:center; gap:14px; margin-top:10px; flex-wrap: wrap;
+  }
+  .progress-track{
+    flex: 1 1 200px; height: 7px; background: var(--panel-alt); border-radius: 6px; overflow:hidden; border:1px solid var(--border);
+    min-width: 140px;
+  }
+  .progress-fill{
+    height:100%; width:0%; background: linear-gradient(90deg, var(--navy), var(--green)); transition: width .35s ease;
+  }
+  .progress-num{ font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .pills{ display:flex; gap:8px; flex-wrap: wrap; }
+  .pill{
+    font-size: 10.5px; padding: 4px 10px; border-radius: 999px; border:1px solid var(--border);
+    background: var(--panel-alt); color: var(--dim); white-space: nowrap;
+  }
+  .pill b{ color: var(--text); }
+  .pill.active{ border-color: var(--navy); color: var(--navy); }
+
+  /* ---------- Layout ---------- */
+  main{ max-width: 760px; margin: 0 auto; padding: 22px 16px 10px; }
+  .section-divider{
+    margin: 34px 0 16px; padding-bottom: 8px; border-bottom: 1px dashed var(--border);
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .section-divider .tag{
+    font-size: 10px; color: var(--bg); background: var(--navy); padding: 3px 8px; border-radius:4px; font-weight:700; letter-spacing: 0.5px;
+  }
+  .section-divider h2{ font-size: 16px; margin:0; color:#e6ecf5; }
+  .section-divider .count{ font-size: 11px; color: var(--dim); margin-left:auto; }
+
+  .card{
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 18px 16px; margin-bottom: 16px;
+  }
+  .qmeta{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px; }
+  .qnum{ font-size: 11px; color: var(--dim); letter-spacing: 0.5px; }
+  .qtype{
+    font-size: 10px; padding: 3px 9px; border-radius: 999px; font-weight:700; letter-spacing:0.4px; text-transform: uppercase;
+  }
+  .qtype.Concept{ background: #1c2c3f; color: var(--navy); }
+  .qtype.Application{ background: #2a2440; color: var(--purple); }
+  .qtype.SOC{ background: #163326; color: var(--green); }
+  .qtype.Scenario{ background: #3a2a12; color: var(--amber); }
+
+  .qtext{ font-size: 15px; color: #e8edf5; margin-bottom: 14px; }
+
+  .options{ display:flex; flex-direction:column; gap:9px; }
+  .opt{
+    display:flex; gap:10px; align-items:flex-start; text-align:left;
+    background: var(--panel-alt); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 12px; border-radius: 8px; cursor:pointer; font-family: var(--mono); font-size: 13.5px;
+    transition: border-color .15s, background .15s;
+  }
+  .opt:hover:not(:disabled){ border-color: var(--navy); }
+  .opt .letter{
+    flex: 0 0 auto; font-weight:700; color: var(--dim); border:1px solid var(--border); border-radius:5px;
+    width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:11px;
+  }
+  .opt:disabled{ cursor:default; opacity: 0.92; }
+  .opt.correct{ border-color: var(--green); background: rgba(46,204,113,0.08); }
+  .opt.correct .letter{ background: var(--green); color:#06180d; border-color: var(--green); }
+  .opt.incorrect{ border-color: var(--red); background: rgba(255,92,92,0.08); }
+  .opt.incorrect .letter{ background: var(--red); color:#1d0505; border-color: var(--red); }
+  .opt.dim{ opacity: 0.45; }
+
+  .feedback{ display:none; margin-top: 13px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .feedback.show{ display:block; }
+  .verdict{ font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 8px; text-transform: uppercase; }
+  .verdict.right{ color: var(--green); }
+  .verdict.wrong{ color: var(--red); }
+  .explain{ font-size: 13.5px; color: var(--text); margin-bottom: 10px; }
+  .soclens{
+    font-size: 13px; background: #0e1a14; border-left: 3px solid var(--green); padding: 9px 12px; border-radius: 0 6px 6px 0; color: #b9d9c6;
+  }
+  .soclens b{ color: var(--green); }
+
+  /* ---------- Scorecard ---------- */
+  #scorecard{
+    display:none; max-width: 760px; margin: 30px auto; padding: 26px 22px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; text-align:center;
+  }
+  #scorecard.show{ display:block; }
+  #scorecard h2{ color:#e8edf5; margin-top:0; font-size:20px; }
+  #scorecard .bigscore{ font-size: 46px; font-weight:800; color: var(--navy); margin: 6px 0 2px; }
+  #scorecard .bigscore span{ font-size: 20px; color: var(--dim); }
+  .breakdown{ display:flex; gap:14px; justify-content:center; margin: 18px 0; flex-wrap: wrap; }
+  .breakdown .box{ background: var(--panel-alt); border:1px solid var(--border); border-radius:9px; padding:12px 18px; min-width:150px; }
+  .breakdown .box .num{ font-size: 22px; font-weight:700; color: var(--green); }
+  .breakdown .box .lbl{ font-size: 11px; color: var(--dim); margin-top:4px; }
+  #restartBtn{
+    margin-top: 10px; background: var(--navy); color: #06131c; border:none; padding: 11px 26px;
+    border-radius: 7px; font-family: var(--mono); font-weight:700; font-size:13px; cursor:pointer; letter-spacing:0.4px;
+  }
+  #restartBtn:hover{ opacity:0.88; }
+
+  footer{
+    text-align:center; font-size: 11px; color: var(--dim); padding: 30px 16px 10px;
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="title">Session 9 — Operations &amp; Incident Response</div>
+  <div class="subtitle">Knowledge Check · The IR Lifecycle &amp; Digital Forensics Principles</div>
+  <div class="progress-row">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-num" id="progressNum">0 / 0 answered</div>
+  </div>
+  <div class="pills" id="pillRow"></div>
+</div>
+
+<main id="quizRoot"></main>
+
+<div id="scorecard">
+  <h2>Session Complete</h2>
+  <div class="bigscore"><span id="scorePct">0%</span></div>
+  <div id="scoreSub" style="color:var(--dim); font-size:13px;"></div>
+  <div class="breakdown" id="breakdownRow"></div>
+  <button id="restartBtn" onclick="restartQuiz()">↻ Restart Quiz</button>
+</div>
+
+<footer>Basma Adel &nbsp;|&nbsp; linkedin.com/in/basma-adel-3b0968281</footer>
+
+<script>
+// ============================================================
+// QUESTION BANK — Session 9, Block 1 (IR Lifecycle) & Block 2 (Digital Forensics)
+// Each question's options are authored to be similar in length/detail regardless of
+// correctness, and are shuffled at render time so the correct letter position is
+// randomized on every load and every restart.
+// ============================================================
+const SECTIONS = {
+  irlc: { label: "Block 1 — The Incident Response Lifecycle", short: "IR LIFECYCLE" },
+  df:   { label: "Block 2 — Digital Forensics Principles", short: "DIGITAL FORENSICS" }
+};
+
+const QUESTIONS = [
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "In the security essentials framing used in this session, incident response is best defined as:",
+    "options": [
+      {
+        "text": "The plan or action for handling adverse events such as intrusions, theft, denial-of-service attacks, and malicious code",
+        "correct": true
+      },
+      {
+        "text": "A quarterly audit process that checks compliance with the organization's data retention regulations and vendor terms",
+        "correct": false
+      },
+      {
+        "text": "The physical access protocol that restricts entry to the data center outside normal business hours, in the way this stage is usually taught.",
+        "correct": false
+      },
+      {
+        "text": "A vulnerability scanning routine that runs automatically before every scheduled patch deployment window, which shows up differently across different industries.",
+        "correct": false
+      }
+    ],
+    "explain": "Incident response (incident handling) is defined as the plan or action taken to deal with adverse events like intrusions, theft, DoS attacks, and malicious code.",
+    "soclens": "This is the plan an analyst invokes the moment triage confirms an event is a real incident, not just noise."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "Why does the material argue that a structured lifecycle beats an ad hoc reaction to a breach?",
+    "options": [
+      {
+        "text": "It gives handlers a phased approach that reduces mistakes under pressure and ensures root causes get fixed, not symptoms, in the context of a mid-size organization's response plan.",
+        "correct": true
+      },
+      {
+        "text": "It removes the need for senior management to weigh in on any incident-related decision at any stage",
+        "correct": false
+      },
+      {
+        "text": "It lets analysts skip documentation entirely, since following the steps is itself proof of due diligence, which varies somewhat depending on team size.",
+        "correct": false
+      },
+      {
+        "text": "It guarantees that no incident will ever escalate past the initial help desk intake call",
+        "correct": false
+      }
+    ],
+    "explain": "A structured lifecycle reduces mistakes under extreme pressure, keeps the response consistent and repeatable, and forces root-cause analysis instead of a quick symptom fix.",
+    "soclens": "Ad hoc reactions are how the same rebuilt server gets reinfected within minutes — the root cause was never actually closed."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "Which of the five phases is described as the most critical, since it occurs entirely before an incident ever happens?",
+    "options": [
+      {
+        "text": "Eradication",
+        "correct": false
+      },
+      {
+        "text": "Preparation",
+        "correct": true
+      },
+      {
+        "text": "Containment",
+        "correct": false
+      },
+      {
+        "text": "Recovery",
+        "correct": false
+      }
+    ],
+    "explain": "Preparation is called out as the most critical step because it happens before an incident occurs — policies, training, monitoring, and checklists are all built here.",
+    "soclens": "Everything an analyst reaches for mid-incident — the playbook, the contact list, the SIEM tuning — was set up during Preparation."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "During the Detection phase, the analyst's core task is to:",
+    "options": [
+      {
+        "text": "Distinguish routine network events from actual incidents and verify whether a suspicious event is known-bad or a false positive, as this stage is commonly described in the reading.",
+        "correct": true
+      },
+      {
+        "text": "Immediately disconnect every server in the environment until a full forensic image has been completed, which is a detail some analysts weigh differently.",
+        "correct": false
+      },
+      {
+        "text": "Draft the final incident report intended for senior leadership before any containment work begins, depending on the size and maturity of the security team.",
+        "correct": false
+      },
+      {
+        "text": "Open direct communication with the threat actor in order to buy time for evidence collection, at a fairly early point in the broader response effort.",
+        "correct": false
+      }
+    ],
+    "explain": "Detection is about distinguishing routine activity from real incidents, then verifying and triaging whether the event is known-bad or a false positive.",
+    "soclens": "This verification step is exactly what a Tier 1 analyst does before an alert ever gets escalated to a handler."
+  },
+  {
+    "section": "irlc",
+    "type": "Scenario",
+    "q": "An analyst pulls a suspected malware-infected laptop off the network and adjusts firewall rules to block its outbound traffic. Which IR phase does this action belong to?",
+    "options": [
+      {
+        "text": "Recovery",
+        "correct": false
+      },
+      {
+        "text": "Containment",
+        "correct": true
+      },
+      {
+        "text": "Lessons Learned",
+        "correct": false
+      },
+      {
+        "text": "Preparation",
+        "correct": false
+      }
+    ],
+    "explain": "Isolating a system and modifying firewall rules to stop the threat from spreading is the definition of Containment.",
+    "soclens": "Note this is short-term containment — evidence collection and root-cause work still need to happen before long-term fixes."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "The Eradication phase focuses specifically on:",
+    "options": [
+      {
+        "text": "Removing malicious processes, deleting backdoors, and closing the vulnerability that allowed the initial compromise, which is one way this concept gets described.",
+        "correct": true
+      },
+      {
+        "text": "Restoring the most recent backup available without validating the system's integrity afterward, as commonly framed in this part of the lifecycle.",
+        "correct": false
+      },
+      {
+        "text": "Determining which team member was responsible for missing the original detection alert, at least in how the material presents this stage.",
+        "correct": false
+      },
+      {
+        "text": "Renegotiating the organization's firewall vendor support contract for the coming fiscal year, depending on the specific tools the team has on hand.",
+        "correct": false
+      }
+    ],
+    "explain": "Eradication is about undoing the attacker's actions — removing malicious processes and backdoors — and making sure the original vulnerability is actually fixed.",
+    "soclens": "Skip this step and the same weak password or unpatched service reopens the door within minutes of rebuilding."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "Which statement about the Recovery phase is accurate?",
+    "options": [
+      {
+        "text": "A system can return to production the moment it powers back on, regardless of who signs off on it, based on how this specific scenario has unfolded so far.",
+        "correct": false
+      },
+      {
+        "text": "Systems return to a secure state via rebuild or backup restore, and the system owner holds final authority on production",
+        "correct": true
+      },
+      {
+        "text": "Recovery becomes entirely optional whenever containment happened quickly enough during the incident",
+        "correct": false
+      },
+      {
+        "text": "Recovery always requires purchasing entirely new hardware for whichever system was affected",
+        "correct": false
+      }
+    ],
+    "explain": "Recovery involves rebuilding from scratch or restoring from a trusted backup, validating the system, monitoring it post-reconnection, and the system owner makes the final call on returning it to production.",
+    "soclens": "Handlers advise; the system owner decides. That's a distinction worth remembering for incident report write-ups."
+  },
+  {
+    "section": "irlc",
+    "type": "Application",
+    "q": "A CISO wants to decide in advance whether the company will notify law enforcement or instead 'watch and learn' from an attacker. Which phase does that pre-decision belong to?",
+    "options": [
+      {
+        "text": "Preparation",
+        "correct": true
+      },
+      {
+        "text": "Eradication",
+        "correct": false
+      },
+      {
+        "text": "Lessons Learned",
+        "correct": false
+      },
+      {
+        "text": "Detection",
+        "correct": false
+      }
+    ],
+    "explain": "High-level policy decisions like law-enforcement notification criteria or a 'watch and learn' approach are pre-decided during Preparation, before any incident occurs.",
+    "soclens": "These calls need senior management and legal sign-off well before an analyst is staring at an active intrusion."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "Why do IR teams rely on checklists and playbooks instead of memory alone?",
+    "options": [
+      {
+        "text": "Handlers operate under extreme pressure, and documented procedures reduce the chance a crucial step gets overlooked",
+        "correct": true
+      },
+      {
+        "text": "Checklists exist mainly as a regulatory formality with little practical value during a live incident, at this point in a fairly standard response timeline.",
+        "correct": false
+      },
+      {
+        "text": "Checklists remove the organization's need to ever assign a single primary handler to a response, at this stage of a fairly typical investigation.",
+        "correct": false
+      },
+      {
+        "text": "Playbooks exist only to train new hires and get discarded once someone gains real experience, in how many organizations currently structure this step.",
+        "correct": false
+      }
+    ],
+    "explain": "Because handlers work under extreme pressure, checklists reduce stress and prevent a crucial step from being skipped during a real event.",
+    "soclens": "This is also why checklists get updated after every Lessons Learned session — they're a living tool, not a one-time document."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "What role does an organization's help desk typically play during detection?",
+    "options": [
+      {
+        "text": "It performs deep forensic disk imaging before any handler has even been notified of the event, at least according to how most teams structure this stage.",
+        "correct": false
+      },
+      {
+        "text": "It often facilitates triage, maintains a paper trail, and routes the incident to the right personnel",
+        "correct": true
+      },
+      {
+        "text": "It holds sole authority to formally declare that a given event is a false positive alarm",
+        "correct": false
+      },
+      {
+        "text": "It replaces the centralized SIEM as the organization's primary source of detection alerts, particularly in larger enterprise environments.",
+        "correct": false
+      }
+    ],
+    "explain": "The help desk is often an ideal facilitator for tracking incidents, maintaining a paper trail, and contacting the right personnel as part of the escalation path.",
+    "soclens": "A predefined triage process at the help desk level directly shapes how fast — and to whom — an incident gets escalated."
+  },
+  {
+    "section": "irlc",
+    "type": "SOC",
+    "q": "A SOC analyst sees performance suddenly degrade alongside several unexplained reboots. What should happen first?",
+    "options": [
+      {
+        "text": "Wipe and completely rebuild the system immediately, without any further investigation first, which several frameworks describe in slightly different terms.",
+        "correct": false
+      },
+      {
+        "text": "Verify whether the activity is a known-bad incident or a false positive before deciding on next steps",
+        "correct": true
+      },
+      {
+        "text": "Escalate straight to law enforcement immediately, bypassing any internal triage process entirely, which is worth double-checking against the incident timeline.",
+        "correct": false
+      },
+      {
+        "text": "Ignore the alert, since performance issues are rarely tied to genuine security incidents, as many training programs frame this stage of the process.",
+        "correct": false
+      }
+    ],
+    "explain": "Every detection starts with verification — determining whether the event is a known-bad incident or a false positive — before further action is taken.",
+    "soclens": "Unexplained reboots and poor performance are exactly the kind of 'red flag' triggers the material calls out for triage."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "Why does a baseline of 'normal' behavior matter for detection?",
+    "options": [
+      {
+        "text": "It lets anomalies stand out clearly because analysts already know what normal traffic, resource use, and log volume look like",
+        "correct": true
+      },
+      {
+        "text": "It is useful mainly for capacity planning purposes, not for day-to-day security monitoring work, in a fairly typical SOC operating model.",
+        "correct": false
+      },
+      {
+        "text": "It fully replaces the organization's need to ever maintain a centralized SIEM for correlation, depending on how the organization's policy is written.",
+        "correct": false
+      },
+      {
+        "text": "It is required only for annual compliance audits, not for genuine day-to-day detection work",
+        "correct": false
+      }
+    ],
+    "explain": "Detection is most effective when the organization has established a baseline of normal behavior, so abnormal activity stands out immediately.",
+    "soclens": "This is the whole premise behind anomaly-based alerting — without a baseline, 'weird' has no reference point."
+  },
+  {
+    "section": "irlc",
+    "type": "Scenario",
+    "q": "A handler wants to kill every suspicious process the instant it's found, before capturing any volatile memory. What risk does this create?",
+    "options": [
+      {
+        "text": "None — killing processes immediately is always the correct first move during containment, in the way this topic is usually introduced.",
+        "correct": false
+      },
+      {
+        "text": "It risks destroying volatile evidence that is needed to understand the full scope of the breach, in the way this stage is usually taught.",
+        "correct": true
+      },
+      {
+        "text": "It automatically patches the vulnerability that allowed the initial compromise to occur",
+        "correct": false
+      },
+      {
+        "text": "It has no real bearing at all on the eventual root-cause analysis performed afterward, which shows up differently across different industries.",
+        "correct": false
+      }
+    ],
+    "explain": "Hastening to kill attacker processes can destroy vital evidence needed to fully understand the scope of the breach — collection should happen before aggressive containment actions.",
+    "soclens": "This is exactly why 'triage acquisition' — grabbing the 1% of data that gives 99% of the answer — happens before the more disruptive containment steps."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "What is the main danger of containing only the systems an organization already knows are compromised?",
+    "options": [
+      {
+        "text": "It consumes an excessive amount of the organization's SIEM storage capacity over time, which varies somewhat depending on team size.",
+        "correct": false
+      },
+      {
+        "text": "If the attacker performed lateral movement, they can remain persistent on systems that were missed",
+        "correct": true
+      },
+      {
+        "text": "It violates the organization's formal data retention policy for stored security logs, in the context of a mid-size organization's response plan.",
+        "correct": false
+      },
+      {
+        "text": "It automatically triggers a storm of unrelated false-positive alerts across the SIEM",
+        "correct": false
+      }
+    ],
+    "explain": "Without proper scoping, handlers may only contain systems they already know are compromised — if lateral movement occurred, the attacker persists elsewhere in the network.",
+    "soclens": "This is the argument for scoping before declaring containment 'done' — a narrow view of the incident leaves doors open."
+  },
+  {
+    "section": "irlc",
+    "type": "Concept",
+    "q": "What is the primary purpose of the Lessons Learned meeting after an incident?",
+    "options": [
+      {
+        "text": "To formally assign blame to whoever missed the original detection alert during the incident, which is a detail some analysts weigh differently.",
+        "correct": false
+      },
+      {
+        "text": "To reach consensus on the facts of the case and identify ways to improve the process, not to assign blame, at a fairly early point in the broader response effort.",
+        "correct": true
+      },
+      {
+        "text": "To close the ticket in the ticketing system with no further follow-up ever required, depending on the size and maturity of the security team.",
+        "correct": false
+      },
+      {
+        "text": "To decide which security vendor's contract should be renewed for the coming year, as this stage is commonly described in the reading.",
+        "correct": false
+      }
+    ],
+    "explain": "The Lessons Learned meeting exists so the team can reach consensus on the facts and improve the process — the goal is explicitly not to place blame.",
+    "soclens": "Detailed notes taken during the incident are what make this meeting productive instead of a memory-guessing exercise."
+  },
+  {
+    "section": "irlc",
+    "type": "Application",
+    "q": "A post-incident review finds the team took days to detect the intruder. What should the Lessons Learned phase drive as a direct result?",
+    "options": [
+      {
+        "text": "Tuning logs and forwarding additional data sources to the SIEM in order to close the visibility gap",
+        "correct": true
+      },
+      {
+        "text": "Reducing the frequency of vulnerability scans across the environment for the following quarter",
+        "correct": false
+      },
+      {
+        "text": "Removing the SIEM entirely from the environment, since it clearly failed to detect the intrusion",
+        "correct": false
+      },
+      {
+        "text": "Permanently extending containment timelines for every future incident regardless of severity",
+        "correct": false
+      }
+    ],
+    "explain": "If the team struggled to detect the adversary, Lessons Learned should lead to tuning logs and forwarding new data sources to the SIEM to close that visibility gap.",
+    "soclens": "This is the feedback loop that turns a painful incident into a permanent improvement in optics."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "NIST's formal definition frames digital forensics as:",
+    "options": [
+      {
+        "text": "The application of science to identify, collect, examine, and analyze data while preserving integrity and chain of custody",
+        "correct": true
+      },
+      {
+        "text": "A routine IT troubleshooting task focused only on restoring service to users as quickly as possible, as commonly framed in this part of the lifecycle.",
+        "correct": false
+      },
+      {
+        "text": "A compliance checklist used exclusively during scheduled PCI DSS audit cycles each year",
+        "correct": false
+      },
+      {
+        "text": "A method for patching known vulnerabilities before they can ever be exploited by an attacker",
+        "correct": false
+      }
+    ],
+    "explain": "NIST defines digital forensics as applying science to identify, collect, examine, and analyze data while preserving integrity and maintaining a strict chain of custody.",
+    "soclens": "That 'preserving integrity' clause is why every forensic action downstream is judged against forensic soundness."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "What primarily separates digital forensics from general IT troubleshooting?",
+    "options": [
+      {
+        "text": "Forensic tools are simply more expensive to license than the tools used for troubleshooting, at least in how the material presents this stage, which is one way this concept gets described.",
+        "correct": false
+      },
+      {
+        "text": "Forensics requires an objective, detective mindset and the scientific method, plus a chain of custody troubleshooting doesn't need",
+        "correct": true
+      },
+      {
+        "text": "Troubleshooting always takes considerably longer to complete than a full forensic examination, depending on the specific tools the team has on hand.",
+        "correct": false
+      },
+      {
+        "text": "Forensics can only ever be performed by law enforcement, never by internal IT staff",
+        "correct": false
+      }
+    ],
+    "explain": "Forensics requires a detective mindset and scientific rigor, and it demands a strict chain of custody — a level of documentation not required for standard troubleshooting.",
+    "soclens": "Troubleshooting asks 'does it work now?' — forensics asks 'what objectively happened, and can I prove it?'"
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "Why is time described as 'one of digital forensics' worst enemies'?",
+    "options": [
+      {
+        "text": "Investigators are billed by the hour no matter how complex a given case turns out to be, at this stage of a fairly typical investigation.",
+        "correct": false
+      },
+      {
+        "text": "Data can degrade, get overwritten, or vanish entirely once power is lost, so delay increases the risk of losing evidence, in how many organizations currently structure this step.",
+        "correct": true
+      },
+      {
+        "text": "Court schedules are considered the only real time constraint an investigation ever faces, based on how this specific scenario has unfolded so far.",
+        "correct": false
+      },
+      {
+        "text": "Hash values automatically change every 24 hours regardless of any activity on the system, at this point in a fairly standard response timeline.",
+        "correct": false
+      }
+    ],
+    "explain": "Operating systems clear artifacts over time, deleted space gets marked for overwriting, and the most volatile data disappears the instant power is lost — all reasons time works against the investigator.",
+    "soclens": "This is the entire justification for the order-of-volatility principle: grab the most fragile evidence first."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "Which of these is the clearest example of volatile evidence?",
+    "options": [
+      {
+        "text": "Files that are currently stored on an external USB flash drive plugged into the system, at least according to how most teams structure this stage.",
+        "correct": false
+      },
+      {
+        "text": "Running processes and active network connections that are currently held in a system's RAM",
+        "correct": true
+      },
+      {
+        "text": "Browser history that has already been saved permanently onto the local hard disk drive",
+        "correct": false
+      },
+      {
+        "text": "Archived event logs that are sitting untouched on a separate long-term file server",
+        "correct": false
+      }
+    ],
+    "explain": "RAM contains real-time information — running processes, active network connections, and sometimes decryption keys — that is lost the moment the system powers off.",
+    "soclens": "This is why RAM capture is prioritized before anything else touches a live, compromised host."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "Non-volatile, disk-based evidence is valuable because it can reveal:",
+    "options": [
+      {
+        "text": "Only the exact state of RAM at the precise moment the system was powered down, which is worth double-checking against the incident timeline.",
+        "correct": false
+      },
+      {
+        "text": "Filesystem timestamps, browser history, event logs, and deleted files, though it can still be overwritten over time",
+        "correct": true
+      },
+      {
+        "text": "Nothing meaningful at all once the system has already been fully powered down",
+        "correct": false
+      },
+      {
+        "text": "Live decryption keys that are currently in active use by an ongoing attacker session, particularly in larger enterprise environments.",
+        "correct": false
+      }
+    ],
+    "explain": "Disk images allow analysts to pull a wealth of artifacts — filesystem timestamps, browser history, event logs, deleted files — while remaining subject to eventual overwriting.",
+    "soclens": "More stable than RAM, but still on the clock — deleted-file recovery gets harder the longer a disk stays in use."
+  },
+  {
+    "section": "df",
+    "type": "Scenario",
+    "q": "A well-meaning administrator boots up a compromised laptop and browses a few folders before the forensic team arrives. What has most likely occurred?",
+    "options": [
+      {
+        "text": "Nothing of concern — simply browsing a few files doesn't affect a system's stored state, as many training programs frame this stage of the process.",
+        "correct": false
+      },
+      {
+        "text": "Spoliation — the interaction may have altered metadata and written new data, contaminating the evidence, in a fairly typical SOC operating model.",
+        "correct": true
+      },
+      {
+        "text": "An improvement in evidence quality, since more data is now visible on the screen",
+        "correct": false
+      },
+      {
+        "text": "An automatic chain-of-custody update that gets recorded automatically in the analyst's favor, which several frameworks describe in slightly different terms.",
+        "correct": false
+      }
+    ],
+    "explain": "Every interaction with a device leaves trace evidence — booting up a system or opening a folder changes metadata and writes new data, which is exactly what spoliation means.",
+    "soclens": "This is the entire reason 'look but don't touch' exists as a rule for first responders."
+  },
+  {
+    "section": "df",
+    "type": "Application",
+    "q": "What is the purpose of a hardware or software write-blocker during evidence collection?",
+    "options": [
+      {
+        "text": "It speeds up the copying process considerably when handling very large disk images, depending on how the organization's policy is written.",
+        "correct": false
+      },
+      {
+        "text": "It allows data to be read from a device while preventing any data from being written back to it, which shows up differently across different industries.",
+        "correct": true
+      },
+      {
+        "text": "It automatically calculates hash values for every single file located on the disk, in the way this stage is usually taught.",
+        "correct": false
+      },
+      {
+        "text": "It encrypts the evidence so that only the original device owner can ever access it, in the way this topic is usually introduced.",
+        "correct": false
+      }
+    ],
+    "explain": "Write-blockers let examiners read data from a device without allowing anything to be written back to it, which is central to remaining forensically sound.",
+    "soclens": "Without a write-blocker, even a trained examiner risks contaminating the very evidence they're trying to preserve."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "'Triage acquisition' refers to the practice of:",
+    "options": [
+      {
+        "text": "Collecting a small, high-value subset of data, like RAM, that covers most of what's needed before the system changes",
+        "correct": true
+      },
+      {
+        "text": "Imaging an entire disk bit-by-bit, regardless of any time constraints the team is facing, which varies somewhat depending on team size.",
+        "correct": false
+      },
+      {
+        "text": "Interviewing every employee who had any physical access to the affected system that week, in the context of a mid-size organization's response plan.",
+        "correct": false
+      },
+      {
+        "text": "Deleting temporary files from the system in order to reduce noise before the analysis begins",
+        "correct": false
+      }
+    ],
+    "explain": "Triage acquisition means collecting the '1% of data' — like RAM or specific artifacts — that provides '99% of what is needed' before the system's state changes further.",
+    "soclens": "This is the practical compromise between preserving evidence and needing answers fast during an active incident."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "The first responder in a DFIR context is best described as:",
+    "options": [
+      {
+        "text": "A courtroom expert witness who only becomes involved once a verdict has already been reached",
+        "correct": false
+      },
+      {
+        "text": "Often a security officer or system administrator who performs verification and triage after the initial alarm, depending on the size and maturity of the security team.",
+        "correct": true
+      },
+      {
+        "text": "An external forensic examiner who is retained exclusively for court proceedings and testimony, which is a detail some analysts weigh differently.",
+        "correct": false
+      },
+      {
+        "text": "The person solely responsible for enterprise-wide patch management across all systems",
+        "correct": false
+      }
+    ],
+    "explain": "The first responder — the 'firefighter' — is often a security officer or system administrator responding to the initial alarm to perform verification and triage.",
+    "soclens": "Their objective is narrow: confirm whether it's a known-bad incident, then hand off or resume normal operations."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "A dedicated forensic examiner's core objective is best described as:",
+    "options": [
+      {
+        "text": "Restoring the affected system to production status as quickly as organizationally possible, as this stage is commonly described in the reading.",
+        "correct": false
+      },
+      {
+        "text": "Applying a neutral, detective mindset to perform scientific analysis such as artifact parsing, timelining, and data carving",
+        "correct": true
+      },
+      {
+        "text": "Approving firewall rule changes during the active containment phase of the incident",
+        "correct": false
+      },
+      {
+        "text": "Drafting the organization's annual security awareness training curriculum for employees, at a fairly early point in the broader response effort.",
+        "correct": false
+      }
+    ],
+    "explain": "The dedicated forensic examiner applies a detective mindset, remaining neutral and objective, to perform scientific analysis — artifact parsing, timelining, data carving — telling the factual story of what occurred.",
+    "soclens": "This is the 'detective' tier of DFIR — distinct from the first responder's fast verification-and-triage role."
+  },
+  {
+    "section": "df",
+    "type": "Application",
+    "q": "Which task falls under awareness-level responsibility rather than a specialized forensic procedure?",
+    "options": [
+      {
+        "text": "Performing memory forensics using a dedicated toolkit like the SANS SIFT Workstation, as commonly framed in this part of the lifecycle.",
+        "correct": false
+      },
+      {
+        "text": "Recognizing red flags like unexplained reboots and starting the Chain of Custody once an item becomes evidence, which is one way this concept gets described.",
+        "correct": true
+      },
+      {
+        "text": "Conducting malware reverse engineering on a sample captured from the affected host, at least in how the material presents this stage.",
+        "correct": false
+      },
+      {
+        "text": "Creating a full binary disk image intended specifically for courtroom analysis later, depending on the specific tools the team has on hand.",
+        "correct": false
+      }
+    ],
+    "explain": "Awareness-level responsibilities include identification/verification of red flags and starting the Chain of Custody — advanced acquisition and subdiscipline analysis belong to specialized forensic procedures.",
+    "soclens": "Knowing this boundary is what keeps an untrained responder from accidentally overstepping into evidence-altering territory."
+  },
+  {
+    "section": "df",
+    "type": "Scenario",
+    "q": "Following the 'look but don't touch' principle, an awareness-level responder who suspects a compromised workstation should:",
+    "options": [
+      {
+        "text": "Run a full antivirus scan right away in an attempt to clean the system themselves",
+        "correct": false
+      },
+      {
+        "text": "Identify the threat, document what they observe, and step back to let trained examiners handle the evidence",
+        "correct": true
+      },
+      {
+        "text": "Reboot the system once or twice to see whether the issue simply resolves itself",
+        "correct": false
+      },
+      {
+        "text": "Copy files off the machine onto a personal USB drive for temporary safekeeping, based on how this specific scenario has unfolded so far.",
+        "correct": false
+      }
+    ],
+    "explain": "At the awareness level, the guiding principle is to minimize direct interaction — identify the threat, then step back, much like building occupants waiting for qualified firefighters.",
+    "soclens": "Every option that involves 'doing something' to the machine risks spoliation — the safest action is often no action at all."
+  },
+  {
+    "section": "df",
+    "type": "Application",
+    "q": "If an investigator absolutely must interact with a live system to capture volatile memory, best practice requires them to:",
+    "options": [
+      {
+        "text": "Work silently without logging anything at all, in order to avoid slowing down the capture process, at this point in a fairly standard response timeline.",
+        "correct": false
+      },
+      {
+        "text": "Record every command typed and the exact time of entry, to distinguish their activity from the attacker's",
+        "correct": true
+      },
+      {
+        "text": "Document their actions only after the entire investigation has already fully concluded, at this stage of a fairly typical investigation.",
+        "correct": false
+      },
+      {
+        "text": "Skip documentation altogether, since a write-blocker makes it entirely unnecessary",
+        "correct": false
+      }
+    ],
+    "explain": "Any necessary interaction with a live system must be documented — every command typed and its exact time — to distinguish legitimate investigator activity from the threat actor's actions.",
+    "soclens": "This record is also what shields the investigator from later accusations of evidence tampering."
+  },
+  {
+    "section": "df",
+    "type": "Concept",
+    "q": "What does the 'core purpose' of digital forensics aim to accomplish?",
+    "options": [
+      {
+        "text": "Recover and interpret artifacts like browsing history, event logs, and deleted files to tell a factual story of events",
+        "correct": true
+      },
+      {
+        "text": "Enforce a strict zero-tolerance bring-your-own-device policy across the entire enterprise, in how many organizations currently structure this step.",
+        "correct": false
+      },
+      {
+        "text": "Replace the centralized SIEM entirely as the organization's primary tool for detection, at least according to how most teams structure this stage.",
+        "correct": false
+      },
+      {
+        "text": "Guarantee that no employee can ever be terminated over a workplace policy violation",
+        "correct": false
+      }
+    ],
+    "explain": "The discipline's core purpose is to recover and interpret digital artifacts to tell a factual story of what took place on a system.",
+    "soclens": "Everything else — hashing, write-blockers, chain of custody — exists to protect the credibility of that factual story."
+  }
+];
+
+// ============================================================
+// Fisher–Yates shuffle
+// ============================================================
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let runtimeQuestions = [];
+let answered = {};
+let scores = {};
+
+function buildRuntimeQuestions(){
+  runtimeQuestions = QUESTIONS.map(q => {
+    const shuffledOptions = shuffle(q.options);
+    return { ...q, shuffledOptions, correctIndex: shuffledOptions.findIndex(o => o.correct) };
+  });
+}
+
+function initScores(){
+  scores = {};
+  Object.keys(SECTIONS).forEach(k => scores[k] = { correct: 0, total: 0 });
+  runtimeQuestions.forEach(q => scores[q.section].total++);
+}
+
+const LETTERS = ["A","B","C","D"];
+
+function render(){
+  const root = document.getElementById("quizRoot");
+  root.innerHTML = "";
+  answered = {};
+
+  let currentSection = null;
+  let sectionCounters = {};
+  Object.keys(SECTIONS).forEach(k => sectionCounters[k] = 0);
+
+  runtimeQuestions.forEach((q, idx) => {
+    if(q.section !== currentSection){
+      currentSection = q.section;
+      const div = document.createElement("div");
+      div.className = "section-divider";
+      const sectionTotal = runtimeQuestions.filter(x => x.section === currentSection).length;
+      div.innerHTML = `<span class="tag">${SECTIONS[currentSection].short}</span><h2>${SECTIONS[currentSection].label}</h2><span class="count">${sectionTotal} questions</span>`;
+      root.appendChild(div);
+    }
+    sectionCounters[q.section]++;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "card" + idx;
+
+    const optsHtml = q.shuffledOptions.map((opt, i) => `
+      <button class="opt" data-idx="${idx}" data-opt="${i}" onclick="selectAnswer(${idx}, ${i})">
+        <span class="letter">${LETTERS[i]}</span><span>${opt.text}</span>
+      </button>
+    `).join("");
+
+    card.innerHTML = `
+      <div class="qmeta">
+        <span class="qnum">${SECTIONS[q.section].short} · Q${sectionCounters[q.section]}</span>
+        <span class="qtype ${q.type}">${q.type}</span>
+      </div>
+      <div class="qtext">${q.q}</div>
+      <div class="options">${optsHtml}</div>
+      <div class="feedback" id="fb${idx}">
+        <div class="verdict" id="verdict${idx}"></div>
+        <div class="explain" id="explain${idx}"></div>
+        <div class="soclens"><b>SOC Lens:</b> <span id="soclens${idx}"></span></div>
+      </div>
+    `;
+    root.appendChild(card);
+  });
+
+  renderPills();
+  updateProgress();
+  document.getElementById("scorecard").classList.remove("show");
+}
+
+function renderPills(){
+  const row = document.getElementById("pillRow");
+  row.innerHTML = Object.keys(SECTIONS).map(k =>
+    `<span class="pill" id="pill-${k}"><b id="pillnum-${k}">0/${scores[k].total}</b> ${SECTIONS[k].short}</span>`
+  ).join("");
+}
+
+function updatePills(){
+  Object.keys(SECTIONS).forEach(k => {
+    document.getElementById("pillnum-" + k).textContent = `${scores[k].correct}/${scores[k].total}`;
+  });
+}
+
+function updateProgress(){
+  const total = runtimeQuestions.length;
+  const done = Object.keys(answered).length;
+  document.getElementById("progressNum").textContent = `${done} / ${total} answered`;
+  document.getElementById("progressFill").style.width = (done / total * 100) + "%";
+  if(done === total) showScorecard();
+}
+
+function selectAnswer(idx, chosenOpt){
+  if(answered[idx] !== undefined) return;
+  answered[idx] = chosenOpt;
+
+  const q = runtimeQuestions[idx];
+  const isCorrect = chosenOpt === q.correctIndex;
+  if(isCorrect) scores[q.section].correct++;
+  updatePills();
+
+  const card = document.getElementById("card" + idx);
+  const buttons = card.querySelectorAll(".opt");
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if(i === q.correctIndex) btn.classList.add("correct");
+    else if(i === chosenOpt) btn.classList.add("incorrect");
+    else btn.classList.add("dim");
+  });
+
+  const fb = document.getElementById("fb" + idx);
+  fb.classList.add("show");
+  const verdict = document.getElementById("verdict" + idx);
+  verdict.textContent = isCorrect ? "✓ Correct" : "✗ Not quite";
+  verdict.className = "verdict " + (isCorrect ? "right" : "wrong");
+  document.getElementById("explain" + idx).textContent = q.explain;
+  document.getElementById("soclens" + idx).textContent = q.soclens;
+
+  updateProgress();
+  card.scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+function showScorecard(){
+  const totalCorrect = Object.values(scores).reduce((a,b) => a + b.correct, 0);
+  const totalQ = runtimeQuestions.length;
+  const pct = Math.round(totalCorrect / totalQ * 100);
+
+  document.getElementById("scorePct").textContent = pct + "%";
+  document.getElementById("scoreSub").textContent = `${totalCorrect} of ${totalQ} correct`;
+
+  const breakdown = document.getElementById("breakdownRow");
+  breakdown.innerHTML = Object.keys(SECTIONS).map(k => `
+    <div class="box">
+      <div class="num">${scores[k].correct}/${scores[k].total}</div>
+      <div class="lbl">${SECTIONS[k].short}</div>
+    </div>
+  `).join("");
+
+  setTimeout(() => {
+    document.getElementById("scorecard").classList.add("show");
+    document.getElementById("scorecard").scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 300);
+}
+
+function restartQuiz(){
+  buildRuntimeQuestions();
+  initScores();
+  render();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+// ---------------- init ----------------
+buildRuntimeQuestions();
+initScores();
+render();
+</script>
+</body>
+</html>
