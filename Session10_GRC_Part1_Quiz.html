@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Session 10 Quiz — GRC Part 1</title>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --panel: #10161f;
+    --panel-border: #1f2a38;
+    --navy: #1f3864;
+    --accent: #4fd1c5;
+    --accent-dim: #2c8c82;
+    --text: #d7e2ea;
+    --text-dim: #7f93a8;
+    --green: #3ecf8e;
+    --amber: #f0b429;
+    --red: #f2545b;
+    --mono: 'Consolas', 'SFMono-Regular', 'Menlo', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 0 20px 60px; }
+
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(10,14,20,0.97);
+    border-bottom: 1px solid var(--panel-border);
+    padding: 14px 20px;
+    backdrop-filter: blur(4px);
+  }
+  header.top .title-row {
+    max-width: 840px;
+    margin: 0 auto 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  header.top .title-row h1 {
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  header.top .progress-count {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .pill-row {
+    max-width: 840px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .pill.active { border-color: var(--accent); color: var(--accent); }
+  .pill .score { font-weight: bold; margin-left: 4px; }
+
+  .bar-track {
+    height: 4px;
+    background: var(--panel-border);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 840px;
+    margin: 10px auto 0;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 26px;
+    margin-top: 28px;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    font-weight: bold;
+  }
+  .tag.Concept { background: #1c2a3d; color: #7bb4e8; }
+  .tag.Application { background: #1c3d2e; color: #6fe0a3; }
+  .tag.SOC { background: #3d2a1c; color: #f0b429; }
+  .tag.Scenario { background: #3d1c34; color: #e084d1; }
+
+  .q-text { font-size: 16px; line-height: 1.5; margin-bottom: 20px; color: #eef4f8; }
+
+  .option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #0d131b;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    padding: 13px 16px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.45;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent-dim); }
+  .option:disabled { cursor: default; }
+  .option.correct { border-color: var(--green); background: #10231a; }
+  .option.incorrect { border-color: var(--red); background: #2a1315; }
+  .option.reveal-correct { border-color: var(--green); background: #10231a; }
+
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    background: #0d1a1c;
+    font-size: 13.5px;
+    line-height: 1.55;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback .lens-label {
+    color: var(--accent);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+  }
+  button.next-btn {
+    background: var(--accent);
+    color: #05201d;
+    border: none;
+    font-family: var(--mono);
+    font-weight: bold;
+    font-size: 13px;
+    padding: 11px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: none;
+  }
+  button.next-btn.show { display: inline-block; }
+  button.next-btn:hover { background: #6ee0d4; }
+
+  .scorecard { text-align: center; }
+  .scorecard h2 {
+    color: var(--accent);
+    font-size: 22px;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+  }
+  .scorecard .big-score {
+    font-size: 46px;
+    font-weight: bold;
+    margin: 16px 0;
+  }
+  .scorecard .big-score.green { color: var(--green); }
+  .scorecard .big-score.amber { color: var(--amber); }
+  .scorecard .big-score.red { color: var(--red); }
+
+  .section-breakdown {
+    text-align: left;
+    margin-top: 24px;
+    border-top: 1px solid var(--panel-border);
+    padding-top: 20px;
+  }
+  .section-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    font-size: 13.5px;
+    border-bottom: 1px solid #16202c;
+  }
+  .section-row .sec-score.green { color: var(--green); }
+  .section-row .sec-score.amber { color: var(--amber); }
+  .section-row .sec-score.red { color: var(--red); }
+
+  button.restart-btn {
+    margin-top: 26px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: bold;
+    padding: 11px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button.restart-btn:hover { background: rgba(79,209,197,0.1); }
+
+  footer.foot {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 40px;
+    letter-spacing: 0.03em;
+  }
+  footer.foot a { color: var(--accent-dim); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="title-row">
+    <h1>Session 10 · GRC Part 1 Quiz</h1>
+    <span class="progress-count" id="progressCount">Question 1 / 30</span>
+  </div>
+  <div class="pill-row" id="pillRow"></div>
+  <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+</header>
+
+<div class="wrap">
+  <div id="quizArea"></div>
+</div>
+
+<footer class="foot">Basma Adel &nbsp;|&nbsp; linkedin.com/in/basma-adel-3b0968281</footer>
+
+<script>
+const QUESTIONS = [{"section":"A","tag":"Concept","q":"What is the primary role of governance within a GRC strategy?","options":["It establishes the decision-making framework and high-level direction through policies and rules, as commonly emphasized in SOC training materials.","It verifies through audits and logs that established rules are actually being followed.","It identifies and prioritizes technical vulnerabilities that could compromise an asset.","It configures SIEM alert thresholds to flag specific policy violations in real time."],"correct":0,"soc":"Governance sets the direction. Risk assessment (finding gaps) and compliance (proving they're closed) are the other two legs — don't mix them up."},{"section":"A","tag":"Concept","q":"In the GRC cycle, what does risk assessment primarily do?","options":["It diagnoses the gaps between the organization's current state and the direction governance has set.","It establishes the organization's overall legal obligations under applicable regulations.","It produces the final audit evidence required to satisfy an external regulator, according to standard GRC practice.","It sets the acceptable-use policy that employees are expected to follow."],"correct":0,"soc":"Risk assessment is the diagnostic step — it reveals where the organization is exposed relative to the rules governance already set."},{"section":"A","tag":"SOC","q":"Why do compliance failures often surface through SOC-managed data specifically?","options":["Because logging and monitoring generate the audit trails used to reconstruct events and assign accountability.","Because SOC analysts are the ones who formally write an organization's regulatory policies, in line with typical audit expectations.","Because compliance officers directly configure every SIEM correlation rule themselves.","Because governance frameworks are stored exclusively inside SIEM platforms by design, as reflected in most real-world implementations."],"correct":0,"soc":"Audit trails are built from SOC logs. When something goes wrong, investigators reconstruct it from what the SOC recorded — that's the enforcement point of GRC."},{"section":"A","tag":"Application","q":"A CorpNet employee accesses a database they are not authorized to view. Which function most directly surfaces this in real time?","options":["The SOC's configured real-time alerting on policy violations, which is compliance verification in action.","Governance, through a scheduled update to the acceptable use policy document, as reflected in most real-world implementations.","Risk management, through a routine update to the organization's risk register, based on established industry guidance.","External audit, but only during the organization's next scheduled review cycle, as commonly documented in compliance frameworks."],"correct":0,"soc":"Real-time SIEM alerting on unauthorized access is compliance happening live — not on a quarterly review cycle."},{"section":"A","tag":"Concept","q":"Which statement best describes how governance, risk, and compliance interlock?","options":["Governance sets direction, risk assessment finds gaps against it, and compliance proves those gaps were closed.","Compliance sets the direction, governance finds the gaps, and risk management proves they were closed.","Risk management sets the direction first, compliance finds the gaps, and governance proves closure.","All three functions operate independently of each other with no defined sequence between them."],"correct":0,"soc":"This is the core GRC cycle: direction, then diagnosis, then proof. Each leg depends on the one before it."},{"section":"A","tag":"Scenario","q":"CorpNet suffered a breach because an ex-employee's outdated permissions were never revoked. Which leg of GRC failed most directly?","options":["Governance, because a required access review policy either did not exist or was not being enforced.","Compliance, because the required breach notification was filed a few hours late.","Risk management, because the Annualized Loss Expectancy figure was calculated incorrectly.","None of the three, since retained access is considered a purely technical IT failure, as commonly documented in compliance frameworks."],"correct":0,"soc":"Outdated permissions point back to a governance gap — the policy requiring regular access reviews wasn't set or enforced in the first place."},{"section":"B","tag":"Concept","q":"What gives GDPR its extraterritorial reach?","options":["It applies to any organization handling EU residents' data, regardless of where that organization is physically based.","It applies only to organizations that maintain a registered office somewhere within the European Union, particularly during formal review cycles.","It applies only to companies that are publicly traded on a European stock exchange, under typical organizational policy.","It applies exclusively to healthcare and financial organizations operating anywhere in the world."],"correct":0,"soc":"Location doesn't exempt you. If CorpNet has even one EU customer in its database, GDPR is in scope."},{"section":"B","tag":"Concept","q":"What triggers the start of GDPR's 72-hour breach notification clock?","options":["The moment the organization becomes aware of the breach, not the moment the breach actually occurred.","The moment the breach is first reported publicly by a journalist or media outlet, under typical organizational policy.","The moment an affected individual files a formal complaint with a regulator, as commonly emphasized in SOC training materials.","The moment the organization's next annual compliance audit happens to be scheduled, according to standard GRC practice."],"correct":0,"soc":"Detection speed is everything here — the clock runs from awareness, which is exactly why SOC log retention and monitoring speed matter so much."},{"section":"B","tag":"Concept","q":"Under HIPAA, what distinguishes a Business Associate from a Covered Entity?","options":["A Business Associate handles PHI on behalf of a Covered Entity without itself being a provider, plan, or clearinghouse.","A Business Associate refers to any hospital or clinic that directly treats patients on-site.","A Covered Entity refers to any vendor hired solely to store encrypted backup media.","There is no meaningful legal distinction between the two categories under current HIPAA rules."],"correct":0,"soc":"Think of a cloud vendor storing patient records: not a healthcare provider itself, but still bound by HIPAA through a Business Associate Agreement."},{"section":"B","tag":"SOC","q":"Why does a Business Associate Agreement (BAA) matter when a SOC evaluates a new SIEM vendor?","options":["If the vendor's platform will touch PHI, HIPAA requires contractual protections matching the covered entity's own obligations.","BAAs are relevant only to payment processors operating strictly under PCI-DSS requirements.","A signed BAA fully replaces the need for encrypting health data at rest or in transit, according to standard GRC practice.","BAAs are optional paperwork that carry no real bearing on vendor selection decisions."],"correct":0,"soc":"A vendor touching PHI without a BAA in place is a compliance gap a SOC analyst should flag before onboarding, not after."},{"section":"B","tag":"Application","q":"At what scale does a HIPAA breach require notifying HHS and prominent media outlets, not just affected individuals?","options":["When the breach affects 500 or more individuals, in line with typical audit expectations.","When the breach affects any number of individuals at all, however small, as reflected in most real-world implementations.","Only when the breach is specifically attributed to a nation-state threat actor, based on established industry guidance.","Only when estimated financial damage from the breach exceeds $500,000."],"correct":0,"soc":"This 500-person threshold is what makes HIPAA notification more public-facing at scale than GDPR's regulator-first approach."},{"section":"B","tag":"Concept","q":"What is the primary purpose of PCI-DSS?","options":["To ensure the secure handling of cardholder data across the systems that store, process, or transmit it.","To regulate the collection of any personally identifiable information anywhere in the world, based on established industry guidance.","To define the breach notification timelines that healthcare providers must legally follow, as commonly documented in compliance frameworks.","To define the five core functions used to organize a cybersecurity program at a strategic level, as reflected in most real-world implementations."],"correct":0,"soc":"PCI-DSS is scoped narrowly to the Cardholder Data Environment — that's what separates it from broader regulations like GDPR."},{"section":"C","tag":"Concept","q":"What does ISO 27001 primarily help an organization implement?","options":["An Information Security Management System covering legal, physical, and technical controls.","A dollar-based quantitative risk model used mainly for insurance underwriting purposes.","A mandatory breach notification timeline that applies specifically to EU residents.","A five-function strategic framework for organizing a cybersecurity program overall."],"correct":0,"soc":"ISO 27001 is about the ISMS — the full system of policies and controls, not a single calculation or timeline."},{"section":"C","tag":"Concept","q":"Which statement best distinguishes the NIST CSF from NIST 800-53?","options":["The CSF organizes security work into five high-level outcomes, while 800-53 specifies the detailed controls that achieve them.","The CSF functions as binding law, while NIST 800-53 remains a purely voluntary best practice, as commonly documented in compliance frameworks.","The CSF applies only to government agencies, while 800-53 applies only to private companies.","The CSF has fully replaced NIST 800-53 in current industry and government practice."],"correct":0,"soc":"CSF answers 'what should we cover?' at altitude. 800-53 answers 'exactly which control satisfies that?' on the ground."},{"section":"C","tag":"SOC","q":"A SOC analyst sets log retention periods and enables continuous monitoring. Which NIST 800-53 control family is this most directly tied to?","options":["Audit and Accountability (AU).","Access Control (AC), particularly during formal review cycles.","Incident Response (IR).","System and Communications Protection (SC)."],"correct":0,"soc":"Log generation, retention, and audit review sit squarely in the AU family — one of the most SOC-relevant control families in 800-53."},{"section":"C","tag":"Concept","q":"Which NIST document specifically provides the risk assessment methodology covering threat sources, vulnerabilities, and impact?","options":["NIST 800-30.","NIST Cybersecurity Framework.","NIST 800-53, under typical organizational policy.","ISO 27001, as commonly emphasized in SOC training materials."],"correct":0,"soc":"800-30 is the diagnostic methodology; the CSF is the strategic organizer; 800-53 is the control catalog. Three different altitudes."},{"section":"C","tag":"Application","q":"Which statement best captures the difference between a framework, a regulation, and a standard?","options":["A framework is a toolkit for building a program, a regulation is a legal requirement, and a standard is a tactical set of agreed rules.","A framework is a legal requirement, a regulation is a flexible toolkit, and a standard is entirely optional guidance.","All three terms are functionally interchangeable and can be used freely in any GRC context.","A standard is always issued directly by a government body, unlike frameworks or regulations."],"correct":0,"soc":"Framework = how to build. Regulation = what the law requires. Standard = the specific rules everyone agrees to follow."},{"section":"C","tag":"Scenario","q":"CorpNet wants to formally prove, through independent audit, its commitment to an ISMS to a major enterprise client. What is the best path?","options":["Pursue official ISO 27001 certification through a qualified third-party audit, according to standard GRC practice.","Publish an internal memo that simply references the NIST Cybersecurity Framework.","Adopt PCI-DSS controls instead, since ISO 27001 doesn't actually cover ISMS topics, in line with typical audit expectations.","Rely entirely on an internal self-assessment with no outside verification involved."],"correct":0,"soc":"Certification requires third-party verification — that's what separates 'we follow good practices' from a client-facing, auditable proof point."},{"section":"D","tag":"Concept","q":"In the documentation hierarchy, what distinguishes a procedure from a guideline?","options":["A procedure is a mandatory, step-by-step set of instructions, while a guideline is a flexible recommendation.","A guideline is mandatory and binding, while a procedure is treated as entirely optional, in line with typical audit expectations.","Both terms describe exactly the same tier within an organization's documentation hierarchy.","A procedure applies only to external auditors and never to an organization's own employees, as reflected in most real-world implementations."],"correct":0,"soc":"Procedures are the most specific tier — exact steps. Guidelines stay flexible on purpose, to fit different situations."},{"section":"D","tag":"Application","q":"CorpNet's rule requiring 12-character passwords with three character types belongs to which documentation tier?","options":["Standard.","Policy, as reflected in most real-world implementations.","Guideline, based on established industry guidance.","Baseline, as commonly documented in compliance frameworks."],"correct":0,"soc":"This is tactical and specific — the 'rules of the game' tier — which makes it a standard, sitting below the broader policy."},{"section":"D","tag":"Concept","q":"What is the main purpose of a gap analysis?","options":["To compare the current security state against the desired state defined by policy or framework, revealing what needs closing.","To calculate the Annualized Loss Expectancy for one specific organizational asset.","To determine which disaster recovery site tier an organization should ultimately choose.","To assign sensitivity labels to newly created organizational data as it's collected."],"correct":0,"soc":"Gap analysis is the diagnostic step in compliance assessment — current state versus desired state, nothing more."},{"section":"D","tag":"SOC","q":"Which tool type is most directly associated with continuous compliance monitoring through real-time policy-violation alerts?","options":["SIEM systems, such as Splunk or QRadar.","Vulnerability scanners used entirely on their own, as commonly documented in compliance frameworks.","Risk registers maintained purely as static documents.","Asset management databases used in isolation."],"correct":0,"soc":"SIEM tools are configured specifically to trigger real-time alerts the moment a policy violation or non-compliance issue occurs."},{"section":"D","tag":"Concept","q":"What is the key difference between an internal audit and an external audit?","options":["Internal audits are self-assessments performed by the organization; external audits are independent evaluations by outside parties.","Internal audits are always conducted directly by government regulators rather than by staff, under typical organizational policy.","External audits are optional formalities rarely requested by stakeholders or regulators.","There is no practical difference in scope or independence between the two audit types, particularly during formal review cycles."],"correct":0,"soc":"External audits carry independence that internal self-assessments can't fully provide — both matter, but for different reasons."},{"section":"D","tag":"Application","q":"Which artifact provides the strongest evidence during a regulatory assessment that a control was actually followed?","options":["Audit trails built from logging and monitoring records.","The organization's published acceptable use policy document alone, under typical organizational policy.","A verbal confirmation given informally by the IT director.","A written procedure document with no supporting logs behind it."],"correct":0,"soc":"Policies describe intent; audit trails prove action. Regulators want the proof, not just the intent."},{"section":"E","tag":"SOC","q":"Why is SIEM log retention considered a compliance control, not just a technical one?","options":["Frameworks like GDPR, HIPAA, and PCI-DSS all require organizations to produce audit trails as proof of security activity.","Log retention is purely a storage-cost decision with no real connection to any regulation.","Only PCI-DSS specifically requires any organization to retain security logs at all.","SIEM tools are never actually referenced during formal regulatory audits or assessments."],"correct":0,"soc":"Retention isn't just about disk space — it's the raw material regulators expect you to produce as evidence."},{"section":"E","tag":"SOC","q":"What is the main compliance purpose of a configured alert threshold?","options":["To enable real-time detection of policy violations and unauthorized access to sensitive data.","To permanently block every form of encrypted traffic crossing the network, according to standard GRC practice.","To fully replace the need for a documented acceptable use policy.","To automatically calculate an asset's Annualized Loss Expectancy in real time."],"correct":0,"soc":"Alert thresholds are technical controls doing compliance work — catching violations the moment they happen, not weeks later."},{"section":"E","tag":"Concept","q":"Which principle do regular access reviews primarily enforce?","options":["The Principle of Least Privilege.","The Right to Erasure under GDPR.","The 72-hour breach notification requirement.","The Exposure Factor used in quantitative risk calculations."],"correct":0,"soc":"Access reviews catch 'creeping privilege' — permissions that piled up over time beyond what the role actually needs."},{"section":"E","tag":"Scenario","q":"A former CorpNet employee's account was never disabled and was later used in a breach. Which control would most directly have prevented this?","options":["Regular access reviews identifying and disabling orphaned accounts.","A faster GDPR breach notification process once the incident was discovered.","A more detailed ISO 27001 certification audit performed annually.","A revised Annualized Rate of Occurrence figure in the risk register."],"correct":0,"soc":"This is the exact healthcare case study pattern from Block 1 — an access review gap, not a notification or audit gap."},{"section":"E","tag":"Application","q":"Which regulatory frameworks most directly depend on the SOC functions of log retention, alert thresholds, and access reviews?","options":["GDPR, HIPAA, and PCI-DSS, based on established industry guidance, as commonly documented in compliance frameworks.","Only ISO 27001, since it is the sole standard focused on an ISMS.","Only NIST 800-30, since it governs risk assessment exclusively.","None of them directly, since these are purely internal SOC practices."],"correct":0,"soc":"All three regulations lean on the same underlying SOC capability — that's the throughline of the entire SOC Lens section."},{"section":"E","tag":"Concept","q":"What is the overall relationship between routine SOC monitoring work and GRC compliance?","options":["Routine SOC controls generate the defensible, audit-ready evidence that regulatory frameworks actually require.","SOC monitoring and GRC compliance are managed by entirely separate teams with no real overlap.","GRC compliance replaces the need for ongoing SOC monitoring once certification is achieved.","SOC monitoring is only relevant to compliance during the organization's annual external audit."],"correct":0,"soc":"This is the whole point of the SOC Lens: daily monitoring work IS compliance work, not a separate track from it."}];
+const SECTION_NAMES = {"A":"The Three Legs of GRC","B":"Regulatory Frameworks","C":"Industry Standards","D":"Policies & Compliance Assessment","E":"The SOC Lens"};
+const SECTION_ORDER = Object.keys(SECTION_NAMES);
+
+let order = [];        // shuffled index order of QUESTIONS for this run
+let current = 0;
+let answered = false;
+let scores = {};        // per-section {correct, total}
+let overallCorrect = 0;
+
+function fisherYates(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initScores() {
+  scores = {};
+  SECTION_ORDER.forEach((s) => (scores[s] = { correct: 0, total: 0 }));
+  QUESTIONS.forEach((q) => { scores[q.section].total += 1; });
+}
+
+function startQuiz() {
+  order = fisherYates(QUESTIONS.map((_, i) => i));
+  current = 0;
+  overallCorrect = 0;
+  initScores();
+  renderPills();
+  renderQuestion();
+}
+
+function renderPills() {
+  const row = document.getElementById("pillRow");
+  row.innerHTML = "";
+  SECTION_ORDER.forEach((s) => {
+    const pill = document.createElement("div");
+    pill.className = "pill" + (QUESTIONS[order[current]].section === s ? " active" : "");
+    pill.id = "pill-" + s;
+    const sc = scores[s];
+    pill.innerHTML = SECTION_NAMES[s].split(" ").slice(0,2).join(" ") + " " +
+      '<span class="score">' + sc.correct + "/" + sc.total + "</span>";
+    row.appendChild(pill);
+  });
+}
+
+function renderQuestion() {
+  answered = false;
+  const qIndex = order[current];
+  const qData = QUESTIONS[qIndex];
+
+  document.getElementById("progressCount").textContent =
+    "Question " + (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("barFill").style.width =
+    ((current) / QUESTIONS.length * 100) + "%";
+
+  renderPills();
+
+  const optOrder = fisherYates(qData.options.map((_, i) => i));
+
+  const area = document.getElementById("quizArea");
+  area.innerHTML = `
+    <div class="card">
+      <span class="tag ${qData.tag}">${qData.tag}</span>
+      <div class="q-text">${qData.q}</div>
+      <div id="optionsArea"></div>
+      <div class="feedback" id="feedbackBox">
+        <span class="lens-label">SOC Lens</span>
+        <span id="feedbackText"></span>
+      </div>
+      <div class="nav-row">
+        <button class="next-btn" id="nextBtn">${current === QUESTIONS.length - 1 ? "See Results →" : "Next Question →"}</button>
+      </div>
+    </div>
+  `;
+
+  const optionsArea = document.getElementById("optionsArea");
+  optOrder.forEach((origIdx) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = qData.options[origIdx];
+    btn.addEventListener("click", () => handleAnswer(origIdx, qData, btn));
+    optionsArea.appendChild(btn);
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", nextQuestion);
+}
+
+function handleAnswer(chosenIdx, qData, btnEl) {
+  if (answered) return;
+  answered = true;
+
+  const isCorrect = chosenIdx === qData.correct;
+  const allOptionButtons = document.querySelectorAll("#optionsArea .option");
+  allOptionButtons.forEach((b) => (b.disabled = true));
+
+  if (isCorrect) {
+    btnEl.classList.add("correct");
+    scores[qData.section].correct += 1;
+    overallCorrect += 1;
+  } else {
+    btnEl.classList.add("incorrect");
+    allOptionButtons.forEach((b) => {
+      if (b.textContent === qData.options[qData.correct]) {
+        b.classList.add("reveal-correct");
+      }
+    });
+  }
+
+  const fb = document.getElementById("feedbackBox");
+  document.getElementById("feedbackText").textContent = qData.soc;
+  fb.classList.add("show");
+
+  document.getElementById("nextBtn").classList.add("show");
+  renderPills();
+}
+
+function nextQuestion() {
+  if (current < QUESTIONS.length - 1) {
+    current += 1;
+    renderQuestion();
+  } else {
+    showScorecard();
+  }
+}
+
+function showScorecard() {
+  document.getElementById("barFill").style.width = "100%";
+  document.getElementById("progressCount").textContent = "Complete";
+
+  const pct = Math.round((overallCorrect / QUESTIONS.length) * 100);
+  let cls = "red";
+  if (pct >= 80) cls = "green";
+  else if (pct >= 60) cls = "amber";
+
+  const area = document.getElementById("quizArea");
+  let breakdownHtml = "";
+  SECTION_ORDER.forEach((s) => {
+    const sc = scores[s];
+    const sPct = sc.total ? Math.round((sc.correct / sc.total) * 100) : 0;
+    let sCls = "red";
+    if (sPct >= 80) sCls = "green";
+    else if (sPct >= 60) sCls = "amber";
+    breakdownHtml += `
+      <div class="section-row">
+        <span>${SECTION_NAMES[s]}</span>
+        <span class="sec-score ${sCls}">${sc.correct} / ${sc.total}</span>
+      </div>
+    `;
+  });
+
+  area.innerHTML = `
+    <div class="card scorecard">
+      <h2>Quiz Complete</h2>
+      <div class="big-score ${cls}">${overallCorrect} / ${QUESTIONS.length}</div>
+      <div style="color:var(--text-dim); font-size:13px;">${pct}% overall</div>
+      <div class="section-breakdown">${breakdownHtml}</div>
+      <button class="restart-btn" id="restartBtn">Restart Quiz</button>
+    </div>
+  `;
+  document.getElementById("restartBtn").addEventListener("click", startQuiz);
+
+  document.getElementById("pillRow").innerHTML = "";
+}
+
+startQuiz();
+</script>
+</body>
+</html>
