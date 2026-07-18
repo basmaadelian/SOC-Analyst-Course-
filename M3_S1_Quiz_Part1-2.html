@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 3 · Session 1 — General Security Concepts (Parts 1 & 2) Quiz</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#0f1520; --panel2:#131b28; --border:#1e2a3a;
+    --text:#d6e2f0; --dim:#7891ab; --accent:#3ecf8e; --accent2:#4fb3ff;
+    --amber:#f0b93d; --red:#ef5b5b; --purple:#a68cff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Consolas','SFMono-Regular',Menlo,monospace;
+    line-height:1.5;
+  }
+  header{
+    position:sticky; top:0; z-index:50; background:rgba(10,14,20,.96);
+    border-bottom:1px solid var(--border); padding:14px 20px; backdrop-filter:blur(6px);
+  }
+  .titlebar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  .titlebar h1{font-size:15px; margin:0; color:var(--accent2); letter-spacing:.3px;}
+  .titlebar .sub{font-size:11px; color:var(--dim);}
+  .pills{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .pill{
+    font-size:10px; padding:4px 9px; border-radius:20px; border:1px solid var(--border);
+    background:var(--panel2); color:var(--dim); white-space:nowrap;
+  }
+  .pill.active{border-color:var(--accent2); color:var(--accent2);}
+  .pill.done-green{border-color:var(--accent); color:var(--accent);}
+  .pill.done-amber{border-color:var(--amber); color:var(--amber);}
+  .pill.done-red{border-color:var(--red); color:var(--red);}
+  .progressWrap{height:4px; background:var(--panel2); border-radius:2px; margin-top:10px; overflow:hidden;}
+  .progressBar{height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); width:0%; transition:width .3s;}
+
+  main{max-width:760px; margin:0 auto; padding:26px 20px 80px;}
+  .sectionLabel{
+    font-size:11px; color:var(--purple); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;
+  }
+  .qCard{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:20px; margin-bottom:18px;
+  }
+  .qHead{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px;}
+  .qNum{color:var(--dim); font-size:12px;}
+  .tag{
+    font-size:10px; padding:3px 8px; border-radius:5px; border:1px solid var(--border);
+    text-transform:uppercase; letter-spacing:.5px; white-space:nowrap;
+  }
+  .tag.Concept{color:var(--accent2); border-color:var(--accent2);}
+  .tag.Application{color:var(--purple); border-color:var(--purple);}
+  .tag.SOC{color:var(--amber); border-color:var(--amber);}
+  .tag.Scenario{color:var(--accent); border-color:var(--accent);}
+  .qText{font-size:14.5px; color:var(--text); margin-bottom:14px;}
+  .opt{
+    display:block; width:100%; text-align:left; background:var(--panel2);
+    border:1px solid var(--border); color:var(--text); border-radius:8px;
+    padding:11px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit; font-size:13px;
+    transition:border-color .15s, background .15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--accent2);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--accent); background:rgba(62,207,142,.1); color:var(--accent);}
+  .opt.wrong{border-color:var(--red); background:rgba(239,91,91,.1); color:var(--red);}
+  .opt.reveal{border-color:var(--accent); background:rgba(62,207,142,.06);}
+  .feedback{
+    margin-top:12px; padding:12px 14px; border-radius:8px; font-size:12.5px;
+    border-left:3px solid var(--accent2); background:var(--panel2); display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback .lens{color:var(--accent2); font-weight:bold; margin-right:6px;}
+  .navBtns{display:flex; justify-content:space-between; margin-top:22px;}
+  button.nav{
+    background:var(--panel2); border:1px solid var(--border); color:var(--text);
+    padding:10px 18px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:13px;
+  }
+  button.nav:hover{border-color:var(--accent2);}
+  button.nav:disabled{opacity:.35; cursor:default;}
+  button.nav.primary{border-color:var(--accent); color:var(--accent);}
+
+  .scorecard{text-align:center; padding:10px 0 40px;}
+  .scorecard h2{color:var(--accent2); font-size:20px;}
+  .bigScore{font-size:48px; color:var(--accent); margin:10px 0;}
+  .breakdown{
+    text-align:left; max-width:520px; margin:24px auto; display:grid; gap:8px;
+  }
+  .brow{
+    display:flex; justify-content:space-between; background:var(--panel);
+    border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13px;
+  }
+  .restart{
+    margin-top:20px; background:var(--accent2); color:#06121f; border:none;
+    padding:12px 26px; border-radius:8px; font-weight:bold; cursor:pointer; font-family:inherit;
+  }
+  .hidden{display:none;}
+  footer{
+    text-align:center; font-size:11px; color:var(--dim); padding:20px; border-top:1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="titlebar">
+    <div>
+      <h1>&gt; SOC_ANALYST_COURSE :: MODULE 3 / SESSION 1</h1>
+      <div class="sub">General Security Concepts — Parts 1 &amp; 2 · CIA Triad, AAA, Security Controls</div>
+    </div>
+    <div class="sub" id="liveScore">Score: 0 / 0</div>
+  </div>
+  <div class="pills" id="sectionPills"></div>
+  <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+</header>
+
+<main>
+  <div id="quizArea"></div>
+  <div id="scorecardArea" class="scorecard hidden"></div>
+</main>
+
+<footer>Basma Adel | linkedin.com/in/basma-adel-3b0968281</footer>
+
+<script>
+const SECTIONS = [
+  "1.1 Why Security Exists",
+  "1.2 The CIA Triad",
+  "1.3 AAA & Non-Repudiation",
+  "2.1 The Control Framework",
+  "2.2 Controls by Function",
+  "2.3 Controls by Category"
+];
+
+const RAW_QUESTIONS = [
+// SECTION 0 — Why Security Exists
+{s:0,type:"Concept",q:"What made the Equifax breach possible?",
+ opts:["A failure to patch a known Apache Struts vulnerability despite prior notification",
+       "A misconfigured cloud storage bucket left open to the public internet",
+       "A phishing email that compromised an executive's mailbox credentials",
+       "A rogue insider who exported records before resigning the company"],c:0,
+ fb:"Equifax knew about the Struts vulnerability and had been notified, but failed to patch it — the lesson is that unpatched systems remain open doors."},
+{s:0,type:"Concept",q:"Why did the Yahoo breach become a business catastrophe rather than just a technical one?",
+ opts:["The delayed disclosure forced a major reduction in the company's eventual sale price",
+       "The stolen credentials were resold immediately on underground criminal marketplaces",
+       "Regulators fined Yahoo directly for failing to encrypt customer records",
+       "Affected users filed a class action lawsuit that bankrupted the company"],c:0,
+ fb:"Yahoo's three-year delay in disclosure, not the breach itself, is what forced the price cut in the Verizon sale — timing turned a breach into a business event."},
+{s:0,type:"SOC",q:"An analyst confirms a ransomware attack has encrypted a hospital's records systems but no data was exfiltrated. Which CIA pillar was primarily violated?",
+ opts:["Availability, since authorized users could no longer access the systems they needed",
+       "Confidentiality, since patient records were exposed to an unauthorized party",
+       "Integrity, since the underlying medical data was altered without authorization",
+       "Non-repudiation, since the hospital could not prove who caused the outage"],c:0,
+ fb:"No data was stolen or altered — systems simply became unreachable. That is a pure availability failure, as seen in the Ascension healthcare case."},
+{s:0,type:"SOC",q:"What lesson does the Target breach teach a SOC analyst about scope?",
+ opts:["A third-party vendor's weak security can become the entry point into your own network",
+       "Point-of-sale systems should never be connected to the corporate network at all",
+       "Credit card data should always be tokenized before it touches any system",
+       "Vendor risk only matters if the vendor has direct access to a database"],c:0,
+ fb:"Attackers entered through an HVAC vendor, not Target's own systems — your security posture is only as strong as every party you trust with access."},
+{s:0,type:"Scenario",q:"CorpNet's security team is asked why a recent incident caused months of disruption without bankrupting the company. Which distinction from the session best explains this?",
+ opts:["Reputation damage is often the harm that a settlement payment alone cannot repair",
+       "Regulatory fines are capped regardless of how many records were exposed",
+       "Cyber insurance automatically covers all reputational damage claims in full",
+       "Breach cost is only calculated once related litigation has fully concluded"],c:0,
+ fb:"Of the four things security protects — data, systems, people, reputation — reputation is the one a company can survive damaging but never fully repair."},
+
+// SECTION 1 — CIA Triad
+{s:1,type:"Concept",q:"What does confidentiality fundamentally control?",
+ opts:["Access to information based on defined authorization, not simply hiding it",
+       "Whether data has been modified by an unauthorized party",
+       "Whether authorized users can reach a system when they need it",
+       "Whether a party can later deny having performed an action"],c:0,
+ fb:"Confidentiality is about authorized access, not secrecy for its own sake — the key word in the definition is 'authorized.'"},
+{s:1,type:"Concept",q:"Why is MD5 no longer suitable for security-critical integrity verification?",
+ opts:["Researchers have demonstrated collision attacks that undermine its reliability",
+       "It only produces a short hash that is too weak for modern systems",
+       "It cannot be used to verify a digital signature under any circumstance",
+       "It requires a shared secret key that must be distributed in advance"],c:0,
+ fb:"Collision attacks mean two different inputs can produce the same MD5 hash, defeating its purpose as a fingerprint. SHA-256 is the current standard."},
+{s:1,type:"SOC",q:"A file integrity monitoring tool alerts that /etc/passwd changed at 3 AM with no approved change ticket. Which pillar does this alert most directly relate to?",
+ opts:["Integrity, since an unauthorized modification to a critical system file was detected",
+       "Availability, since the system may become unreachable as a result",
+       "Confidentiality, since the contents of the file may now be exposed",
+       "Non-repudiation, since the responsible party cannot be identified"],c:0,
+ fb:"FIM exists specifically to catch unauthorized changes to files — an off-hours change with no ticket is a textbook integrity signal."},
+{s:1,type:"Application",q:"Which pair of pillars is placed in direct tension when an organization adds MFA to every access point?",
+ opts:["Confidentiality and availability, since a locked-out analyst cannot respond during an incident",
+       "Integrity and confidentiality, since MFA logs can expose sensitive session data",
+       "Availability and non-repudiation, since MFA removes the need for logging",
+       "Confidentiality and accounting, since MFA replaces the need for authorization"],c:0,
+ fb:"Stronger confidentiality controls like MFA can reduce availability if the MFA system itself fails during a time-critical response."},
+{s:1,type:"Scenario",q:"CorpNet's SIEM flags a large 'restricted' file being transferred to an external email address, while a similar transfer of a 'public' file draws no attention. What explains the difference?",
+ opts:["Data classification determines the urgency of a confidentiality-related response",
+       "Only restricted files are ever monitored by CorpNet's DLP tooling",
+       "Public files are always encrypted and therefore cannot be exfiltrated",
+       "External email transfers are blocked entirely regardless of classification"],c:0,
+ fb:"The same action — an external transfer — carries very different risk depending on classification. That classification is what drives analyst urgency."},
+
+// SECTION 2 — AAA & Non-Repudiation
+{s:2,type:"Concept",q:"What is the correct relationship between authentication and authorization?",
+ opts:["Authentication confirms identity, and authorization is a separate decision about what that identity may do",
+       "Authorization must occur before authentication for AAA to function correctly",
+       "Authentication and authorization are two different names for the same access step",
+       "Authorization confirms identity, while authentication grants specific permissions"],c:0,
+ fb:"A valid login proves who you are; it says nothing about what you're allowed to touch. Those are two separate, sequential decisions."},
+{s:2,type:"Concept",q:"What distinguishes TACACS+ from RADIUS?",
+ opts:["TACACS+ separates the three AAA functions and encrypts the full session, not just the password",
+       "TACACS+ only supports authentication and cannot log any accounting data",
+       "RADIUS encrypts the entire session while TACACS+ encrypts only the password",
+       "RADIUS is used exclusively for controlling physical access to buildings"],c:0,
+ fb:"RADIUS bundles authentication and authorization and only encrypts the password; TACACS+ separates all three functions and encrypts the whole session."},
+{s:2,type:"SOC",q:"A service account that has never made outbound connections suddenly opens an HTTPS session to an external IP. Which AAA component first surfaces this for review?",
+ opts:["Accounting, since the logged session activity reveals the unusual outbound connection",
+       "Authentication, since the account must have failed to log in correctly",
+       "Authorization, since the account was never granted a role in the first place",
+       "Non-repudiation, since the account holder is now denying the activity occurred"],c:0,
+ fb:"Accounting logs — session start, duration, resources accessed — are exactly what reveal an unusual pattern like this to a SOC analyst."},
+{s:2,type:"Application",q:"Why does multi-factor authentication meaningfully reduce the value of a stolen password?",
+ opts:["MFA requires a second factor from a different category that the attacker does not possess",
+       "MFA automatically rotates the password after every failed login attempt",
+       "MFA replaces passwords entirely with certificate-based authentication only",
+       "MFA logs every authentication attempt regardless of whether it succeeded"],c:0,
+ fb:"A password alone is knowledge-based. MFA adds a possession- or inherence-based factor the attacker doesn't have, even with the password in hand."},
+{s:2,type:"Scenario",q:"CorpNet's audit team must prove that a specific administrator authorized a wire transfer and cannot later deny it. Which concept are they relying on?",
+ opts:["Non-repudiation, supported by tamper-resistant logs or a digital signature",
+       "Authorization, since only administrators can initiate wire transfers",
+       "Accounting, since the transfer amount was logged automatically by the system",
+       "Authentication, since the administrator entered a valid password to log in"],c:0,
+ fb:"Non-repudiation is specifically about undeniable, attributable proof of an action — it depends on logs or signatures that cannot be tampered with."},
+
+// SECTION 3 — The Control Framework
+{s:3,type:"Concept",q:"What is the broadest possible definition of a security control given in this session?",
+ opts:["Any safeguard, countermeasure, or mechanism put in place to manage a risk",
+       "Any piece of software specifically designed to block network intrusions",
+       "Any policy document that has been reviewed and approved by compliance",
+       "Any hardware device installed at the physical perimeter of a network"],c:0,
+ fb:"The definition is deliberately broad — a firewall, a signed policy, and a security camera are all controls under this framework."},
+{s:3,type:"Concept",q:"According to the NSA's formal definition, what three layers does defense in depth integrate?",
+ opts:["People, technology, and operations capabilities across variable barriers",
+       "Firewalls, intrusion detection systems, and endpoint antivirus tools",
+       "Prevention, detection, and correction functions exclusively",
+       "Policies, standards, and procedures within a single department"],c:0,
+ fb:"An organization that only invests in technology and ignores people and process has just one layer of a three-layer strategy."},
+{s:3,type:"SOC",q:"Which NIST CSF function is an analyst operating in when investigating an alert inside a SIEM like QRadar?",
+ opts:["Detect, and often Respond, depending on what action follows the investigation",
+       "Identify, since the analyst is inventorying assets during the investigation",
+       "Protect, since the SIEM itself functions as a preventive technical control",
+       "Recover, since the SIEM is what restores systems after they go down"],c:0,
+ fb:"Investigating an alert sits squarely in Detect; taking containment action afterward moves the work into Respond."},
+{s:3,type:"Application",q:"Why is a firewall with an overly permissive outbound rule described as a false sense of security?",
+ opts:["It appears to provide protection while actually leaving a path open for an attacker",
+       "It slows down legitimate traffic without improving detection capability at all",
+       "It cannot be logged by a SIEM and therefore produces no audit trail",
+       "It only applies to inbound traffic and was never meant to filter outbound"],c:0,
+ fb:"A misconfigured technical control can be worse than no control at all, because the organization believes it is protected when it isn't."},
+{s:3,type:"Scenario",q:"CorpNet chooses controls only after identifying assets, evaluating threats and vulnerabilities, and estimating impact. What does this sequence illustrate?",
+ opts:["Controls should be a response to risk assessment, not a shopping list of products",
+       "Controls must always be selected strictly in alphabetical order by category",
+       "Every organization needs the exact same set of baseline controls",
+       "Risk assessment is only required for organizations with a regulatory obligation"],c:0,
+ fb:"Selecting controls proportional to an actual risk assessment is the engineer's framing described in the session — not buying tools reactively."},
+
+// SECTION 4 — Controls by Function
+{s:4,type:"Concept",q:"What is the key functional difference between an IDS and an IPS?",
+ opts:["An IDS only observes and alerts, while an IPS takes action to block the activity",
+       "An IDS blocks traffic automatically, while an IPS only logs it for later review",
+       "An IDS operates on endpoints only, while an IPS monitors network traffic only",
+       "An IDS requires a signature database, while an IPS uses no detection logic"],c:0,
+ fb:"The IDS reports; the IPS acts. That single distinction is the core of the detective-versus-preventive split for this control pair."},
+{s:4,type:"SOC",q:"Why is most of a SOC analyst's working time spent operating detective controls specifically?",
+ opts:["Detective controls identify what preventive controls failed to stop, which is where analysis begins",
+       "Detective controls are the only category that can be automated inside a SIEM",
+       "Preventive and corrective controls do not generate any log data to review",
+       "Detective controls replace the need for incident response procedures entirely"],c:0,
+ fb:"Prevention can't stop everything — zero-days, misconfigurations, and social engineering slip through, which is exactly where detection takes over."},
+{s:4,type:"Application",q:"A compensating control is put in place around an unpatchable legacy server. What must be true for it to actually reduce risk?",
+ opts:["It must be rigorously tested and demonstrably effective, not just documented on paper",
+       "It must fully eliminate the vulnerability rather than just reducing exposure",
+       "It must be formally classified as preventive rather than corrective",
+       "It must replace the need for any network segmentation around the server"],c:0,
+ fb:"An untested compensating control is a documented assumption, not a real control — testing and effectiveness are what make it legitimate."},
+{s:4,type:"Concept",q:"Why are deterrent controls considered unreliable against a nation-state actor?",
+ opts:["Sophisticated, motivated attackers have already accepted the legal and reputational risk",
+       "Deterrent controls only function against automated malware, not human attackers",
+       "Nation-state actors are physically unable to encounter deterrent controls",
+       "Deterrent controls are classified as administrative and therefore carry no weight"],c:0,
+ fb:"Deterrents work best on opportunistic attackers who will simply choose a softer target — a nation-state actor has already priced in the risk."},
+{s:4,type:"Scenario",q:"After containing an incident, CorpNet restores a compromised file server from backup before the exploited vulnerability is patched. What is the risk in this decision?",
+ opts:["The attacker can simply re-compromise the restored system through the same unpatched flaw",
+       "Restoring from backup before patching always violates the 3-2-1 backup rule",
+       "Corrective controls cannot be applied until a formal risk acceptance is documented",
+       "Backups older than thirty days are not admissible as forensic evidence"],c:0,
+ fb:"Restoring to an unpatched environment just hands the attacker a second chance — patching has to come before recovery, not after."},
+
+// SECTION 5 — Controls by Category
+{s:5,type:"Concept",q:"What differentiates a technical control from an administrative control?",
+ opts:["Technical controls use hardware or software, while administrative controls govern behavior and process",
+       "Technical controls require executive approval, while administrative controls do not",
+       "Administrative controls apply only to physical facilities, not to data or systems",
+       "Technical controls are optional, while administrative controls are always mandatory"],c:0,
+ fb:"Technical controls are automated and enforced by systems; administrative controls set the policy and process that give those systems their basis."},
+{s:5,type:"SOC",q:"Why is an IDS generating thousands of unreviewed alerts described as noise rather than detection?",
+ opts:["A control that generates output no one reviews provides no real protective value",
+       "IDS alerts are not admissible as evidence in a forensic investigation",
+       "Unreviewed alerts automatically disable the sensor that generated them",
+       "Noise indicates the IDS has been misconfigured to run in prevention mode"],c:0,
+ fb:"Detection that no one looks at accomplishes nothing — the value of a detective control depends on someone actually acting on what it reports."},
+{s:5,type:"Application",q:"Why do badge readers alone fail to protect an organization if tailgating is common?",
+ opts:["An unauthorized person following an employee through a door bypasses the control entirely",
+       "Badge readers are classified as technical controls and cannot stop physical intrusion",
+       "Tailgating only affects visitor access, not employee-controlled entry points",
+       "Badge readers require biometric verification in order to function as intended"],c:0,
+ fb:"Tailgating defeats a badge reader completely, because the attacker never has to present a credential of their own to get past it."},
+{s:5,type:"Concept",q:"What does the policy-plus-MFA-plus-badge-access example illustrate about the three control categories?",
+ opts:["Technical, administrative, and physical controls must work together, since gaps in one create exposure",
+       "Only technical controls are necessary once an administrative policy is documented",
+       "Physical controls make technical and administrative controls unnecessary for sensitive systems",
+       "Administrative controls exist solely to satisfy auditors rather than reduce real risk"],c:0,
+ fb:"A program that focuses on only one category leaves gaps a competent attacker will find — the three categories work together or fail together."},
+{s:5,type:"Scenario",q:"A background check requirement at CorpNet prevents a candidate with a history of fraud from being hired into a finance role. Which control category does this represent?",
+ opts:["Administrative, since it governs a decision and process made before any system access is granted",
+       "Technical, since it relies on an automated screening system to flag the risk",
+       "Physical, since it controls entry into CorpNet's finance department offices",
+       "Corrective, since it responds to fraud that has already occurred inside CorpNet"],c:0,
+ fb:"Background checks are a classic administrative control — a process-based safeguard against insider threat that never touches hardware or software."}
+];
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+let questions = [];
+let current = 0;
+let answered = [];
+let sectionScore = SECTIONS.map(()=>({correct:0,total:0}));
+
+function buildQuestions(){
+  questions = RAW_QUESTIONS.map(raw=>{
+    const idxs = raw.opts.map((o,i)=>({o,orig:i}));
+    shuffle(idxs);
+    const newCorrect = idxs.findIndex(x=>x.orig===raw.c);
+    return {...raw, opts: idxs.map(x=>x.o), c:newCorrect};
+  });
+  shuffle(questions);
+  answered = questions.map(()=>null);
+  sectionScore = SECTIONS.map(()=>({correct:0,total:0}));
+  questions.forEach(q=>sectionScore[q.s].total++);
+}
+
+function renderPills(){
+  const wrap = document.getElementById('sectionPills');
+  wrap.innerHTML = '';
+  SECTIONS.forEach((name,i)=>{
+    const s = sectionScore[i];
+    const p = document.createElement('div');
+    let cls = 'pill';
+    if(s.total>0 && s.correct===s.total && answeredInSection(i)===s.total) cls+=' done-green';
+    else if(answeredInSection(i)===s.total && s.total>0){
+      const ratio = s.correct/s.total;
+      cls += ratio>=0.5 ? ' done-amber' : ' done-red';
+    }
+    if(questions[current] && questions[current].s===i) cls+=' active';
+    p.className = cls;
+    p.textContent = `${name.split(' ')[0]} ${s.correct}/${s.total}`;
+    wrap.appendChild(p);
+  });
+}
+function answeredInSection(i){
+  return questions.filter((q,idx)=>q.s===i && answered[idx]!==null).length;
+}
+
+function renderProgress(){
+  const done = answered.filter(a=>a!==null).length;
+  document.getElementById('progressBar').style.width = (done/questions.length*100)+'%';
+  const correctTotal = answered.filter(a=>a===true).length;
+  document.getElementById('liveScore').textContent = `Score: ${correctTotal} / ${done}`;
+}
+
+function renderQuestion(){
+  const area = document.getElementById('quizArea');
+  const q = questions[current];
+  const already = answered[current];
+  area.innerHTML = `
+    <div class="sectionLabel">${SECTIONS[q.s]}</div>
+    <div class="qCard">
+      <div class="qHead">
+        <div class="qNum">Question ${current+1} / ${questions.length}</div>
+        <div class="tag ${q.type}">${q.type}</div>
+      </div>
+      <div class="qText">${q.q}</div>
+      <div id="optsWrap"></div>
+      <div class="feedback" id="fb"></div>
+      <div class="navBtns">
+        <button class="nav" id="prevBtn" ${current===0?'disabled':''}>&larr; Previous</button>
+        <button class="nav primary" id="nextBtn" ${already===null?'disabled':''}>${current===questions.length-1?'Finish':'Next'} &rarr;</button>
+      </div>
+    </div>
+  `;
+  const optsWrap = document.getElementById('optsWrap');
+  q.opts.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+    if(already!==null){
+      btn.disabled = true;
+      if(i===q.c) btn.classList.add('correct');
+      else if(already===false && i===lastPicked) btn.classList.add('wrong');
+    }
+    btn.onclick = ()=>selectOption(i);
+    optsWrap.appendChild(btn);
+  });
+  if(already!==null){
+    const fb = document.getElementById('fb');
+    fb.classList.add('show');
+    fb.innerHTML = `<span class="lens">SOC LENS //</span>${q.fb}`;
+  }
+  document.getElementById('prevBtn').onclick = ()=>{ current--; renderQuestion(); renderPills(); };
+  document.getElementById('nextBtn').onclick = ()=>{
+    if(current===questions.length-1){ showScorecard(); }
+    else { current++; renderQuestion(); renderPills(); }
+  };
+  renderPills();
+  renderProgress();
+}
+
+let lastPicked = null;
+function selectOption(i){
+  const q = questions[current];
+  if(answered[current]!==null) return;
+  lastPicked = i;
+  const correct = (i===q.c);
+  answered[current] = correct;
+  sectionScore[q.s].correct += correct ? 1 : 0;
+  renderQuestion();
+  renderProgress();
+}
+
+function showScorecard(){
+  document.getElementById('quizArea').classList.add('hidden');
+  const area = document.getElementById('scorecardArea');
+  area.classList.remove('hidden');
+  const total = questions.length;
+  const correct = answered.filter(a=>a===true).length;
+  const pct = Math.round(correct/total*100);
+  let rows = SECTIONS.map((name,i)=>{
+    const s = sectionScore[i];
+    const ratio = s.total?s.correct/s.total:0;
+    let color = ratio>=0.8?'var(--accent)':ratio>=0.5?'var(--amber)':'var(--red)';
+    return `<div class="brow"><span>${name}</span><span style="color:${color}">${s.correct} / ${s.total}</span></div>`;
+  }).join('');
+  area.innerHTML = `
+    <h2>&gt; ASSESSMENT COMPLETE</h2>
+    <div class="bigScore">${pct}%</div>
+    <div style="color:var(--dim)">${correct} of ${total} correct — Session 1, Parts 1 &amp; 2</div>
+    <div class="breakdown">${rows}</div>
+    <button class="restart" onclick="restart()">Restart Assessment</button>
+  `;
+}
+
+function restart(){
+  document.getElementById('scorecardArea').classList.add('hidden');
+  document.getElementById('quizArea').classList.remove('hidden');
+  current = 0;
+  buildQuestions();
+  renderQuestion();
+}
+
+buildQuestions();
+renderQuestion();
+</script>
+</body>
+</html>
